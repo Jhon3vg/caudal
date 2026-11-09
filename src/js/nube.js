@@ -1,6 +1,6 @@
 /* ---------- nube: Supabase (cuenta, sincronización, IA y atajos) ---------- */
 /* conexión al proyecto de Supabase de esta instalación: URL y publishable key (la publishable sí puede ir en el código) */
-const CLOUD = { url:'https://nsjhlribblnlasdqywgt.supabase.co', key:'__SUPABASE_KEY__' };
+const CLOUD = { url:'https://nsjhlribblnlasdqywgt.supabase.co', key:'sb_publishable_MDEzoyM1UcL-AmiqIcoppg_Lc_GqESl' };
 const PEND = 'caudal.pending';
 let sb = null, session = null, lastSnap = null, syncT = null, syncing = false, syncState = 'local', syncedAt = 0, CTOKEN = null;
 try { if (window.supabase && window.supabase.createClient) sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth:{ persistSession:true, autoRefreshToken:true, storageKey:'caudal.auth' } }); } catch (_) { sb = null; }
