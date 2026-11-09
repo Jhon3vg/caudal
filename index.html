@@ -886,7 +886,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261109233019';
+const BUILD = '20261109233910';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -5519,7 +5519,7 @@ document.addEventListener('click', e => {
 }, true);
 
 /* ---------- Avisos: notificaciones push programadas desde la app y enviadas por la función "avisos" ---------- */
-const PUSH_PUB = 'BF6xos1DnlQP-4jMcs6M8OoBF_LeoTAqxKpZL0lMU6Ask0YH6AIbpoWjn5vmowwPHZFB2Gk34NetOy5-vUSt55U';
+const PUSH_PUB = 'BMPD71emMyCqep5i8yAxON8w_jm6lQxqmdwpDdZX4EIuladNF3TABE2ki8C-7MBrjqRmCowNYMVcA8FFo452KjM';
 const AV_KINDS = [
   ['recibos', 'Recibos por pagar', 'El día que toca pagar y el día que vencen, 9 a. m.'],
   ['tarjeta', 'Pago de la tarjeta', 'Dos días antes y el día del pago, con lo que debes'],
@@ -5644,7 +5644,7 @@ document.addEventListener('click', e => {
 
 /* ---------- nube: Supabase (cuenta, sincronización, IA y atajos) ---------- */
 /* conexión al proyecto de Supabase de esta instalación: URL y publishable key (la publishable sí puede ir en el código) */
-const CLOUD = { url:'__SUPABASE_URL__', key:'__SUPABASE_KEY__' };
+const CLOUD = { url:'https://nsjhlribblnlasdqywgt.supabase.co', key:'__SUPABASE_KEY__' };
 const PEND = 'caudal.pending';
 let sb = null, session = null, lastSnap = null, syncT = null, syncing = false, syncState = 'local', syncedAt = 0, CTOKEN = null;
 try { if (window.supabase && window.supabase.createClient) sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth:{ persistSession:true, autoRefreshToken:true, storageKey:'caudal.auth' } }); } catch (_) { sb = null; }

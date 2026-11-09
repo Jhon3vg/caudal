@@ -1,5 +1,5 @@
 /* ---------- Avisos: notificaciones push programadas desde la app y enviadas por la función "avisos" ---------- */
-const PUSH_PUB = 'BF6xos1DnlQP-4jMcs6M8OoBF_LeoTAqxKpZL0lMU6Ask0YH6AIbpoWjn5vmowwPHZFB2Gk34NetOy5-vUSt55U';
+const PUSH_PUB = 'BMPD71emMyCqep5i8yAxON8w_jm6lQxqmdwpDdZX4EIuladNF3TABE2ki8C-7MBrjqRmCowNYMVcA8FFo452KjM';
 const AV_KINDS = [
   ['recibos', 'Recibos por pagar', 'El día que toca pagar y el día que vencen, 9 a. m.'],
   ['tarjeta', 'Pago de la tarjeta', 'Dos días antes y el día del pago, con lo que debes'],
