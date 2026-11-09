@@ -1,6 +1,6 @@
 // Caudal · función "atajo": recibe lo que mandan los atajos del iPhone (notificaciones del banco, Apple Pay, Siri)
 // y lo deja en la bandeja "Por revisar". Se identifica con la llave personal, no con sesión.
-// Las notificaciones y el dictado se leen con Claude (Haiku): descarta lo que no es un movimiento de dinero
+// Las notificaciones y el dictado se leen con IA (Gemini, o Claude si hay llave): descarta lo que no es un movimiento de dinero
 // y separa bien los movimientos dictados. Si el mismo texto llega dos veces seguidas, se guarda una sola vez.
 // IMPORTANTE: al crearla, desactiva "Verify JWT" / "Enforce JWT verification".
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -61,7 +61,7 @@ async function leer(admin: ReturnType<typeof createClient>, uid: string, texto: 
   const hoy = bogotaNow();
   const prompt = "Eres el lector de movimientos de una app personal de gastos en Colombia (pesos COP). Hoy es " + DIAS[hoy.getUTCDay()] + " " + bogota() + ".\n" +
     (kind === "sms"
-      ? "Te llega el texto de una NOTIFICACIÓN del banco (Lulo Bank u otro). Decide si informa un movimiento de dinero real del usuario: una compra o pago con tarjeta, un pago de servicio, una transferencia enviada o recibida, un retiro, un ingreso o un abono. NO son movimientos: promociones, publicidad, códigos de seguridad, inicios de sesión, avisos de corte o de pago próximo, recordatorios, cambios de clave, rendimientos informativos, movimientos entre bolsillos propios del mismo banco, ni rechazos o compras declinadas.\n" +
+      ? "Te llega el texto de una NOTIFICACIÓN del banco (cualquier banco). Decide si informa un movimiento de dinero real del usuario: una compra o pago con tarjeta, un pago de servicio, una transferencia enviada o recibida, un retiro, un ingreso o un abono. NO son movimientos: promociones, publicidad, códigos de seguridad, inicios de sesión, avisos de corte o de pago próximo, recordatorios, cambios de clave, rendimientos informativos, movimientos entre bolsillos propios del mismo banco, ni rechazos o compras declinadas.\n" +
         "Si es un movimiento: un solo item con el monto del movimiento (nunca el saldo disponible ni el cupo), note = comercio o concepto corto, date = fecha del texto o hoy. Una compra con tarjeta de crédito va con accountId de la tarjeta de crédito si está en la lista.\n"
       : "Te llega lo que el usuario DICTÓ por voz. Conviértelo en movimientos. Ojo: el dictado no trae comas; un solo gasto con varias palabras es UN movimiento. Solo separa cuando claramente nombra varios gastos con su propio valor. Un número que no es un valor de dinero (cantidades, horas, días) no crea un movimiento.\n" +
         "Valores: \"25 mil\" = 25000; un número pequeño sin unidad en un contexto de miles se lee en miles. pending=true si el usuario no está seguro del valor (\"como\", \"más o menos\", \"aprox\").\n") +

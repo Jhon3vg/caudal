@@ -1,4 +1,4 @@
-// Caudal · función "semanal": cada domingo arma el resumen de la semana con Claude y lo manda por notificación.
+// Caudal · función "semanal": cada domingo arma el resumen de la semana con IA (Gemini, o Claude si hay llave) y lo manda por notificación.
 // Usa el último contexto que dejó la app (ia_notas, kind "ctx") más los gastos reales de los últimos 7 días.
 // La llama pg_cron con { key } = app_secrets.cron_key; sin esa llave no hace nada (cada llamada cuesta).
 import { createClient } from "npm:@supabase/supabase-js@2";

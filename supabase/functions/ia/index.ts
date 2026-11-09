@@ -1,7 +1,6 @@
-// Caudal · función "ia": lee texto, voz transcrita y fotos de recibos con Claude (o Gemini).
-// También conversa (chat) y reutiliza el contexto con la caché de Anthropic: "cache" va de primero y se cobra
-// a una décima parte cuando se repite en menos de 5 minutos.
-// Solo responde a usuarios con sesión iniciada. La llave vive en los secretos del proyecto: ANTHROPIC_API_KEY o GEMINI_API_KEY.
+// Caudal · función "ia": lee texto, voz transcrita y fotos de recibos con Gemini (plan gratuito) o con Claude.
+// También conversa (chat). Solo responde a usuarios con sesión iniciada.
+// La llave vive en los secretos del proyecto: GEMINI_API_KEY (o ANTHROPIC_API_KEY, que tiene prioridad si existe).
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 // Llave de administrador del proyecto (Supabase la entrega sola a la función).
@@ -32,7 +31,7 @@ Deno.serve(async (req) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, adminKey());
   const { data: { user } } = await admin.auth.getUser(jwt);
   if (!user) return out({ error: "Inicia sesión para usar la IA", code: "not_granted" }, 401);
-  // Solo las cuentas autorizadas (app_secrets.ia_usuarios, ids separados por coma) gastan créditos de IA.
+  // Solo las cuentas autorizadas (app_secrets.ia_usuarios, ids separados por coma) usan la IA.
   const { data: allow } = await admin.from("app_secrets").select("value").eq("name", "ia_usuarios").maybeSingle();
   if (allow?.value && !String(allow.value).split(",").map((x) => x.trim()).includes(user.id)) return out({ error: "Esta cuenta no tiene acceso a la IA de Caudal", code: "not_granted" }, 403);
 
@@ -52,11 +51,8 @@ Deno.serve(async (req) => {
     const content: unknown[] = images.map((i) => ({ type: "image", source: { type: "base64", media_type: i.mime || "image/jpeg", data: i.data } }));
     const jsonTail = body.json ? "\n\nResponde únicamente con el JSON, sin texto adicional ni bloques de código." : "";
     content.push({ type: "text", text: prompt + jsonTail });
-    // Los modelos nuevos piensan antes de responder y ese pensamiento cuenta en max_tokens: se deja margen amplio.
-    // Registrar movimientos: Haiku (rápido y barato). Preguntar y asistente: Sonnet.
     const task = body.task ?? "registro", ask = task === "ask" || task === "asesor" || task === "chat";
     const model = ask ? (Deno.env.get("CLAUDE_MODEL_ASK") ?? "claude-sonnet-5-5") : (Deno.env.get("CLAUDE_MODEL") ?? "claude-haiku-5-5");
-    // conversación: los mensajes anteriores van tal cual; el último lleva las imágenes y la instrucción de JSON
     const messages: unknown[] = msgs.length > 1
       ? [...msgs.slice(0, -1), { role: "user", content }]
       : [{ role: "user", content }];
@@ -68,7 +64,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ ...base, ...extra }),
     });
     let r = await call({ thinking: { type: "adaptive" }, output_config: { effort: ask ? "medium" : "low" } });
-    if (r.status === 400) r = await call({}); // modelo que no acepta esas opciones
+    if (r.status === 400) r = await call({});
     if (ask && (r.status === 404 || r.status === 529)) { base.model = "claude-haiku-5-5"; r = await call({ thinking: { type: "adaptive" }, output_config: { effort: "medium" } }); }
     const d = await r.json().catch(() => ({}));
     const U = d?.usage ?? {}, cw = U.cache_creation_input_tokens ?? 0, cr = U.cache_read_input_tokens ?? 0, mdl = base.model as string;
@@ -80,7 +76,6 @@ Deno.serve(async (req) => {
     }
     await log({});
     text = (d?.content ?? []).map((p: { type: string; text?: string }) => (p.type === "text" ? p.text ?? "" : "")).join("");
-    console.log(JSON.stringify({ model: mdl, task, stop: d?.stop_reason, in: U.input_tokens, cw, cr, out: U.output_tokens, chars: text.length }));
     if (!text.trim()) return out({ error: d?.stop_reason === "refusal" ? "La IA no quiso responder esa pregunta. Prueba con otras palabras." : "La IA no alcanzó a responder. Intenta de nuevo.", code: "upstream_error", stop: d?.stop_reason }, 502);
   } else if (geminiKey) {
     // Gemini (plan gratuito): registrar con Flash-Lite; preguntar, asistente y chat con Flash.
@@ -104,6 +99,6 @@ Deno.serve(async (req) => {
     if (!r.ok) return out({ error: d?.error?.message ?? "Error de Gemini", code: r.status === 429 ? "rate_limited" : "upstream_error" }, 502);
     text = (d?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string; thought?: boolean }) => (p.thought ? "" : p.text ?? "")).join("");
     if (!text.trim()) return out({ error: "La IA no alcanzó a responder. Intenta de nuevo.", code: "upstream_error" }, 502);
-  } else return out({ error: "Falta configurar ANTHROPIC_API_KEY o GEMINI_API_KEY en Secrets", code: "upstream_error" }, 500);
+  } else return out({ error: "Falta configurar GEMINI_API_KEY en Secrets", code: "upstream_error" }, 500);
   return out({ text });
 });
