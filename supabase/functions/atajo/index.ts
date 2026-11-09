@@ -18,8 +18,34 @@ const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "
 
 type Item = { type: string; amount: number; date: string; note: string; categoryId: string | null; accountId: string | null; toAccountId?: string | null; pending?: boolean };
 
+/* lectura con Claude (Haiku); devuelve el texto o null si falló */
+async function conClaude(admin: ReturnType<typeof createClient>, uid: string, key: string, prompt: string): Promise<string | null> {
+  const body = { model: Deno.env.get("CLAUDE_MODEL") ?? "claude-haiku-5-5", max_tokens: 4000, messages: [{ role: "user", content: prompt }] };
+  const call = (extra: Record<string, unknown>) => fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ ...body, ...extra }) });
+  let r = await call({ thinking: { type: "adaptive" }, output_config: { effort: "low" } });
+  if (r.status === 400) r = await call({});
+  const d = await r.json().catch(() => ({}));
+  const P: Record<string, [number, number]> = { "claude-haiku-5-5": [0.10, 0.50], "claude-sonnet-5-5": [2, 10] }, pr = P[body.model] ?? [0.10, 0.50];
+  if (!r.ok) { if (/credit balance|billing|purchase credits|insufficient/i.test(d?.error?.message ?? "")) await admin.from("ia_usage").insert({ user_id: uid, task: "atajo", model: body.model, error: "sin_creditos" }); return null; }
+  await admin.from("ia_usage").insert({ user_id: uid, task: "atajo", model: body.model, inp: d?.usage?.input_tokens ?? 0, outp: d?.usage?.output_tokens ?? 0, usd: ((d?.usage?.input_tokens ?? 0) * pr[0] + (d?.usage?.output_tokens ?? 0) * pr[1]) / 1e6 });
+  return (d?.content ?? []).map((p: { type: string; text?: string }) => (p.type === "text" ? p.text ?? "" : "")).join("");
+}
+
+/* lectura con Gemini (plan gratuito, Flash-Lite); devuelve el texto o null si falló */
+async function conGemini(admin: ReturnType<typeof createClient>, uid: string, key: string, prompt: string): Promise<string | null> {
+  const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+    method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.1 } }),
+  });
+  const d = await r.json().catch(() => ({})), U = d?.usageMetadata ?? {};
+  await admin.from("ia_usage").insert({ user_id: uid, task: "atajo", model, inp: U.promptTokenCount ?? 0, outp: U.candidatesTokenCount ?? 0, usd: 0, ...(r.ok ? {} : { error: String(d?.error?.message ?? r.status).slice(0, 200) }) });
+  if (!r.ok) return null;
+  return (d?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string; thought?: boolean }) => (p.thought ? "" : p.text ?? "")).join("");
+}
+
 async function leer(admin: ReturnType<typeof createClient>, uid: string, texto: string, kind: "sms" | "texto"): Promise<{ mov: boolean; items: Item[] } | null> {
-  const key = Deno.env.get("ANTHROPIC_API_KEY"); if (!key) return null;
+  const key = Deno.env.get("ANTHROPIC_API_KEY"), gkey = Deno.env.get("GEMINI_API_KEY"); if (!key && !gkey) return null;
   const [{ data: cats }, { data: accs }, { data: hist }] = await Promise.all([
     admin.from("categories").select("id,name,type,parent_id,hidden").eq("user_id", uid),
     admin.from("accounts").select("id,name,grp,hidden").eq("user_id", uid),
@@ -43,15 +69,8 @@ async function leer(admin: ReturnType<typeof createClient>, uid: string, texto: 
     "Categorías (id | tipo | nombre):\n" + catTxt + "\n\nCuentas (id | nombre | grupo):\n" + accTxt + "\n\nAsí suele clasificar el usuario (nota → categoría):\n" + hints.join("\n") +
     '\n\nResponde SOLO con JSON: {"movimiento":true,"items":[{"type":"gasto","amount":0,"date":"YYYY-MM-DD","categoryId":"","accountId":null,"toAccountId":null,"note":"","pending":false}]}' +
     "\nSi no es un movimiento: {\"movimiento\":false,\"items\":[]}\n\nTexto:\n<<<\n" + texto + "\n>>>";
-  const body = { model: Deno.env.get("CLAUDE_MODEL") ?? "claude-haiku-5-5", max_tokens: 4000, messages: [{ role: "user", content: prompt }] };
-  const call = (extra: Record<string, unknown>) => fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ ...body, ...extra }) });
-  let r = await call({ thinking: { type: "adaptive" }, output_config: { effort: "low" } });
-  if (r.status === 400) r = await call({});
-  const d = await r.json().catch(() => ({}));
-  const P: Record<string, [number, number]> = { "claude-haiku-5-5": [0.10, 0.50], "claude-sonnet-5-5": [2, 10] }, pr = P[body.model] ?? [0.10, 0.50];
-  if (!r.ok) { if (/credit balance|billing|purchase credits|insufficient/i.test(d?.error?.message ?? "")) await admin.from("ia_usage").insert({ user_id: uid, task: "atajo", model: body.model, error: "sin_creditos" }); return null; }
-  await admin.from("ia_usage").insert({ user_id: uid, task: "atajo", model: body.model, inp: d?.usage?.input_tokens ?? 0, outp: d?.usage?.output_tokens ?? 0, usd: ((d?.usage?.input_tokens ?? 0) * pr[0] + (d?.usage?.output_tokens ?? 0) * pr[1]) / 1e6 });
-  const txt = (d?.content ?? []).map((p: { type: string; text?: string }) => (p.type === "text" ? p.text ?? "" : "")).join("");
+  const txt = key ? await conClaude(admin, uid, key, prompt) : await conGemini(admin, uid, gkey!, prompt);
+  if (txt == null) return null;
   const m = txt.match(/\{[\s\S]*\}/); if (!m) return null;
   try {
     const j = JSON.parse(m[0]);

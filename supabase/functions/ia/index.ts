@@ -83,18 +83,27 @@ Deno.serve(async (req) => {
     console.log(JSON.stringify({ model: mdl, task, stop: d?.stop_reason, in: U.input_tokens, cw, cr, out: U.output_tokens, chars: text.length }));
     if (!text.trim()) return out({ error: d?.stop_reason === "refusal" ? "La IA no quiso responder esa pregunta. Prueba con otras palabras." : "La IA no alcanzó a responder. Intenta de nuevo.", code: "upstream_error", stop: d?.stop_reason }, 502);
   } else if (geminiKey) {
-    const flat = (cache ? cache + "\n\n" : "") + (msgs.length > 1 ? msgs.slice(0, -1).map((m) => (m.role === "user" ? "Usuario: " : "Asistente: ") + m.content).join("\n") + "\n\nUsuario: " : "") + prompt;
-    const parts: unknown[] = [{ text: flat }];
-    for (const img of images) parts.push({ inline_data: { mime_type: img.mime || "image/jpeg", data: img.data } });
-    const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash-lite";
+    // Gemini (plan gratuito): registrar con Flash-Lite; preguntar, asistente y chat con Flash.
+    const task = body.task ?? "registro", ask = task === "ask" || task === "asesor" || task === "chat";
+    const model = ask ? (Deno.env.get("GEMINI_MODEL_ASK") ?? "gemini-3.8-flash") : (Deno.env.get("GEMINI_MODEL") ?? "gemini-3.5-flash-lite");
+    // conversación con sus turnos; el último lleva las imágenes. El contexto grande va como instrucción de sistema.
+    const last: unknown[] = [{ text: prompt }, ...images.map((i) => ({ inline_data: { mime_type: i.mime || "image/jpeg", data: i.data } }))];
+    const contents = [...msgs.slice(0, -1).map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })), { role: "user", parts: last }];
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
-      body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: body.json ? { responseMimeType: "application/json", temperature: 0.1 } : { temperature: 0.3 } }),
+      body: JSON.stringify({
+        contents,
+        ...(cache ? { systemInstruction: { parts: [{ text: cache }] } } : {}),
+        generationConfig: body.json ? { responseMimeType: "application/json", temperature: 0.1 } : { temperature: 0.4 },
+      }),
     });
     const d = await r.json().catch(() => ({}));
+    const U = d?.usageMetadata ?? {};
+    await admin.from("ia_usage").insert({ user_id: user.id, task, model, inp: U.promptTokenCount ?? 0, outp: U.candidatesTokenCount ?? 0, usd: 0, ...(r.ok ? {} : { error: String(d?.error?.message ?? r.status).slice(0, 200) }) });
     if (!r.ok) return out({ error: d?.error?.message ?? "Error de Gemini", code: r.status === 429 ? "rate_limited" : "upstream_error" }, 502);
-    text = (d?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("");
+    text = (d?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string; thought?: boolean }) => (p.thought ? "" : p.text ?? "")).join("");
+    if (!text.trim()) return out({ error: "La IA no alcanzó a responder. Intenta de nuevo.", code: "upstream_error" }, 502);
   } else return out({ error: "Falta configurar ANTHROPIC_API_KEY o GEMINI_API_KEY en Secrets", code: "upstream_error" }, 500);
   return out({ text });
 });

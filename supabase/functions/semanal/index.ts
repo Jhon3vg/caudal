@@ -19,6 +19,30 @@ const RULES = "Eres el asistente financiero personal de __NOMBRE__ en Bogotá. E
   "Cuenta: cuánto gastó en la semana y en qué se fue, cómo va el mes frente al plan (lo que se va a pasar), cómo van sus metas, si cumplió algo que le recomendaste, y lo único más importante que debería hacer esta semana que empieza. Nada genérico.\n" +
   "Responde SOLO con JSON: {\"titulo\":\"máximo 40 caracteres\",\"notificacion\":\"máximo 140 caracteres, lo más importante\",\"resumen\":\"de 4 a 6 viñetas que empiezan con '- ', con **negrita** en lo clave\"}";
 
+/* llama a Claude si hay llave; si no, a Gemini (plan gratuito). Devuelve el texto y el consumo para ia_usage. */
+async function escribir(prompt: string, claudeKey?: string, geminiKey?: string) {
+  if (claudeKey) {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": claudeKey, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: MODEL, max_tokens: 8000, thinking: { type: "adaptive" }, output_config: { effort: "medium" }, messages: [{ role: "user", content: prompt }] }),
+    });
+    const d = await r.json().catch(() => ({})), U = d?.usage ?? {}, p = PRICE[MODEL] ?? [2, 10];
+    return { model: MODEL, inp: U.input_tokens ?? 0, outp: U.output_tokens ?? 0, usd: ((U.input_tokens ?? 0) * p[0] + (U.output_tokens ?? 0) * p[1]) / 1e6,
+      error: r.ok ? "" : String(d?.error?.message ?? r.status).slice(0, 200),
+      text: (d?.content ?? []).map((x: { type: string; text?: string }) => (x.type === "text" ? x.text ?? "" : "")).join("") };
+  }
+  const model = Deno.env.get("GEMINI_MODEL_ASK") ?? "gemini-3.8-flash";
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+    method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey! },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.4 } }),
+  });
+  const d = await r.json().catch(() => ({})), U = d?.usageMetadata ?? {};
+  return { model, inp: U.promptTokenCount ?? 0, outp: U.candidatesTokenCount ?? 0, usd: 0,
+    error: r.ok ? "" : String(d?.error?.message ?? r.status).slice(0, 200),
+    text: (d?.candidates?.[0]?.content?.parts ?? []).map((x: { text?: string; thought?: boolean }) => (x.thought ? "" : x.text ?? "")).join("") };
+}
+
 Deno.serve(async (req) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, adminKey());
   const { data: sec } = await admin.from("app_secrets").select("name,value");
@@ -26,8 +50,8 @@ Deno.serve(async (req) => {
   let body: { key?: string; user?: string } = {};
   try { body = await req.json(); } catch { /* sin cuerpo */ }
   if (!S.cron_key || body.key !== S.cron_key) return new Response("no autorizado", { status: 401 });
-  const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!claudeKey) return new Response("sin llave de Claude", { status: 500 });
+  const claudeKey = Deno.env.get("ANTHROPIC_API_KEY"), geminiKey = Deno.env.get("GEMINI_API_KEY");
+  if (!claudeKey && !geminiKey) return new Response("sin llave de IA", { status: 500 });
   if (S.vapid_public && S.vapid_private) webpush.setVapidDetails("mailto:avisos@caudal.app", S.vapid_public, S.vapid_private);
 
   // personas con contexto reciente (abrieron la app en las últimas 3 semanas)
@@ -51,16 +75,10 @@ Deno.serve(async (req) => {
     const prompt = RULES.replace("__NOMBRE__", data.nombre || "la persona") + "\n\n## Contexto (del " + c.date + ")\n" + (data.text ?? "") +
       "\n\n## Gastos e ingresos reales de los últimos 7 días (" + gastos.length + " gastos por " + cop(tot) + ")\n" + (lines.join("\n") || "Ninguno registrado.");
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": claudeKey, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 8000, thinking: { type: "adaptive" }, output_config: { effort: "medium" }, messages: [{ role: "user", content: prompt + "\n\nResponde únicamente con el JSON." }] }),
-    });
-    const d = await r.json().catch(() => ({}));
-    const U = d?.usage ?? {}, p = PRICE[MODEL] ?? [2, 10];
-    await admin.from("ia_usage").insert({ user_id: uid, task: "semanal", model: MODEL, inp: U.input_tokens ?? 0, outp: U.output_tokens ?? 0, usd: ((U.input_tokens ?? 0) * p[0] + (U.output_tokens ?? 0) * p[1]) / 1e6, ...(r.ok ? {} : { error: String(d?.error?.message ?? r.status).slice(0, 200) }) });
-    if (!r.ok) { done.push({ uid, error: r.status }); continue; }
-    const text = (d?.content ?? []).map((x: { type: string; text?: string }) => (x.type === "text" ? x.text ?? "" : "")).join("");
+    const res = await escribir(prompt + "\n\nResponde únicamente con el JSON.", claudeKey, geminiKey);
+    await admin.from("ia_usage").insert({ user_id: uid, task: "semanal", model: res.model, inp: res.inp, outp: res.outp, usd: res.usd, ...(res.error ? { error: res.error } : {}) });
+    if (res.error) { done.push({ uid, error: res.error }); continue; }
+    const text = res.text;
     let j: { titulo?: string; notificacion?: string; resumen?: string } = {};
     try { j = JSON.parse((text.match(/\{[\s\S]*\}/) ?? ["{}"])[0]); } catch { /* respuesta inválida */ }
     if (!j.resumen) { done.push({ uid, error: "sin resumen" }); continue; }
