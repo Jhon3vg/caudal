@@ -245,10 +245,4 @@ function submitForm(){
   render(); { const bm = budgetMsg(t); toast(bm || (wasEdit ? 'Cambios guardados' : 'Registrado'), bm ? 3400 : 2000); }
 }
 
-function accForm(){
-  openSheet('<div class="sheet-h"><b id="sheet-title">Nueva cuenta</b><button class="x" data-close aria-label="Cerrar">✕</button></div><form class="form" id="accf" novalidate>' +
-    '<div class="field"><label class="label" for="a-name">Nombre</label><input class="inp" id="a-name" placeholder="Ej. Nequi" autocomplete="off"></div>' +
-    '<div class="field"><label class="label" for="a-group">Grupo</label><input class="inp" id="a-group" list="grps" placeholder="Ej. Cuenta bancaria" autocomplete="off"><datalist id="grps">' + [...new Set(S.accounts.map(a => a.group))].map(g => '<option value="' + esc(g) + '">').join('') + '</datalist></div>' +
-    '<div class="field"><label class="label" for="a-bal">Saldo actual</label><input class="inp num" id="a-bal" inputmode="numeric" placeholder="0"></div><div class="err" id="a-err"></div>' +
-    '<button class="btn accent block" type="submit">Crear cuenta</button></form>');
-}
+function accForm(){ accEditSheet(null); } /* cuentas-editar.js */

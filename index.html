@@ -611,7 +611,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .set select,.set input[inputmode],.set input[type="text"]{height:36px;padding-inline:14px;border:0;border-radius:999px;background:var(--surface-2)}
 .set input[inputmode]{width:132px;text-align:right}
 .set input[type="text"]{width:150px}
-/* deuda abierta: nombre, lo que falta y su botón */
+/* fila con nombre tocable y botones a la derecha: deuda abierta (lo que falta y su botón) y cuenta en Ajustes (flechas de orden) */
 .set.deuda .t{flex:1}
 .set.deuda button.t{background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
 .set.deuda .pill{flex:none}
@@ -887,7 +887,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261110002814';
+const BUILD = '20261110004850';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -1654,7 +1654,7 @@ function vCuentas(){
     out += '<section class="card"><div class="card-h"><h2>' + esc(g.name) + '</h2><span class="aside num">' + money(g.sum) + '</span></div><div>' +
       g.list.map(a => '<button class="acc" data-accsheet="' + esc(a.id) + '"><span class="nm">' + esc(a.name) + '<small>' + (a.apart ? 'Apartado · ' : '') + cuadreTxt(a.id) + '</small></span><span class="am num ' + ((b[a.id] || 0) < 0 ? 'neg' : '') + '">' + money(b[a.id] || 0) + '</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>').join('') + '</div></section>';
   }
-  out += '<div class="two"><button class="btn ghost" data-newacc>Agregar cuenta</button>' + (aiOn() ? '<button class="btn" data-foto>Cuadrar con captura</button>' : '<span></span>') + '</div>';
+  out += '<div class="two"><button class="btn ghost" data-newacc>Agregar cuenta</button><button class="btn ghost" data-go="ajustes" data-sec="cuentas">Editar cuentas</button></div>' + (aiOn() ? '<button class="btn block" data-foto>Cuadrar con captura</button>' : '');
   out += '<p class="note">Toca una cuenta para cuadrarla con el saldo real del banco o ver sus movimientos.</p>';
   return out;
 }
@@ -1665,6 +1665,9 @@ const SET_SECS = [
   { id:'general', t:'General', k:'nombre saludo periodo mes sueldo salario dia inicio corte',
     i:SI('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),
     s:() => (S.settings.periodMode === 'sueldo' ? 'Periodo según tu sueldo' : 'Periodo desde el día ' + S.settings.startDay) },
+  { id:'cuentas', t:'Cuentas', k:'cuentas nombre grupo tarjeta credito banco nequi efectivo ahorro ocultar eliminar orden editar billetera',
+    i:SI('<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h3"/>'),
+    s:() => { const n = S.accounts.filter(a => !a.hidden && !esDeuda(a)).length; return n + (n === 1 ? ' cuenta' : ' cuentas') + ' · nombres, grupos y tarjetas'; } },
   { id:'recibos', t:'Recibos y pagos fijos', k:'recibos servicios luz agua gas internet vencimiento vence recordatorio rendimiento pagos programados arriendo suscripciones nomina',
     i:SI('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>'),
     s:() => { const bs = (S.bills || []).filter(b => b.active !== false); if (!bs.length) return 'Aún no tienes recibos'; const n = bs.map(b => ({ b, c:billCycle(b) })).filter(x => !x.c.cy.paid).sort((x, y) => x.c.pay - y.c.pay)[0];
@@ -1699,6 +1702,7 @@ function setSecBody(id){
       '<div class="set"><div class="t"><b>' + (sm ? 'Día de respaldo' : 'Día de inicio del mes') + '</b><span>' + (sm ? 'Solo se usa si no hay sueldo registrado.' : 'Tu periodo va del ' + S.settings.startDay + ' al ' + (S.settings.startDay === 1 ? 'último día' : (S.settings.startDay - 1)) + ' del mes siguiente.') + '</span></div><select id="sday" aria-label="Día de inicio">' + Array.from({ length:28 }, (_, i) => '<option' + (i + 1 === S.settings.startDay ? ' selected' : '') + '>' + (i + 1) + '</option>').join('') + '</select></div>' +
       (sm ? '<div class="set"><div class="t"><b>El sueldo llega a más tardar el</b><span>Mientras no llega, el periodo se planea hasta la víspera de ese día.</span></div><select id="paylast" aria-label="Día más tardío del sueldo">' + Array.from({ length:7 }, (_, i) => i + 25).map(d => '<option' + (d === (S.settings.payLast || PAY_LAST) ? ' selected' : '') + '>' + d + '</option>').join('') + '</select></div>' : '') +
       '</div></section>'; }
+  if (id === 'cuentas') return cuentasAdminCard();
   if (id === 'recibos') return billsAdminCard() + recCard();
   if (id === 'avisos') return typeof sb !== 'undefined' && sb && session ? pushCard() : '<section class="card"><div class="card-h"><h2>Avisos</h2></div><p class="insight">Entra a tu cuenta para recibir avisos en el celular: recibos por pagar, la tarjeta y el repaso del día.</p></section>';
   if (id === 'presupuesto') { const parents = S.categories.filter(c => !c.parentId && !c.hidden), inc = parents.filter(c => c.type === 'ingreso'), exp = parents.filter(c => c.type === 'gasto'); let out = '';
@@ -4114,7 +4118,7 @@ function accSheet(id, prefill){
   if (esDeuda(a)) return deudaCuentaSheet(a.debt); /* Por pagar y Por cobrar muestran cada concepto, no un cuadre con el banco */
   const bal = balances()[id] || 0;
   CQ = { id, sign: bal < 0 ? -1 : 1 };
-  let h = '<div class="sheet-h"><b id="sheet-title">' + esc(a.name) + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form cq">';
+  let h = '<div class="sheet-h"><b id="sheet-title">' + esc(a.name) + '</b><span style="display:flex;gap:8px;align-items:center"><button class="pill" data-accedit="' + esc(id) + '">Editar</button><button class="x" data-close aria-label="Cerrar">✕</button></span></div><div class="form cq">';
   h += '<section class="card glow" style="padding:16px"><span class="label">Saldo en Caudal</span><div class="tile-v num ' + (bal < 0 ? 'neg' : '') + '">' + money(bal) + '</div><span class="tile-s">' + cuadreTxt(id) + '</span></section>';
   const ask = prefill == null;
   if (ask) h += '<p class="insight" style="margin:0">¿Coincide con lo que ves en el banco?</p><div class="two" id="cq-ask"><button class="btn accent" type="button" data-cqok>Sí, coincide</button><button class="btn ghost" type="button" data-cqno>No, es otro</button></div>';
@@ -6359,13 +6363,7 @@ function submitForm(){
   render(); { const bm = budgetMsg(t); toast(bm || (wasEdit ? 'Cambios guardados' : 'Registrado'), bm ? 3400 : 2000); }
 }
 
-function accForm(){
-  openSheet('<div class="sheet-h"><b id="sheet-title">Nueva cuenta</b><button class="x" data-close aria-label="Cerrar">✕</button></div><form class="form" id="accf" novalidate>' +
-    '<div class="field"><label class="label" for="a-name">Nombre</label><input class="inp" id="a-name" placeholder="Ej. Nequi" autocomplete="off"></div>' +
-    '<div class="field"><label class="label" for="a-group">Grupo</label><input class="inp" id="a-group" list="grps" placeholder="Ej. Cuenta bancaria" autocomplete="off"><datalist id="grps">' + [...new Set(S.accounts.map(a => a.group))].map(g => '<option value="' + esc(g) + '">').join('') + '</datalist></div>' +
-    '<div class="field"><label class="label" for="a-bal">Saldo actual</label><input class="inp num" id="a-bal" inputmode="numeric" placeholder="0"></div><div class="err" id="a-err"></div>' +
-    '<button class="btn accent block" type="submit">Crear cuenta</button></form>');
-}
+function accForm(){ accEditSheet(null); } /* cuentas-editar.js */
 
 /* Importación: respaldo de Money Manager (.mmbak) y respaldo propio (.json). */
 let sqlReady = null;
@@ -6398,6 +6396,129 @@ async function importJSON(file){
   try { const s = normBackup(JSON.parse(await file.text())); if (!s.transactions || !s.accounts || !s.categories) throw new Error('formato');
     S = s; save(); ui.view = 'inicio'; ui.offset = 0; render(); toast('Respaldo restaurado'); }
   catch(e){ $('#impmsg').textContent = 'Ese archivo no es un respaldo de Caudal.'; }
+}
+
+/* ---------- Editar cuentas: dónde guardas la plata ----------
+   Crear y editar una cuenta en la misma hoja: nombre, grupo, si cuenta en el disponible y si es tarjeta de
+   crédito (de qué cuenta se paga, día de corte y día de pago). Ocultar, volver a mostrar y eliminar (solo si
+   no tiene movimientos ni la usa nada; si no, se oculta). En Ajustes › Cuentas: la lista con su orden,
+   renombrar un grupo completo y las ocultas. Las cuentas de deudas se manejan en Cuentas › Deudas. */
+let AE = null;
+const usoCuenta = id => S.transactions.filter(t => t.accountId === id || t.toAccountId === id || t.fund === id).length;
+/* lo que impide borrar: movimientos, recibos, pagos fijos, el plan o una tarjeta que se paga desde ella */
+function cuentaEnUso(id){
+  const n = usoCuenta(id); if (n) return plural(n, 'movimiento', 'movimientos');
+  if ((S.bills || []).some(b => b.accountId === id)) return 'un recibo';
+  if ((S.recurring || []).some(r => r.accountId === id)) return 'un pago fijo';
+  if ((S.plans || []).some(p => p.from === id || p.surplus === id || (p.items || []).some(i => i.acc === id))) return 'tu plan';
+  if (S.accounts.some(a => a.card && a.card.pocket === id)) return 'una tarjeta que se paga desde ella';
+  return '';
+}
+const gruposCuentas = () => [...new Set(S.accounts.filter(a => !esDeuda(a)).map(a => a.group || 'Otros'))];
+
+function accEditSheet(id){
+  const a = id ? accById(id) : null;
+  AE = a ? { id, name:a.name, group:a.group || 'Otros', apart:!!a.apart, tarjeta:isCard(a), pocket:a.card && a.card.pocket || null, cut:a.card && a.card.cut || '', due:a.card && a.card.due || '' }
+         : { id:null, name:'', group:gruposCuentas()[0] || 'Cuenta bancaria', apart:false, tarjeta:false, pocket:null, cut:'', due:'', bal:'' };
+  accEditDraw();
+}
+function accEditDraw(){
+  const nuevo = !AE.id, a = nuevo ? null : accById(AE.id), grupos = gruposCuentas();
+  const opts = S.accounts.filter(x => !x.hidden && !esDeuda(x) && !isCard(x) && x.id !== AE.id);
+  const dia = (k, t) => '<div class="field"><label class="label" for="ae-' + k + '">' + t + '</label><input class="inp num" id="ae-' + k + '" inputmode="numeric" maxlength="2" value="' + esc(String(AE[k] || '')) + '" placeholder="1 a 31"></div>';
+  let h = '<div class="sheet-h"><b id="sheet-title">' + (nuevo ? 'Nueva cuenta' : 'Editar cuenta') + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form aedit">' +
+    '<div class="field"><label class="label" for="ae-name">Nombre</label><input class="inp" id="ae-name" value="' + esc(AE.name) + '" placeholder="Ej. Nequi, Bancolombia, Efectivo" autocomplete="off"></div>' +
+    '<div class="field"><span class="label">Grupo</span><div class="chips">' + grupos.map(g => '<button type="button" class="chip" data-aegrp="' + esc(g) + '" aria-pressed="' + (AE.group === g) + '">' + esc(g) + '</button>').join('') + '</div>' +
+      '<input class="inp" id="ae-group" value="' + esc(grupos.includes(AE.group) ? '' : AE.group) + '" placeholder="O escribe un grupo nuevo (Ej. Billeteras)" autocomplete="off" style="margin-top:8px"></div>' +
+    '<div class="field"><span class="label">Tipo</span><div class="chips"><button type="button" class="chip" data-aetipo="0" aria-pressed="' + !AE.tarjeta + '">Cuenta o efectivo</button><button type="button" class="chip" data-aetipo="1" aria-pressed="' + AE.tarjeta + '">Tarjeta de crédito</button></div></div>';
+  if (AE.tarjeta) h += '<div class="field"><span class="label">¿Desde qué cuenta la pagas?</span>' + (opts.length ? '<div class="cgrid">' + opts.map(x => '<button type="button" class="ctile sm" data-aepk="' + esc(x.id) + '" aria-pressed="' + (AE.pocket === x.id) + '"><span class="nm">' + esc(accShort(x.id)) + '</span></button>').join('') + '</div>' : '<p class="note" style="padding:0">Primero crea la cuenta desde la que pagas la tarjeta.</p>') + '</div>' +
+    '<div class="two">' + dia('cut', 'Día de corte') + dia('due', 'Día de pago') + '</div>' +
+    '<p class="note" style="padding:0;margin:0">Lo que compres con la tarjeta queda como deuda en ella, y la app te recuerda pasar la plata a la cuenta desde la que la pagas.</p>';
+  else h += '<button type="button" class="pill" style="align-self:flex-start" data-aeapart aria-pressed="' + !AE.apart + '">' + (AE.apart ? '○ Apartada: no cuenta en tu disponible' : '● Cuenta en tu disponible') + '</button>' +
+    '<p class="note" style="padding:0;margin:0">Apártala si es plata que no quieres tocar, como un ahorro o un CDT.</p>';
+  if (nuevo) h += '<div class="field"><label class="label" for="ae-bal">' + (AE.tarjeta ? 'Lo que debes hoy en la tarjeta' : 'Saldo actual') + '</label><input class="inp num" id="ae-bal" inputmode="numeric" value="' + esc(AE.bal || '') + '" placeholder="0"></div>';
+  h += '<div class="err" id="ae-err"></div><button class="btn accent block" type="button" data-aego>' + (nuevo ? 'Crear cuenta' : 'Guardar cambios') + '</button>';
+  if (!nuevo) { const uso = cuentaEnUso(AE.id);
+    h += '<div class="two"><button class="btn ghost" type="button" data-aehide>' + (a.hidden ? 'Volver a mostrar' : 'Ocultar') + '</button>' +
+      '<button class="btn ghost' + (AE.del ? ' danger' : '') + '" type="button" data-aedel' + (uso ? ' disabled' : '') + '>' + (AE.del ? '¿Seguro? Eliminar' : 'Eliminar') + '</button></div>' +
+      '<p class="note" style="padding:0;margin:0">' + (uso ? 'No se puede eliminar porque la usa ' + uso + '. Ocúltala: deja de salir en tus listas y su historial se conserva.' : 'Ocultarla la quita de tus listas sin borrar nada.') + '</p>'; }
+  h += '</div>';
+  if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
+}
+/* lo escrito sobrevive a redibujar la hoja al tocar una opción */
+const aeLeer = () => { const v = id => { const el = $('#ae-' + id); return el ? el.value.trim() : null; };
+  const n = v('name'), g = v('group'), c = v('cut'), d = v('due'), b = v('bal');
+  if (n !== null) AE.name = n; if (g) AE.group = g; if (c !== null) AE.cut = c; if (d !== null) AE.due = d; if (b !== null) AE.bal = b; };
+function accEditGuardar(){
+  const err = m => { $('#ae-err').textContent = m; };
+  if (!AE.name) return err('Escribe el nombre de la cuenta.');
+  if (S.accounts.some(x => x.id !== AE.id && !x.hidden && x.name.trim().toLowerCase() === AE.name.toLowerCase())) return err('Ya tienes una cuenta con ese nombre.');
+  const dia = s => { const n = parseInt(s, 10); return n >= 1 && n <= 31 ? n : null; };
+  if (AE.tarjeta) { if (!accById(AE.pocket)) return err('Elige desde qué cuenta pagas la tarjeta.');
+    if (AE.cut && !dia(AE.cut)) return err('El día de corte va de 1 a 31.'); if (AE.due && !dia(AE.due)) return err('El día de pago va de 1 a 31.'); }
+  let a = AE.id ? accById(AE.id) : null;
+  if (!a) { a = { id:uid(), name:'', group:'', order:S.accounts.length + 1, hidden:false }; S.accounts.push(a); }
+  a.name = AE.name; a.group = AE.group || 'Otros';
+  if (AE.tarjeta) { a.card = { ...(a.card || {}), pocket:AE.pocket, cut:dia(AE.cut), due:dia(AE.due) }; delete a.apart; }
+  else { delete a.card; if (AE.apart) a.apart = true; else delete a.apart; }
+  if (!AE.id) { const v = leerPesos(AE.bal || ''); /* en una tarjeta, lo que debes queda como saldo negativo */
+    if (v) S.transactions.push({ id:uid(), type:'ajuste', amount:AE.tarjeta ? -v : v, date:iso(new Date()), ts:Date.now(), accountId:a.id, note:'Saldo inicial' }); }
+  const nuevo = !AE.id; sortTx(S); save(); AE = null; closeSheet(); render(); toast(nuevo ? 'Cuenta creada' : 'Cuenta actualizada');
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('button'); if (!el) return; const d = el.dataset;
+  if (d.accedit !== undefined) { e.stopPropagation(); return accEditSheet(d.accedit || null); }
+  if (d.accmove) { e.stopPropagation(); return moverCuenta(d.accmove, +d.dir); }
+  if (d.grpren !== undefined) { e.stopPropagation(); return grupoSheet(d.grpren); }
+  if (!AE || !el.closest('.aedit')) return;
+  e.stopPropagation(); aeLeer();
+  if (d.aegrp) { AE.group = d.aegrp; return accEditDraw(); }
+  if (d.aetipo) { AE.tarjeta = d.aetipo === '1'; return accEditDraw(); }
+  if (d.aepk) { AE.pocket = d.aepk; return accEditDraw(); }
+  if (d.aeapart !== undefined) { AE.apart = !AE.apart; return accEditDraw(); }
+  if (d.aego !== undefined) return accEditGuardar();
+  if (d.aehide !== undefined) { const a = accById(AE.id); a.hidden = !a.hidden; save(); AE = null; closeSheet(); render(); return toast(a.hidden ? 'Cuenta oculta' : 'Cuenta visible de nuevo'); }
+  if (d.aedel !== undefined) { if (cuentaEnUso(AE.id)) return;
+    if (!AE.del) { AE.del = true; return accEditDraw(); }
+    S.accounts = S.accounts.filter(x => x.id !== AE.id); if (S.lastAccount === AE.id) delete S.lastAccount;
+    save(); AE = null; closeSheet(); render(); return toast('Cuenta eliminada'); }
+}, true);
+document.addEventListener('input', e => { if (e.target.id === 'ae-bal') pesosCampo(e.target); if (e.target.id === 'ae-group' && AE && e.target.value.trim()) { AE.group = e.target.value.trim(); document.querySelectorAll('[data-aegrp]').forEach(b => b.setAttribute('aria-pressed', 'false')); } });
+
+/* ----- orden: subir o bajar una cuenta dentro de su grupo ----- */
+function moverCuenta(id, dir){
+  const a = accById(id); if (!a) return;
+  const lista = S.accounts.filter(x => !esDeuda(x) && (x.group || 'Otros') === (a.group || 'Otros')).sort((x, y) => (x.order || 0) - (y.order || 0));
+  const i = lista.indexOf(a), j = i + dir; if (j < 0 || j >= lista.length) return;
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  const base = Math.min(...lista.map(x => x.order || 0)); lista.forEach((x, k) => { x.order = base + k; });
+  save(); render();
+}
+/* ----- renombrar un grupo completo (todas sus cuentas) ----- */
+function grupoSheet(g){
+  openSheet('<div class="sheet-h"><b id="sheet-title">Renombrar grupo</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
+    '<div class="field"><label class="label" for="gr-name">Nombre del grupo</label><input class="inp" id="gr-name" value="' + esc(g) + '" autocomplete="off"></div>' +
+    '<p class="note" style="padding:0;margin:0">Cambia el nombre en todas las cuentas de este grupo.</p><button class="btn accent block" type="button" data-grgo="' + esc(g) + '">Guardar</button></div>');
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-grgo]'); if (!el) return; e.stopPropagation();
+  const viejo = el.dataset.grgo, nuevo = ($('#gr-name').value || '').trim(); if (!nuevo) return;
+  S.accounts.forEach(a => { if (!esDeuda(a) && (a.group || 'Otros') === viejo) a.group = nuevo; });
+  save(); closeSheet(); render(); toast('Grupo renombrado');
+}, true);
+
+/* ----- Ajustes › Cuentas ----- */
+function cuentasAdminCard(){
+  const b = balances(), propias = S.accounts.filter(a => !esDeuda(a)).sort((x, y) => (x.order || 0) - (y.order || 0));
+  const vis = propias.filter(a => !a.hidden), ocultas = propias.filter(a => a.hidden);
+  const fila = (a, k, n) => '<div class="set deuda"' + (k ? '' : ' style="border-top:0"') + '><button class="t" data-accedit="' + esc(a.id) + '"><b>' + esc(a.name) + '</b><span>' + (isCard(a) ? 'Tarjeta · se paga desde ' + esc(accShort(a.card.pocket)) : a.apart ? 'Apartada' : 'En tu disponible') + ' · ' + money(b[a.id] || 0) + '</span></button>' +
+    (n > 1 ? '<button class="pill" data-accmove="' + esc(a.id) + '" data-dir="-1" aria-label="Subir"' + (k ? '' : ' disabled') + '>↑</button><button class="pill" data-accmove="' + esc(a.id) + '" data-dir="1" aria-label="Bajar"' + (k < n - 1 ? '' : ' disabled') + '>↓</button>' : '') + '</div>';
+  let h = '<section class="card"><div class="card-h"><h2>Tus cuentas</h2><button class="pill" data-accedit>Nueva cuenta</button></div>' +
+    '<p class="insight">Toca una cuenta para cambiarle el nombre, el grupo o el tipo. Con las flechas cambias el orden.</p>';
+  for (const g of [...new Set(vis.map(a => a.group || 'Otros'))]) { const l = vis.filter(a => (a.group || 'Otros') === g);
+    h += '<div class="pgroup">' + esc(g) + '<button class="lnk" data-grpren="' + esc(g) + '">Renombrar</button></div><div>' + l.map((a, k) => fila(a, k, l.length)).join('') + '</div>'; }
+  if (ocultas.length) h += '<div class="pgroup">Ocultas<span class="num">' + ocultas.length + '</span></div><div>' + ocultas.map((a, k) => fila(a, k, 1)).join('') + '</div>';
+  return h + '<p class="note" style="padding:0">Las deudas (Por pagar, Por cobrar y En pausa) se manejan en Cuentas › Deudas.</p></section>';
 }
 
 /* ---------- Copias en el celular: para periodos largos sin internet ----------
@@ -6718,14 +6839,6 @@ document.addEventListener('change', e => {
 document.addEventListener('submit', e => {
   e.preventDefault();
   if (e.target.id === 'txf') return submitForm();
-  if (e.target.id === 'accf') {
-    const name = $('#a-name').value.trim(), group = $('#a-group').value.trim() || 'Otros';
-    if (!name) { $('#a-err').textContent = 'Escribe el nombre de la cuenta.'; return; }
-    const id = uid(); S.accounts.push({ id, name, group, order:S.accounts.length + 1, hidden:false });
-    const bal = leerPesos($('#a-bal').value);
-    if (bal) S.transactions.push({ id:uid(), type:'ajuste', amount:bal, date:iso(new Date()), ts:Date.now(), accountId:id, note:'Saldo inicial' });
-    sortTx(S); save(); closeSheet(); render(); toast('Cuenta creada');
-  }
 });
 
 render();

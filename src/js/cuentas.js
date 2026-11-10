@@ -19,7 +19,7 @@ function vCuentas(){
     out += '<section class="card"><div class="card-h"><h2>' + esc(g.name) + '</h2><span class="aside num">' + money(g.sum) + '</span></div><div>' +
       g.list.map(a => '<button class="acc" data-accsheet="' + esc(a.id) + '"><span class="nm">' + esc(a.name) + '<small>' + (a.apart ? 'Apartado · ' : '') + cuadreTxt(a.id) + '</small></span><span class="am num ' + ((b[a.id] || 0) < 0 ? 'neg' : '') + '">' + money(b[a.id] || 0) + '</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>').join('') + '</div></section>';
   }
-  out += '<div class="two"><button class="btn ghost" data-newacc>Agregar cuenta</button>' + (aiOn() ? '<button class="btn" data-foto>Cuadrar con captura</button>' : '<span></span>') + '</div>';
+  out += '<div class="two"><button class="btn ghost" data-newacc>Agregar cuenta</button><button class="btn ghost" data-go="ajustes" data-sec="cuentas">Editar cuentas</button></div>' + (aiOn() ? '<button class="btn block" data-foto>Cuadrar con captura</button>' : '');
   out += '<p class="note">Toca una cuenta para cuadrarla con el saldo real del banco o ver sus movimientos.</p>';
   return out;
 }

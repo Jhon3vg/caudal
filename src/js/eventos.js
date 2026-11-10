@@ -159,14 +159,6 @@ document.addEventListener('change', e => {
 document.addEventListener('submit', e => {
   e.preventDefault();
   if (e.target.id === 'txf') return submitForm();
-  if (e.target.id === 'accf') {
-    const name = $('#a-name').value.trim(), group = $('#a-group').value.trim() || 'Otros';
-    if (!name) { $('#a-err').textContent = 'Escribe el nombre de la cuenta.'; return; }
-    const id = uid(); S.accounts.push({ id, name, group, order:S.accounts.length + 1, hidden:false });
-    const bal = leerPesos($('#a-bal').value);
-    if (bal) S.transactions.push({ id:uid(), type:'ajuste', amount:bal, date:iso(new Date()), ts:Date.now(), accountId:id, note:'Saldo inicial' });
-    sortTx(S); save(); closeSheet(); render(); toast('Cuenta creada');
-  }
 });
 
 render();
