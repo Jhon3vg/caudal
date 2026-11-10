@@ -21,7 +21,10 @@ function avCfg(k){
   const leg = { ...(viejo[k] === false ? { on:false } : {}), ...(k === 'diario' && viejo.hora ? { h:String(viejo.hora).padStart(2, '0') + ':00' } : {}) };
   return { ...def, ...leg, ...((avConf().tipos || {})[k] || {}) };
 }
-const avOn = k => avCfg(k).on !== false;
+/* un aviso de Caudal se puede eliminar de la lista (borrado) y recuperar luego desde "+ Nuevo" */
+const avBorrado = k => avCfg(k).borrado === true;
+const avOn = k => !avBorrado(k) && avCfg(k).on !== false;
+const avDeCaudal = () => AV_KINDS.filter(([k]) => k !== 'intereses' || S.settings.rate);
 const avPropios = () => avConf().propios || [];
 /* cambia la configuración y la guarda (save reprograma los avisos y sincroniza) */
 function avGuardar(fn){ const c = JSON.parse(JSON.stringify(avConf())); c.tipos = c.tipos || {}; c.propios = c.propios || []; fn(c); S.settings.avisos = c; save(); render(); }
@@ -145,16 +148,17 @@ function pushCard(){
   if (!AV.on) h += '<p class="insight">Te llegan al celular aunque no abras la app. Actívalos y elige abajo cuáles quieres, a qué hora y con qué mensaje.</p>' +
     (AV.msg ? '<div class="err">' + esc(AV.msg) + '</div>' : '') + '<button class="btn accent block" data-avon' + (AV.busy ? ' disabled' : '') + '>' + (AV.busy ? 'Activando…' : 'Activar avisos') + '</button>';
   const fila = (i, attr, t, s, on, tog) => '<div class="set deuda"' + (i ? '' : ' style="border-top:0"') + '><button class="t" ' + attr + '><b>' + esc(t) + '</b><span>' + esc(s) + '</span></button><button class="pill" ' + tog + ' aria-pressed="' + on + '">' + (on ? 'Sí' : 'No') + '</button></div>';
-  h += '<div class="pgroup">De Caudal<span class="num">toca para editar</span></div><div>' + AV_KINDS.filter(([k]) => k !== 'intereses' || S.settings.rate)
-    .map(([k, t], i) => fila(i, 'data-avedit="' + k + '"', t, avResumen(k), avOn(k), 'data-avk="' + k + '"')).join('') + '</div>';
-  const P = avPropios();
-  h += '<div class="pgroup">Mis recordatorios<button class="lnk" data-avpedit="">+ Nuevo</button></div>' +
-    (P.length ? '<div>' + P.map((R, i) => fila(i, 'data-avpedit="' + esc(R.id) + '"', R.titulo || 'Recordatorio', repTxt(R) + ', ' + horaTxt(R.h), R.on !== false, 'data-avpk="' + esc(R.id) + '"')).join('') + '</div>'
-      : '<p class="note" style="padding:0">Crea los tuyos: pagar el arriendo, ahorrar el día de pago, cobrarle a alguien…</p>');
+  /* una sola lista: los que trae Caudal (mientras no los elimine) y los propios; todos se editan y se eliminan */
+  const filas = avDeCaudal().filter(([k]) => !avBorrado(k)).map(([k, t]) => ['data-avedit="' + k + '"', (avCfg(k).titulo && avCfg(k).titulo !== ((AV_KINDS.find(x => x[0] === k) || [])[2] || {}).titulo) ? avCfg(k).titulo : t, avResumen(k), avOn(k), 'data-avk="' + k + '"'])
+    .concat(avPropios().map(R => ['data-avpedit="' + esc(R.id) + '"', R.titulo || 'Recordatorio', repTxt(R) + ', ' + horaTxt(R.h), R.on !== false, 'data-avpk="' + esc(R.id) + '"']));
+  h += '<div class="pgroup">Tus recordatorios<button class="lnk" data-avnuevo>+ Nuevo</button></div>' +
+    (filas.length ? '<div>' + filas.map((f, i) => fila(i, ...f)).join('') + '</div><p class="note" style="padding:0">Toca uno para cambiarlo o eliminarlo.</p>'
+      : '<p class="insight">No tienes recordatorios. Con <b>+ Nuevo</b> creas uno o recuperas los que trae Caudal.</p>');
   return h + (AV.on ? '<div class="two"><button class="btn ghost" data-avtest>Enviar prueba</button><button class="btn ghost" data-avoff>Desactivar</button></div>' : '') + '</section>';
 }
 /* ----- hojas de edición ----- */
 let AVE = null;
+const avNuevoPropio = () => ({ modo:'propio', nuevo:true, id:uid(), titulo:'', texto:'', h:'09:00', rep:'mes', dia:'', on:true });
 const avDiasChips = sel => '<div class="chips">' + [1, 2, 3, 4, 5, 6, 0].map(d => '<button type="button" class="chip" data-aved="' + d + '" aria-pressed="' + sel.includes(d) + '" aria-label="' + DIAS_LARGOS[d] + '">' + DIAS_CORTOS[d] + '</button>').join('') + '</div>';
 function avEditDraw(){
   const E = AVE, propio = E.modo === 'propio', k = E.k;
@@ -177,7 +181,8 @@ function avEditDraw(){
     if (E.rep === 'mes') h += '<div class="field"><label class="label" for="ave-dia">Día del mes</label><input class="inp num" id="ave-dia" inputmode="numeric" maxlength="2" value="' + esc(String(E.dia || '')) + '" placeholder="Del 1 al 28"></div>';
   }
   h += '<div class="err" id="ave-err"></div><button class="btn accent block" type="button" data-avego>Guardar</button>';
-  if (propio && !E.nuevo) h += '<button class="btn block ' + (E.del ? 'danger' : 'ghost') + '" type="button" data-avedel>' + (E.del ? 'Toca otra vez para eliminar' : 'Eliminar recordatorio') + '</button>';
+  if (!E.nuevo) h += '<button class="btn block ' + (E.del ? 'danger' : 'ghost') + '" type="button" data-avedel>' + (E.del ? 'Toca otra vez para eliminar' : 'Eliminar recordatorio') + '</button>' +
+    (propio ? '' : '<p class="note" style="padding:0;margin:0">Si lo eliminas, lo recuperas cuando quieras desde + Nuevo.</p>');
   if (!propio && (k === 'diario' || k === 'cierre')) h += '<button class="btn block ghost" type="button" data-avereset>Volver al mensaje de Caudal</button>';
   h += '</div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
@@ -197,7 +202,7 @@ function avEditGuardar(){
     avGuardar(c => { const i = c.propios.findIndex(x => x.id === R.id); if (i >= 0) c.propios[i] = R; else c.propios.push(R); });
   } else {
     if (E.k === 'diario' && !(E.dias || []).length) return err('Elige al menos un día.');
-    const { modo, k, nuevo, del, ...cfg } = E;
+    const { modo, k, nuevo, del, borrado, ...cfg } = E;
     avGuardar(c => { c.tipos[k] = cfg; });
   }
   AVE = null; closeSheet(); toast('Aviso guardado');
@@ -212,8 +217,14 @@ document.addEventListener('click', e => {
   if (d.avpk) { e.stopPropagation(); return avGuardar(c => { const R = c.propios.find(x => x.id === d.avpk); if (R) R.on = R.on === false; }); }
   if (d.avedit) { e.stopPropagation(); AVE = { modo:'tipo', k:d.avedit, ...JSON.parse(JSON.stringify(avCfg(d.avedit))) };
     const def = (AV_KINDS.find(x => x[0] === d.avedit) || [])[2]; if (AVE.titulo === def.titulo) delete AVE.titulo; if (AVE.texto === def.texto) delete AVE.texto; return avEditDraw(); }
+  if (d.avnuevo !== undefined) { e.stopPropagation(); const rec = avDeCaudal().filter(([k]) => avBorrado(k));
+    if (!rec.length) { AVE = avNuevoPropio(); return avEditDraw(); }
+    return openSheet('<div class="sheet-h"><b id="sheet-title">Nuevo recordatorio</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
+      '<button class="btn accent block" type="button" data-avpedit="">Crear uno propio</button>' +
+      '<div class="pgroup">O recupera uno de Caudal</div><div>' + rec.map(([k, t], i) => '<div class="set deuda"' + (i ? '' : ' style="border-top:0"') + '><div class="t"><b>' + t + '</b><span>' + avResumen(k) + '</span></div><button class="pill" data-avrest="' + k + '">Agregar</button></div>').join('') + '</div></div>'); }
+  if (d.avrest) { e.stopPropagation(); const k = d.avrest; closeSheet(); avGuardar(c => { c.tipos[k] = { ...((c.tipos || {})[k] || {}), borrado:false, on:true }; }); return toast('Recordatorio agregado'); }
   if (d.avpedit !== undefined) { e.stopPropagation(); const R = avPropios().find(x => x.id === d.avpedit);
-    AVE = R ? { modo:'propio', ...JSON.parse(JSON.stringify(R)) } : { modo:'propio', nuevo:true, id:uid(), titulo:'', texto:'', h:'09:00', rep:'mes', dia:'', on:true }; return avEditDraw(); }
+    AVE = R ? { modo:'propio', ...JSON.parse(JSON.stringify(R)) } : avNuevoPropio(); return avEditDraw(); }
   if (!AVE || !el.closest('.avedit')) return;
   e.stopPropagation(); aveLeer();
   if (d.aveon !== undefined) { AVE.on = AVE.on === false; return avEditDraw(); }
@@ -221,6 +232,9 @@ document.addEventListener('click', e => {
   if (d.aved !== undefined) { const x = +d.aved, l = (AVE.dias || (AVE.k === 'diario' ? [0, 1, 2, 3, 4, 5, 6] : [])).slice(), i = l.indexOf(x); if (i >= 0) l.splice(i, 1); else l.push(x); AVE.dias = l; return avEditDraw(); }
   if (d.averep) { AVE.rep = d.averep; return avEditDraw(); }
   if (d.avereset !== undefined) { delete AVE.titulo; delete AVE.texto; return avEditDraw(); }
-  if (d.avedel !== undefined) { if (!AVE.del) { AVE.del = true; return avEditDraw(); } const id = AVE.id; AVE = null; closeSheet(); avGuardar(c => { c.propios = c.propios.filter(x => x.id !== id); }); return toast('Recordatorio eliminado'); }
+  if (d.avedel !== undefined) { if (!AVE.del) { AVE.del = true; return avEditDraw(); }
+    const E = AVE; AVE = null; closeSheet();
+    avGuardar(c => { if (E.modo === 'propio') c.propios = c.propios.filter(x => x.id !== E.id); else c.tipos[E.k] = { ...((c.tipos || {})[E.k] || {}), borrado:true }; });
+    return toast('Recordatorio eliminado'); }
   if (d.avego !== undefined) return avEditGuardar();
 }, true);
