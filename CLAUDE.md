@@ -7,12 +7,12 @@
 
 ## Sistema visual
 
-- Concepto: banca oscura de bolsillo. Fondo gris carbón (no negro puro), superficies que se aclaran por nivel (`--surface`, `--surface-2`, `--surface-3`) y un solo color de marca, el lima `--brand`, para la acción principal y lo que entra.
-- Tipos de movimiento: gasto `--out` rosa con flecha arriba y signo −, ingreso `--in` lima con flecha abajo y +, transferencia `--move` lavanda con flechas de intercambio, ajuste `--adjust` ámbar. El significado nunca depende solo del color.
+- Concepto: banca oscura de bolsillo. Fondo gris carbón (no negro puro), superficies que se aclaran por nivel (`--surface`, `--surface-2`, `--surface-3`) y un solo color de marca, el morado oscuro `--brand` (#7C3AED, texto blanco encima), para la acción principal; lo que entra va en morado claro `--in`.
+- Tipos de movimiento: gasto `--out` rosa con flecha arriba y signo −, ingreso `--in` morado claro con flecha abajo y +, transferencia `--move` celeste con flechas de intercambio, ajuste `--adjust` ámbar. El significado nunca depende solo del color.
 - Cifras: los gastos se muestran en blanco con −; el color se reserva para ingresos, alertas y lo que se pasa del límite.
 - Los colores existen en dos lugares a propósito: `styles.css` (variables) y `paleta.js` (`PAL`, `SERIE`, `TIPOS`), porque los atributos SVG no leen variables CSS. Si cambias uno, cambia el otro. No escribas colores sueltos en el JavaScript: usa `PAL`, `serieColor(i)` o `var(--...)` dentro de `style`.
 - Estilos nuevos van en la sección que corresponde de `styles.css`, sin capas que sobrescriban otras.
-- Logo: `src/marca/logo.svg` es la fuente (olas negras y un punto sobre el degradado lima `--hero`). Los PNG de la raíz (`icon-192`, `icon-512`, `icon-maskable`, `apple-touch-icon`) se generan con `python3 src/marca/iconos.py`; no se editan a mano. La marca de la app (`.mark` en la plantilla) usa el mismo trazo.
+- Logo: `src/marca/logo.svg` es la fuente (olas blancas y un punto sobre el degradado morado `--hero`). Los PNG de la raíz (`icon-192`, `icon-512`, `icon-maskable`, `apple-touch-icon`) se generan con `python3 src/marca/iconos.py`; no se editan a mano. La marca de la app (`.mark` en la plantilla) usa el mismo trazo.
 - El repo es público: nunca subir datos personales, llaves secretas ni respaldos. La publishable key de Supabase sí puede ir en el código.
 - Backend en Supabase (proyecto `Jhon3vg`, ref nsjhlribblnlasdqywgt): esquema en `supabase/01_esquema.sql`, funciones en `supabase/functions/{ia,atajo,avisos,respaldo,semanal}`. Los cambios de base de datos se entregan como SQL nuevo (`supabase/02_...sql`) para correr en el SQL Editor; las funciones se actualizan pegando el código en el editor de Supabase.
 - Tras cambiar `src/`, subir el número de `CACHE` en `sw.js`. `build.py` también escribe `version.json`: la app abierta compara su versión con ese archivo y se recarga sola cuando hay una nueva. Publicar siempre `index.html` y `version.json` juntos.
@@ -25,3 +25,6 @@
 - `android.js`: botón atrás (cierra la ventana abierta, vuelve a Inicio y en Inicio pide un segundo toque para salir), botón de instalar (beforeinstallprompt) y accesos rápidos del ícono (`?accion=gasto`, `?accion=ia`).
 - `manifest.webmanifest`: accesos rápidos (mantener presionado el ícono) y `share_target`: Compartir → Caudal manda el texto como `?n=` a la bandeja.
 - Registro automático con MacroDroid (notificaciones y SMS del banco → función `atajo`); el respaldo semanal también con MacroDroid. No hay Atajos de iPhone, Siri ni Apple Pay.
+- Color: morado oscuro en vez del lima (botones `--brand` con texto blanco, tarjeta destacada en degradado morado con texto claro, ingresos en morado claro y transferencias en celeste). Los íconos se generaron con el logo morado.
+- Sin internet: `copias.js` guarda una copia diaria en el celular (IndexedDB, últimas 14) y otra antes de que la nube reemplace los datos; se restauran o descargan en Ajustes › Datos. Pide almacenamiento persistente y muestra un aviso en Inicio sin conexión. El service worker abre con la copia guardada si la red tarda más de 3 segundos.
+- Deudas por persona (`deudas.js`, migración `24_deudas_personas.sql`): "Le debo a alguien" queda en la cuenta apartada "Deudas en pausa" y no resta del disponible hasta pagarla; "Tengo plata de alguien" es una transferencia desde Por pagar a tu cuenta (está en la cuenta, no en el disponible); "Le presté a alguien" va a Por cobrar. `transactions.persona` guarda con quién es.

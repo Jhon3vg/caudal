@@ -43,17 +43,18 @@
   --muted:#9AA0A8;
   --faint:#767C86;
   /* marca y significado. Los mismos valores viven en paleta.js para las gráficas */
-  --brand:#C8F542;       /* acción principal */
-  --on-brand:#0F1114;    /* texto sobre lima */
-  --in:#C8F542;          /* ingreso */
+  --brand:#7C3AED;       /* acción principal: morado oscuro */
+  --on-brand:#FFFFFF;    /* texto sobre morado */
+  --on-tc:#0F1114;       /* texto sobre el color de cada tipo de movimiento (claros) */
+  --in:#B49BFF;          /* ingreso: morado claro para que se lea sobre el fondo oscuro */
   --out:#FF5C8A;         /* gasto */
-  --move:#8FA2FF;        /* transferencia */
+  --move:#5CC8FF;        /* transferencia: celeste, para no confundirse con el morado */
   --adjust:#FFB443;      /* ajuste de saldo */
   --pos:var(--in);
   --neg:var(--out);
   --warn:#FFB443;
   --track:#2A2E35;       /* fondo de barras de progreso */
-  --hero:linear-gradient(118deg,#79CF5C 0%,#B6EE4A 45%,#E2FA7C 100%);
+  --hero:linear-gradient(118deg,#2E1065 0%,#5B21B6 50%,#7C3AED 100%);
   /* forma */
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --r-card:22px;
@@ -125,7 +126,7 @@ body.scrolled .top::before{border-bottom-color:var(--line)}
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:0 12px calc(var(--safe-b) + 10px);pointer-events:none}
 .nav-in{pointer-events:auto;max-width:496px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;height:var(--nav-h);padding:0 4px;border-radius:24px;background:rgba(24,27,32,.9);border:1px solid var(--line-2);box-shadow:0 12px 32px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 .nav-in>button[data-v]{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:500;color:var(--faint);transition:color .2s}
-.nav-in>button[data-v]::before{content:"";position:absolute;top:9px;left:50%;width:62px;height:34px;margin-left:-31px;border-radius:999px;background:rgba(200,245,66,.14);opacity:0;transform:scale(.4);transition:transform .3s cubic-bezier(.2,.9,.3,1.25),opacity .2s}
+.nav-in>button[data-v]::before{content:"";position:absolute;top:9px;left:50%;width:62px;height:34px;margin-left:-31px;border-radius:999px;background:rgba(180,155,255,.14);opacity:0;transform:scale(.4);transition:transform .3s cubic-bezier(.2,.9,.3,1.25),opacity .2s}
 .nav-in>button[data-v] svg{position:relative;width:24px;height:24px;transition:color .2s,transform .3s}
 .nav-in>button[aria-current="page"]{color:var(--ink);font-weight:600}
 .nav-in>button[aria-current="page"]::before{opacity:1;transform:none}
@@ -136,7 +137,7 @@ body.scrolled .top::before{border-bottom-color:var(--line)}
 .fab:active{transform:scale(.95)}
 .fab::after{content:"Registrar";font-size:15px}
 /* celular: botón flotante a la derecha, al alcance del pulgar; al bajar se encoge a un círculo */
-body>.fab{position:fixed;z-index:11;right:max(16px,calc((100vw - 520px) / 2 + 16px));bottom:calc(var(--nav-h) + var(--safe-b) + 26px);height:56px;padding:0 22px 0 18px;border-radius:28px;box-shadow:0 12px 28px rgba(0,0,0,.5),0 0 0 6px rgba(200,245,66,.12);transition:padding .25s,transform .15s}
+body>.fab{position:fixed;z-index:11;right:max(16px,calc((100vw - 520px) / 2 + 16px));bottom:calc(var(--nav-h) + var(--safe-b) + 26px);height:56px;padding:0 22px 0 18px;border-radius:28px;box-shadow:0 12px 28px rgba(0,0,0,.5),0 0 0 6px rgba(180,155,255,.12);transition:padding .25s,transform .15s}
 body>.fab::after{max-width:110px;overflow:hidden;white-space:nowrap;transition:max-width .25s,opacity .2s}
 body.fab-min>.fab{padding:0 16px;gap:0}
 body.fab-min>.fab::after{max-width:0;opacity:0}
@@ -163,10 +164,10 @@ body.lock>.fab{visibility:hidden}
 .hero-sub b{color:var(--ink);font-weight:600}
 .tile-v{font-size:24px;font-weight:600;letter-spacing:-.01em}
 .tile-s{font-size:12px;color:var(--muted)}
-/* tarjeta destacada en degradado lima, como la tarjeta del banco. Dentro de ella
-   se redefinen los colores de texto para que todo lo que contiene se lea en oscuro */
-.card.hero{background:var(--hero);color:var(--ink);--brand:#0F1114;--ink:#0F1114;--muted:rgba(15,17,20,.64);--faint:rgba(15,17,20,.5);--line:rgba(15,17,20,.12);--pos:#0F1114;--neg:#0F1114;--warn:#0F1114;--out:#0F1114;--in:rgba(15,17,20,.3);--track:rgba(15,17,20,.16)}
-.card.hero .pill{background:rgba(15,17,20,.12);color:var(--ink)}
+/* tarjeta destacada en degradado morado, como la tarjeta del banco. Dentro de ella
+   se redefinen los colores de texto para que todo lo que contiene se lea en claro */
+.card.hero{background:var(--hero);color:var(--ink);--brand:#FFFFFF;--ink:#FFFFFF;--muted:rgba(255,255,255,.74);--faint:rgba(255,255,255,.56);--line:rgba(255,255,255,.16);--pos:#FFFFFF;--neg:#FFFFFF;--warn:#FFFFFF;--out:#FFFFFF;--in:rgba(255,255,255,.4);--track:rgba(255,255,255,.18)}
+.card.hero .pill{background:rgba(255,255,255,.16);color:var(--ink)}
 /* accesos rápidos de la tarjeta destacada: un toque para registrar cada tipo */
 .qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px}
 .qa button{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:500}
@@ -220,7 +221,7 @@ body.lock>.fab{visibility:hidden}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 88px);z-index:30;padding:10px 16px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:13px;white-space:nowrap;opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:opacity .2s,transform .2s}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .hit{animation:hit 1.8s ease}
-@keyframes hit{0%,40%{background:rgba(200,245,66,.16);box-shadow:0 0 0 8px rgba(200,245,66,.16)}100%{background:transparent;box-shadow:0 0 0 8px transparent}}
+@keyframes hit{0%,40%{background:rgba(180,155,255,.16);box-shadow:0 0 0 8px rgba(180,155,255,.16)}100%{background:transparent;box-shadow:0 0 0 8px transparent}}
 /* barra de búsqueda e IA de inicio */
 .ask{display:flex;align-items:center;gap:8px}
 .ask-main,.ask-in{flex:1;min-width:0;border-radius:999px;background:var(--surface)}
@@ -337,7 +338,7 @@ body.lock>.fab{visibility:hidden}
 .rit-v>span{font-size:13px;line-height:1.5;color:var(--muted)}
 .rit-v>span b{font-weight:600}
 .subbar{position:relative;display:flex;justify-content:space-between;gap:10px;width:100%;margin-top:6px;padding:10px 12px;overflow:hidden;border:1px solid var(--line);border-radius:12px;font-size:13.5px;text-align:left}
-.subbar i{position:absolute;inset:0 auto 0 0;background:rgba(200,245,66,.16)}
+.subbar i{position:absolute;inset:0 auto 0 0;background:rgba(180,155,255,.16)}
 .subbar span{position:relative}
 .subbar .num{font-weight:600}
 .subbar.on{border-color:var(--brand)}
@@ -386,7 +387,7 @@ body.lock>.fab{visibility:hidden}
 /* día de pago: las tareas de cada paso se leen completas */
 .dp .rmain span{white-space:normal;margin-top:2px}
 .dp .pill{height:auto;min-height:32px;padding-block:6px;white-space:normal;text-align:left;max-width:100%}
-.pchk{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(200,245,66,.14);color:var(--pos);font-weight:600}
+.pchk{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(180,155,255,.14);color:var(--pos);font-weight:600}
 .pdot{flex:none;width:10px;height:10px;border-radius:50%}
 
 /* ---------- 7. Formularios y hoja inferior ---------- */
@@ -438,8 +439,8 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .pendt[aria-pressed="true"]{color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
 /* registro: cada tipo pinta la hoja con su color (--tc) y su versión suave (--tcs) */
 .sheet.t-gasto{--tc:var(--out);--tcs:rgba(255,92,138,.12)}
-.sheet.t-ingreso{--tc:var(--in);--tcs:rgba(200,245,66,.10)}
-.sheet.t-transferencia{--tc:var(--move);--tcs:rgba(143,162,255,.13)}
+.sheet.t-ingreso{--tc:var(--in);--tcs:rgba(180,155,255,.10)}
+.sheet.t-transferencia{--tc:var(--move);--tcs:rgba(92,200,255,.13)}
 .sheet.t-ajuste{--tc:var(--adjust);--tcs:rgba(255,180,67,.12)}
 .sheet[class*="t-"]{--brand:var(--tc)}
 .ttl{display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:19px!important}
@@ -448,12 +449,12 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 /* pestañas de tipo: un indicador del color del tipo se desliza bajo la pestaña activa (y sigue el dedo) */
 .seg.tabs{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:0;padding:4px;border-radius:999px;background:var(--surface)}
 .sheet .seg.tabs button,.sheet .seg.tabs button[aria-pressed="true"]{position:relative;z-index:1;justify-content:center;height:38px;padding-inline:6px;background:transparent;color:var(--muted);transition:color .2s}
-.sheet .seg.tabs button[aria-pressed="true"]{color:var(--on-brand);font-weight:600}
+.sheet .seg.tabs button[aria-pressed="true"]{color:var(--on-tc);font-weight:600}
 .seg-ind{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px) / var(--n));border-radius:999px;background:var(--tc,var(--surface-3));transform:translateX(calc(var(--i) * 100%));transition:transform .28s cubic-bezier(.2,.8,.2,1),background .2s}
 .fpage{display:flex;flex-direction:column;gap:18px}
 .sheet[class*="t-"] .ctile[aria-pressed="true"],
 .sheet[class*="t-"] .chip[aria-pressed="true"],
-.sheet[class*="t-"] .btn.accent{background:var(--tc);color:var(--on-brand)}
+.sheet[class*="t-"] .btn.accent{background:var(--tc);color:var(--on-tc)}
 .sheet[class*="t-"] .amount{background:var(--tcs);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tc) 40%,transparent)}
 .sheet[class*="t-"] .amount span,.sheet[class*="t-"] .amount input{color:var(--tc)}
 .sheet[class*="t-"] .amount input::placeholder{color:color-mix(in srgb,var(--tc) 45%,transparent)}
@@ -488,7 +489,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .smart-tools{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px;border-top:1px solid var(--line)}
 .tool{display:inline-flex;align-items:center;gap:6px;height:36px;padding-inline:12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted)}
 .tool.rec{background:var(--brand);color:var(--on-brand);border-color:transparent;animation:pulse 1.2s infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(200,245,66,.2)}}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(180,155,255,.2)}}
 .thumbs{display:flex;flex-wrap:wrap;gap:8px}
 .thumb{position:relative;width:72px;height:72px;overflow:hidden;border:1px solid var(--line-2);border-radius:var(--r-field)}
 .thumb img{width:100%;height:100%;object-fit:cover}
@@ -588,7 +589,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .setrow .t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brow .r{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .bst{padding:2px 8px;border-radius:99px;background:var(--surface-2);font-size:11px;white-space:nowrap;color:var(--muted)}
-.bst.ok{background:rgba(200,245,66,.14);color:var(--pos)}
+.bst.ok{background:rgba(180,155,255,.14);color:var(--pos)}
 .bst.due{background:rgba(255,180,67,.16);color:var(--warn)}
 /* categorías en Ajustes */
 .brow .catdet{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -886,16 +887,16 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261110001809';
+const BUILD = '20261110002814';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
    en sus atributos, así que los colores viven aquí con los mismos valores.
    Si cambias un color, cámbialo en los dos lugares. */
 const PAL = {
-  lima:'#C8F542',      // marca, ingresos, lo que va bien
+  lima:'#B49BFF',      // ingresos y lo que va bien (morado claro; la marca es morado oscuro)
   rosa:'#FF5C8A',      // gastos y lo que se pasa del límite
-  lavanda:'#8FA2FF',   // transferencias y ahorro
+  lavanda:'#5CC8FF',   // transferencias y ahorro (celeste)
   ambar:'#FFB443',     // avisos y ajustes
   agua:'#3FBF8F',
   coral:'#FF8A5C',
@@ -1283,7 +1284,7 @@ function vInicio(p){
   const N = daysIn(p), ti = todayIdx(p);
   const head = '<div class="hello"><h1>Hola' + (userName() ? ', <em>' + esc(userName()) + '</em>' : '') + '</h1><p>Así va tu dinero del ' + fmtShort(p.start) + ' al ' + fmtShort(p.end) + '</p></div>';
   let out = '';
-  const demo = installBanner() + (!S.demo ? '' : '<div class="banner"><span><b>Datos de ejemplo.</b> Tus categorías y cuentas con movimientos ficticios.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="fresh">Empezar en blanco</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>');
+  const demo = offlineBanner() + installBanner() + (!S.demo ? '' : '<div class="banner"><span><b>Datos de ejemplo.</b> Tus categorías y cuentas con movimientos ficticios.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="fresh">Empezar en blanco</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>');
   const saleW = inc ? Math.min(100, exp / inc * 100) : (exp ? 100 : 0);
   const rate = inc ? Math.round((inc - exp) / inc * 100) : null;
   out += semanalCard() + inboxCard() + pendingCard() + movesCard() + (iaBanner() || diaPagoBanner() || interesesBanner() || cuadreReminder() || aiNudges());
@@ -1712,7 +1713,7 @@ function setSecBody(id){
   if (id === 'seguridad') return claveCard();
   if (id === 'datos') return '<section class="card"><div class="card-h"><h2>Respaldos</h2></div><div>' +
       '<div class="set" style="border-top:0"><div class="t"><b>' + (S.demo ? 'Datos de ejemplo' : S.source === 'moneymanager' ? 'Importado de Money Manager' : 'Datos propios') + '</b><span>' + nf.format(S.transactions.length) + ' movimientos · ' + S.accounts.filter(a => !a.hidden).length + ' cuentas</span></div></div>' +
-      autoBackupRow() +
+      autoBackupRow() + copiasRow() +
       '<div class="set"><div class="t"><b>Descargar respaldo</b><span>' + esc(backupAge()) + '</span></div><button class="btn sm" data-backup>Guardar</button></div>' +
       '<div class="set"><div class="t"><b>Copiar respaldo</b><span>Copia todos tus datos en formato JSON.</span></div><button class="btn sm ghost" id="copyjson">Copiar</button></div></div></section>' +
       '<section class="card"><div class="card-h"><h2>Traer datos</h2></div><div>' +
@@ -3894,7 +3895,7 @@ function askContext(compact){
   /* 4. saldos */
   const bal = balances();
   L.push('\n## Saldos de cuentas hoy');
-  S.accounts.filter(a => !a.hidden).forEach(a => L.push('- ' + a.name + ' (' + a.group + (a.apart ? ', apartada para otro fin: no es dinero disponible' : '') + (a.card ? ', tarjeta de crédito: saldo negativo es deuda' : '') + (a.debt === 'pagar' ? ', deudas: lo que debe a otras personas' : a.debt === 'cobrar' ? ', deudas: lo que prestó y le deben' : '') + '): ' + COP(bal[a.id] || 0)));
+  S.accounts.filter(a => !a.hidden).forEach(a => L.push('- ' + a.name + ' (' + a.group + (a.apart ? ', apartada para otro fin: no es dinero disponible' : '') + (a.card ? ', tarjeta de crédito: saldo negativo es deuda' : '') + (a.debt === 'pagar' ? ', deudas: lo que debe a otras personas' : a.debt === 'cobrar' ? ', deudas: lo que prestó y le deben' : a.debt === 'pausa' ? ', deudas en pausa: lo que debe pero no tiene en sus cuentas (no resta del disponible)' : '') + '): ' + COP(bal[a.id] || 0)));
 
   /* 5. recibos */
   const bs = (S.bills || []).filter(b => b.active !== false);
@@ -4939,41 +4940,51 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('input', e => { if (e.target.id === 'x-techo') pesosCampo(e.target); });
 
-/* Deudas: dos cuentas fijas en el grupo "Deudas", sin personas.
-   Por pagar: lo que te prestaron o alguien pagó por ti. Su saldo es negativo y resta de tu disponible.
+/* Deudas: tres cuentas fijas en el grupo "Deudas"; cada deuda puede llevar la persona (t.persona).
+   Por pagar: lo que alguien pagó por ti (un gasto en Por pagar) o plata de otra persona que tienes en tu
+     cuenta (una transferencia de Por pagar a tu cuenta). Su saldo es negativo y resta de tu disponible:
+     esa plata está en tu cuenta pero no es tuya.
+   En pausa: lo que debes y no tienes en tus cuentas (un ajuste negativo en la cuenta "Deudas en pausa",
+     que está apartada). No resta de tu disponible hasta que la pagas desde una de tus cuentas.
    Por cobrar: lo que prestaste. Está apartada: no suma a tu disponible hasta que te paguen.
-   Cada deuda es un movimiento (un gasto en Por pagar o una transferencia a Por cobrar) y sus pagos son
-   transferencias con src 'deuda' y auto = id de la deuda, para saber cuánto falta de cada una. */
-const DEUDA = { pagar:{ name:'Por pagar', orden:900 }, cobrar:{ name:'Por cobrar', orden:901 } };
+   Los pagos son transferencias con src 'deuda' y auto = id de la deuda, para saber cuánto falta de cada una. */
+const DEUDA = { pagar:{ name:'Por pagar', orden:900 }, cobrar:{ name:'Por cobrar', orden:901 }, pausa:{ name:'Deudas en pausa', orden:902 } };
 const esDeuda = a => !!(a && a.debt);
 const deudaAcc = k => S.accounts.find(a => a.debt === k) || null;
 function deudaCrear(k){
   let a = deudaAcc(k); if (a) return a;
   a = { id:uid(), name:DEUDA[k].name, group:'Deudas', order:DEUDA[k].orden, hidden:false, debt:k };
-  if (k === 'cobrar') a.apart = true;
+  if (k === 'cobrar' || k === 'pausa') a.apart = true;
   S.accounts.push(a); return a;
 }
-/* disponible: cuentas visibles que no están apartadas (Por cobrar lo está; Por pagar resta con su saldo negativo) */
+/* disponible: cuentas visibles que no están apartadas (Por cobrar y En pausa lo están; Por pagar resta con su saldo negativo) */
 const dispTotal = b => S.accounts.filter(a => !a.hidden && !a.apart).reduce((s, a) => s + (b[a.id] || 0), 0);
 /* lo que debes: ya está comprometido aunque la plata siga en tu cuenta */
 const debesTotal = b => { const P = deudaAcc('pagar'); return P ? Math.max(0, -(b[P.id] || 0)) : 0; };
 
 /* todas las deudas con sus abonos (de la más antigua a la más reciente); las abiertas son las que tienen saldo */
 function deudasTodas(){
-  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'); if (!P && !C) return [];
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'); if (!P && !C && !Z) return [];
   const abonos = {};
   for (const x of S.transactions) if (x.type === 'transferencia' && x.src === 'deuda' && x.auto) (abonos[x.auto] = abonos[x.auto] || []).push(x);
   const out = [];
   for (const t of S.transactions) {
-    const k = P && t.type === 'gasto' && t.accountId === P.id ? 'pagar' : C && t.type === 'transferencia' && t.toAccountId === C.id && t.src !== 'deuda' ? 'cobrar' : null;
+    const guardo = !!P && t.type === 'transferencia' && t.accountId === P.id && t.src !== 'deuda';
+    const k = P && ((t.type === 'gasto' && t.accountId === P.id) || guardo) ? 'pagar'
+      : C && t.type === 'transferencia' && t.toAccountId === C.id && t.src !== 'deuda' ? 'cobrar'
+      : Z && t.type === 'ajuste' && t.accountId === Z.id && t.amount < 0 ? 'pausa' : null;
     if (!k) continue;
-    const ab = (abonos[t.id] || []).sort((a, b) => a.date.localeCompare(b.date) || a.ts - b.ts), pagado = ab.reduce((a, x) => a + x.amount, 0);
-    out.push({ t, k, abonos:ab, pagado, falta:Math.max(0, t.amount - pagado) });
+    const monto = Math.abs(t.amount), ab = (abonos[t.id] || []).sort((a, b) => a.date.localeCompare(b.date) || a.ts - b.ts), pagado = ab.reduce((a, x) => a + x.amount, 0);
+    out.push({ t, k, guardo, monto, abonos:ab, pagado, falta:Math.max(0, monto - pagado) });
   }
   return out.sort((a, b) => a.t.date.localeCompare(b.t.date));
 }
 const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
-const deudaNombre = t => t.note || (t.type === 'gasto' ? catPath(t.categoryId) : 'Préstamo');
+const deudaConcepto = t => t.note || (t.type === 'gasto' ? catPath(t.categoryId) : t.type === 'ajuste' ? 'Deuda' : 'Préstamo');
+const deudaNombre = t => t.persona ? t.persona + (t.note ? ' · ' + t.note : '') : deudaConcepto(t);
+/* qué dice cada fila según el caso */
+const deudaVerbo = it => it.k === 'cobrar' ? 'Te debe' : it.guardo ? 'Es suya, la tienes tú' : it.k === 'pausa' ? 'Le debes · en pausa' : 'Le debes';
+const deudaBoton = it => it.k === 'cobrar' ? 'Me pagó' : it.guardo ? 'Devolver' : 'Pagar';
 
 /* ----- un préstamo descuenta del presupuesto del rubro de donde salió (su categoryId apunta al rubro).
    Si te pagan dentro del mismo periodo, el rubro recupera lo que te devolvieron. ----- */
@@ -4990,61 +5001,74 @@ function enRubro(t, pl, p){
 }
 
 /* filas de deudas abiertas con su botón de pago (Cuentas e Inicio) */
-const deudaFilas = ab => '<div>' + ab.map(({ t, k, falta, pagado }) =>
-  '<div class="set deuda"><button class="t" data-dver="' + esc(t.id) + '"><b>' + esc(deudaNombre(t)) + '</b><span>' + (k === 'pagar' ? 'Debes' : 'Te deben') + ' · ' + fmtShort(parseISO(t.date)) + (pagado ? ' · abonado ' + money(pagado) + ' de ' + money(t.amount) : '') + '</span></button>' +
-  '<span class="num">' + money(falta) + '</span><button class="pill solid" data-dpay="' + esc(t.id) + '">' + (k === 'pagar' ? 'Pagar' : 'Me pagó') + '</button></div>').join('') + '</div>';
+const deudaFilas = ab => '<div>' + ab.map(it => { const { t, falta, pagado, monto } = it;
+  return '<div class="set deuda"><button class="t" data-dver="' + esc(t.id) + '"><b>' + esc(deudaNombre(t)) + '</b><span>' + deudaVerbo(it) + ' · ' + fmtShort(parseISO(t.date)) + (pagado ? ' · abonado ' + money(pagado) + ' de ' + money(monto) : '') + '</span></button>' +
+  '<span class="num">' + money(falta) + '</span><button class="pill solid" data-dpay="' + esc(t.id) + '">' + deudaBoton(it) + '</button></div>'; }).join('') + '</div>';
+
+/* resumen por persona: cuánto le debes y cuánto te debe cada una (solo deudas abiertas con persona) */
+function deudasPorPersona(ab){
+  const m = new Map();
+  for (const it of ab) { if (!it.t.persona) continue; const k = it.t.persona.trim(), key = k.toLowerCase();
+    const x = m.get(key) || { nombre:k, debes:0, teDebe:0, suya:0 }; if (it.k === 'cobrar') x.teDebe += it.falta; else if (it.guardo) x.suya += it.falta; else x.debes += it.falta; m.set(key, x); }
+  const l = [...m.values()]; if (!l.length) return '';
+  return '<div class="pgroup">Por persona<span class="num">' + l.length + '</span></div><div>' + l.map(x =>
+    '<div class="set"><div class="t"><b>' + esc(x.nombre) + '</b><span>' + [x.debes ? 'Le debes ' + money(x.debes) : '', x.suya ? 'Tienes ' + money(x.suya) + ' suyos' : '', x.teDebe ? 'Te debe ' + money(x.teDebe) : ''].filter(Boolean).join(' · ') + '</span></div></div>').join('') + '</div>';
+}
+/* personas ya usadas, de la más reciente a la más vieja, para elegirlas con un toque */
+const personasUsadas = () => { const v = new Map(); for (const t of S.transactions.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0))) if (t.persona) { const k = t.persona.trim().toLowerCase(); if (!v.has(k)) v.set(k, t.persona.trim()); } return [...v.values()].slice(0, 8); };
 
 /* ----- tarjeta en Inicio, encima del saldo: revisar deudas antes del cierre del periodo.
    Sale siempre que haya deudas abiertas; sin deudas, solo en los últimos 5 días como confirmación. ----- */
 function deudasInicio(p){
-  if (!deudaAcc('pagar') && !deudaAcc('cobrar')) return '';
+  if (!deudaAcc('pagar') && !deudaAcc('cobrar') && !deudaAcc('pausa')) return '';
   const ab = deudasAbiertas(), today = iso(new Date());
   const faltan = today >= p.s && today <= p.e ? Math.round((parseISO(p.e) - parseISO(today)) / 864e5) + 1 : null, cierre = faltan !== null && faltan <= 5;
   if (!ab.length) return cierre ? '<div class="banner"><span><b>Sin deudas abiertas.</b> Llegas al cierre del periodo sin deber ni que te deban.</span></div>' : '';
-  const debes = ab.filter(x => x.k === 'pagar').reduce((a, x) => a + x.falta, 0), teDeben = ab.filter(x => x.k === 'cobrar').reduce((a, x) => a + x.falta, 0);
+  const debes = ab.filter(x => x.k !== 'cobrar').reduce((a, x) => a + x.falta, 0), teDeben = ab.filter(x => x.k === 'cobrar').reduce((a, x) => a + x.falta, 0);
   return '<section class="card"><div class="card-h"><h2>Revisa tus deudas</h2><span class="aside">' + (cierre ? '<b class="warn">' + (faltan === 1 ? 'Hoy cierra el periodo' : 'Faltan ' + faltan + ' días para el cierre') + '</b>' : ab.length + (ab.length === 1 ? ' abierta' : ' abiertas')) + '</span></div>' +
     '<div class="stats3 two-col"><div><span>Debes</span><b class="num' + (debes ? ' neg' : '') + '">' + money(debes) + '</b></div><div><span>Te deben</span><b class="num">' + money(teDeben) + '</b></div></div>' +
-    '<p class="note" style="padding:0">' + (cierre ? 'Págalas o cóbralas antes del cierre para que el sobrante del periodo sea real.' : 'Lo que debes ya está descontado; lo que te deben no suma hasta que te paguen.') + '</p>' +
+    '<p class="note" style="padding:0">' + (cierre ? 'Págalas o cóbralas antes del cierre para que el sobrante del periodo sea real.' : 'La plata de otros ya está descontada de tu disponible; las deudas en pausa no, hasta que las pagues.') + '</p>' +
     '<button class="btn ghost block" data-go="cuentas">Ver el detalle y registrar abonos</button></section>';
 }
 
 /* ----- tarjeta en Cuentas ----- */
 function deudasCard(){
-  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'); if (!P && !C) return '';
-  const B = balances(), ab = deudasAbiertas(), debes = debesTotal(B), teDeben = C ? Math.max(0, B[C.id] || 0) : 0;
-  let h = '<section class="card"><div class="card-h"><h2>Deudas</h2></div>' +
+  const ab = deudasAbiertas(), debes = ab.filter(x => x.k !== 'cobrar').reduce((a, x) => a + x.falta, 0), teDeben = ab.filter(x => x.k === 'cobrar').reduce((a, x) => a + x.falta, 0);
+  let h = '<section class="card"><div class="card-h"><h2>Deudas</h2><button class="btn sm" data-dnueva>+ Nueva</button></div>' +
     '<div class="stats3 two-col"><div><span>Debes</span><b class="num' + (debes ? ' neg' : '') + '">' + money(debes) + '</b></div><div><span>Te deben</span><b class="num">' + money(teDeben) + '</b></div></div>';
-  for (const [k, tit] of [['pagar', 'Lo que debes'], ['cobrar', 'Lo que te deben']]) { const l = ab.filter(x => x.k === k); if (l.length) h += '<div class="pgroup">' + tit + '<span class="num">' + l.length + '</span></div>' + deudaFilas(l); }
-  if (!ab.length) h += '<p class="insight">No tienes deudas abiertas.</p>';
+  for (const [f, tit] of [[x => x.guardo, 'Plata de otros en tus cuentas'], [x => x.k === 'pagar' && !x.guardo, 'Lo que debes'], [x => x.k === 'pausa', 'Deudas en pausa'], [x => x.k === 'cobrar', 'Lo que te deben']]) {
+    const l = ab.filter(f); if (l.length) h += '<div class="pgroup">' + tit + '<span class="num">' + l.length + '</span></div>' + deudaFilas(l); }
+  h += deudasPorPersona(ab);
+  if (!ab.length) h += '<p class="insight">No tienes deudas abiertas. Con <b>+ Nueva</b> registras lo que le debes a alguien, la plata de otra persona que tienes en tu cuenta o lo que prestaste.</p>';
   const sal = deudasTodas().filter(x => !x.falta).reverse();
   if (sal.length) { const ver = ui.dsal ? sal : sal.slice(0, 3);
     h += '<div class="pgroup">Saldadas<span class="num">' + sal.length + '</span></div><div>' + ver.map(({ t, k, abonos }) =>
-      '<div class="set deuda"><button class="t" data-dver="' + esc(t.id) + '"><b>' + esc(deudaNombre(t)) + '</b><span>' + (k === 'pagar' ? 'Pagaste' : 'Te pagaron') + ' ' + money(t.amount) + (abonos.length ? ' · saldada el ' + fmtShort(parseISO(abonos[abonos.length - 1].date)) + (abonos.length > 1 ? ' en ' + abonos.length + ' abonos' : '') : '') + '</span></button><span class="pos">✓</span></div>').join('') + '</div>' +
+      '<div class="set deuda"><button class="t" data-dver="' + esc(t.id) + '"><b>' + esc(deudaNombre(t)) + '</b><span>' + (k === 'cobrar' ? 'Te pagaron' : 'Pagaste') + ' ' + money(Math.abs(t.amount)) + (abonos.length ? ' · saldada el ' + fmtShort(parseISO(abonos[abonos.length - 1].date)) + (abonos.length > 1 ? ' en ' + abonos.length + ' abonos' : '') : '') + '</span></button><span class="pos">✓</span></div>').join('') + '</div>' +
       (sal.length > 3 ? '<button class="btn ghost block" data-dsal>' + (ui.dsal ? 'Ver menos' : 'Ver las ' + sal.length + ' saldadas') + '</button>' : ''); }
-  return h + '<p class="note" style="padding:0">Lo que debes ya está descontado de tu disponible; lo que te deben no suma hasta que te paguen.</p></section>';
+  return h + '<p class="note" style="padding:0">La plata de otros y lo que alguien pagó por ti ya están descontados de tu disponible. Las deudas en pausa no, hasta que las pagues. Lo que te deben no suma hasta que te paguen.</p></section>';
 }
 
 /* ----- hoja de Por pagar o Por cobrar: cada concepto por separado, con su propio pago ----- */
 function deudaCuentaSheet(k){
-  const pagar = k === 'pagar', todas = deudasTodas().filter(x => x.k === k), ab = todas.filter(x => x.falta), sal = todas.filter(x => !x.falta).reverse();
+  const pagar = k !== 'cobrar', todas = deudasTodas().filter(x => x.k === k), ab = todas.filter(x => x.falta), sal = todas.filter(x => !x.falta).reverse();
   const h = '<div class="sheet-h"><b id="sheet-title">' + DEUDA[k].name + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
     '<section class="card glow" style="padding:16px"><span class="label">' + (pagar ? 'Debes en total' : 'Te deben en total') + '</span><div class="tile-v num">' + money(ab.reduce((a, x) => a + x.falta, 0)) + '</div>' +
     '<span class="tile-s">' + (ab.length ? ab.length + (ab.length === 1 ? ' concepto abierto' : ' conceptos abiertos') + '. Cada uno se ' + (pagar ? 'paga' : 'cobra') + ' por separado, completo o por abonos.' : 'No hay conceptos abiertos.') + '</span></section>' +
     (ab.length ? deudaFilas(ab) : '') +
-    (sal.length ? '<div class="pgroup">Saldadas<span class="num">' + sal.length + '</span></div><div>' + sal.slice(0, 10).map(({ t }) => '<div class="set deuda"><button class="t" data-dver="' + esc(t.id) + '"><b>' + esc(deudaNombre(t)) + '</b><span>' + money(t.amount) + ' · ' + fmtShort(parseISO(t.date)) + '</span></button><span class="pos">✓</span></div>').join('') + '</div>' : '') +
-    '<p class="note" style="padding:0">Para sumar un concepto nuevo, regístralo ' + (pagar ? 'como gasto con "¿Lo pagó otra persona?"' : 'como transferencia con "¿Es un préstamo?"') + ' y ponle el concepto en la nota.</p></div>';
+    (sal.length ? '<div class="pgroup">Saldadas<span class="num">' + sal.length + '</span></div><div>' + sal.slice(0, 10).map(({ t }) => '<div class="set deuda"><button class="t" data-dver="' + esc(t.id) + '"><b>' + esc(deudaNombre(t)) + '</b><span>' + money(Math.abs(t.amount)) + ' · ' + fmtShort(parseISO(t.date)) + '</span></button><span class="pos">✓</span></div>').join('') + '</div>' : '') +
+    '<button class="btn ghost block" data-dnueva="' + k + '">+ Nueva deuda</button></div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
 
 /* ----- detalle de una deuda: concepto, abonos con fecha y cuenta, y lo que falta ----- */
 function deudaVerSheet(id){
   const it = deudasTodas().find(x => x.t.id === id); if (!it) return;
-  const { t, k, abonos, pagado, falta } = it, pagar = k === 'pagar';
+  const { t, k, abonos, pagado, falta, monto } = it, pagar = k !== 'cobrar';
   const h = '<div class="sheet-h"><b id="sheet-title">' + esc(deudaNombre(t)) + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
-    '<section class="card glow" style="padding:16px"><span class="label">' + (falta ? (pagar ? 'Te falta pagar' : 'Te falta recibir') : 'Saldada ✓') + '</span><div class="tile-v num">' + money(falta || t.amount) + '</div>' +
-    '<span class="tile-s">' + (pagar ? 'Deuda' : 'Préstamo') + ' de ' + money(t.amount) + ' del ' + fmtShort(parseISO(t.date)) + (pagado ? ' · abonado ' + money(pagado) : '') + '</span></section>' +
+    '<section class="card glow" style="padding:16px"><span class="label">' + (falta ? (pagar ? 'Te falta pagar' : 'Te falta recibir') : 'Saldada ✓') + '</span><div class="tile-v num">' + money(falta || monto) + '</div>' +
+    '<span class="tile-s">' + (it.guardo ? 'Plata de otra persona' : pagar ? 'Deuda' : 'Préstamo') + ' de ' + money(monto) + ' del ' + fmtShort(parseISO(t.date)) + (pagado ? ' · abonado ' + money(pagado) : '') + '</span></section>' +
     '<div><span class="label">Abonos</span>' + (abonos.length ? abonos.map(x => '<div class="set"><div class="t"><b class="num">' + money(x.amount) + '</b><span>' + fmtShort(parseISO(x.date)) + ' · ' + (pagar ? 'desde ' : 'a ') + esc(accShort(pagar ? x.accountId : x.toAccountId)) + '</span></div><button class="pill" data-tx="' + esc(x.id) + '">Editar</button></div>').join('') : '<p class="note" style="padding:0">Aún no hay abonos.</p>') + '</div>' +
-    (falta ? '<button class="btn accent block" data-dpay="' + esc(t.id) + '">' + (pagar ? 'Registrar un pago' : 'Registrar lo que te pagaron') + '</button>' : '') +
+    (falta ? '<button class="btn accent block" data-dpay="' + esc(t.id) + '">' + (it.guardo ? 'Registrar que se la devolviste' : pagar ? 'Registrar un pago' : 'Registrar lo que te pagaron') + '</button>' : '') +
     '<p class="note" style="padding:0">Puedes pagar el total o abonar por partes; cada abono queda aquí con su fecha.</p></div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
@@ -5058,10 +5082,10 @@ function deudaPagarSheet(id){
   deudaPagarDraw();
 }
 function deudaPagarDraw(){
-  const { it, acc } = DP, pagar = it.k === 'pagar';
+  const { it, acc } = DP, pagar = it.k !== 'cobrar';
   const opts = S.accounts.filter(a => !a.hidden && !esDeuda(a) && !isCard(a));
-  const h = '<div class="sheet-h"><b id="sheet-title">' + (pagar ? 'Pagar deuda' : 'Te pagaron') + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form dpay">' +
-    '<section class="card glow" style="padding:16px"><span class="label">' + esc(deudaNombre(it.t)) + '</span><div class="tile-v num">' + money(it.falta) + '</div><span class="tile-s">' + (pagar ? 'Te falta pagar' : 'Te falta recibir') + (it.pagado ? ' · ya van ' + money(it.pagado) + ' de ' + money(it.t.amount) : '') + '</span></section>' +
+  const h = '<div class="sheet-h"><b id="sheet-title">' + (it.guardo ? 'Devolver su plata' : pagar ? 'Pagar deuda' : 'Te pagaron') + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form dpay">' +
+    '<section class="card glow" style="padding:16px"><span class="label">' + esc(deudaNombre(it.t)) + '</span><div class="tile-v num">' + money(it.falta) + '</div><span class="tile-s">' + (it.guardo ? 'Te falta devolver' : pagar ? 'Te falta pagar' : 'Te falta recibir') + (it.pagado ? ' · ya van ' + money(it.pagado) + ' de ' + money(it.monto) : '') + '</span></section>' +
     '<div class="field"><label class="label" for="dp-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="dp-amt" inputmode="numeric" class="num" value="' + nf.format(it.falta) + '" style="font-size:28px"></div></div>' +
     '<div class="field"><span class="label">' + (pagar ? 'Sale de' : 'Llega a') + '</span><div class="cgrid">' + opts.map(a => '<button type="button" class="ctile sm" data-dpacc="' + esc(a.id) + '" aria-pressed="' + (acc === a.id) + '"><span class="nm">' + esc(accShort(a.id)) + '</span></button>').join('') + '</div></div>' +
     '<div class="err" id="dp-err"></div><button class="btn accent block" type="button" data-dpgo>Registrar</button></div>';
@@ -5077,11 +5101,11 @@ document.addEventListener('click', e => {
   if (d.dpgo !== undefined) { e.stopPropagation();
     const v = leerPesos($('#dp-amt').value), { it } = DP, err = m => { $('#dp-err').textContent = m; };
     if (!v) return err('Escribe el valor.'); if (v > it.falta) return err('Es más de lo que falta (' + money(it.falta) + ').'); if (!DP.acc) return err('Elige la cuenta.');
-    const D = deudaAcc(it.k), pagar = it.k === 'pagar';
+    const D = deudaAcc(it.k), pagar = it.k !== 'cobrar';
     S.transactions.push({ id:uid(), type:'transferencia', amount:v, date:iso(new Date()), ts:Date.now(), accountId:pagar ? DP.acc : D.id, toAccountId:pagar ? D.id : DP.acc,
-      note:(pagar ? 'Pago de deuda' : 'Te pagaron') + ': ' + deudaNombre(it.t), src:'deuda', auto:it.t.id });
+      note:(it.guardo ? 'Devolución' : pagar ? 'Pago de deuda' : 'Te pagaron') + ': ' + deudaNombre(it.t), src:'deuda', auto:it.t.id, ...(it.t.persona ? { persona:it.t.persona } : {}) });
     sortTx(S); save(); DP = null; closeSheet(); render(); dpVolver();
-    return toast(v === it.falta ? (pagar ? 'Deuda pagada' : 'Préstamo saldado') : 'Abono registrado · faltan ' + money(it.falta - v)); }
+    return toast(v === it.falta ? (it.guardo ? 'Plata devuelta' : pagar ? 'Deuda pagada' : 'Préstamo saldado') : 'Abono registrado · faltan ' + money(it.falta - v)); }
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'dp-amt') pesosCampo(e.target); });
 
@@ -5113,7 +5137,7 @@ function deudaToggle(){
 }
 const deudaNota = () => '<p class="note" style="padding:0;margin:0">' + (F.type === 'gasto'
   ? 'Cuenta en tu presupuesto desde hoy y resta de tu disponible. Cuando le pases la plata, págala en Cuentas › Deudas.'
-  : 'Sale de tu cuenta y no cuenta en tu disponible. Cuando te devuelvan, márcalo en Cuentas › Deudas.') + '</p>';
+  : 'Sale de tu cuenta y no cuenta en tu disponible. Cuando te devuelvan, márcalo en Cuentas › Deudas.') + '</p>' + deudaPersonaField();
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-fdeuda]'); if (!el || !F) return; e.stopPropagation(); syncForm();
   if (F.type === 'gasto') {
@@ -5182,6 +5206,62 @@ document.addEventListener('input', e => {
   if (e.target.id === 'f-aj') pesosCampo(e.target);
   F.ajena.monto = leerPesos($('#f-aj').value); box.innerHTML = ajenaNota(leerPesos($('#f-amt').value)); fbudRefrescar();
 });
+
+/* ----- nueva deuda con persona: los tres casos de Cuentas › Deudas › + Nueva -----
+   debo:   le debes a alguien y esa plata no está en tus cuentas: queda en pausa (no resta del disponible).
+   guardo: tienes plata de otra persona en una de tus cuentas: está ahí, pero no es tuya (resta del disponible).
+   preste: le prestaste a alguien: sale de tu cuenta y queda por cobrar. */
+const DN_TIPOS = [
+  ['debo', 'Le debo a alguien', 'La plata no está en tus cuentas. Queda en pausa y no resta de tu disponible hasta que la pagues.'],
+  ['guardo', 'Tengo plata de alguien', 'Está en una de tus cuentas, pero es de otra persona: no cuenta como tuya hasta que se la devuelvas.'],
+  ['preste', 'Le presté a alguien', 'Sale de tu cuenta y queda por cobrar. No suma a tu disponible hasta que te pague.']
+];
+let DN = null;
+function deudaNuevaSheet(k){
+  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount() };
+  deudaNuevaDraw();
+}
+function deudaNuevaDraw(){
+  const [, , ayuda] = DN_TIPOS.find(x => x[0] === DN.tipo), cuenta = DN.tipo !== 'debo';
+  const opts = S.accounts.filter(a => !a.hidden && !esDeuda(a) && !isCard(a)), gente = personasUsadas();
+  const h = '<div class="sheet-h"><b id="sheet-title">Nueva deuda</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form dnueva">' +
+    '<div class="field"><span class="label">¿Qué pasó?</span><div class="chips">' + DN_TIPOS.map(([id, t]) => '<button type="button" class="chip" data-dntipo="' + id + '" aria-pressed="' + (DN.tipo === id) + '">' + t + '</button>').join('') + '</div><span class="tile-s">' + ayuda + '</span></div>' +
+    '<div class="field"><label class="label" for="dn-persona">¿Con quién?</label><input class="inp" id="dn-persona" value="' + esc(DN.persona) + '" placeholder="Nombre de la persona" autocomplete="off">' +
+      (gente.length ? '<div class="chips" style="margin-top:8px">' + gente.map(g => '<button type="button" class="chip" data-dnper="' + esc(g) + '" aria-pressed="' + (DN.persona.toLowerCase() === g.toLowerCase()) + '">' + esc(g) + '</button>').join('') + '</div>' : '') + '</div>' +
+    '<div class="field"><label class="label" for="dn-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="dn-amt" inputmode="numeric" class="num" value="' + (DN.amt ? nf.format(DN.amt) : '') + '" placeholder="0" style="font-size:28px"></div></div>' +
+    (cuenta ? '<div class="field"><span class="label">' + (DN.tipo === 'guardo' ? '¿En qué cuenta está?' : '¿De qué cuenta salió?') + '</span><div class="cgrid">' + opts.map(a => '<button type="button" class="ctile sm" data-dnacc="' + esc(a.id) + '" aria-pressed="' + (DN.acc === a.id) + '"><span class="nm">' + esc(accShort(a.id)) + '</span></button>').join('') + '</div></div>' : '') +
+    '<div class="field"><label class="label" for="dn-note">Concepto (opcional)</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off"></div>' +
+    '<div class="err" id="dn-err"></div><button class="btn accent block" type="button" data-dngo>Guardar</button></div>';
+  if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
+}
+/* lo escrito en los campos sobrevive a redibujar la hoja al elegir otra opción */
+const dnLeer = () => { const p = $('#dn-persona'), n = $('#dn-note'), a = $('#dn-amt'); if (p) DN.persona = p.value.trim(); if (n) DN.note = n.value.trim(); if (a) DN.amt = leerPesos(a.value); };
+document.addEventListener('click', e => {
+  const el = e.target.closest('button'); if (!el) return; const d = el.dataset;
+  if (d.dnueva !== undefined) { e.stopPropagation(); return deudaNuevaSheet(d.dnueva); }
+  if (!DN || !el.closest('.dnueva')) return;
+  e.stopPropagation(); dnLeer();
+  if (d.dntipo) { DN.tipo = d.dntipo; return deudaNuevaDraw(); }
+  if (d.dnper) { DN.persona = d.dnper; return deudaNuevaDraw(); }
+  if (d.dnacc) { DN.acc = d.dnacc; return deudaNuevaDraw(); }
+  if (d.dngo !== undefined) {
+    const err = m => { $('#dn-err').textContent = m; };
+    if (!DN.persona) return err('Escribe con quién es la deuda.');
+    if (!DN.amt) return err('Escribe el valor.');
+    if (DN.tipo !== 'debo' && !accById(DN.acc)) return err('Elige la cuenta.');
+    const base = { id:uid(), amount:DN.amt, date:iso(new Date()), ts:Date.now(), note:DN.note, persona:DN.persona };
+    if (DN.tipo === 'debo') S.transactions.push({ ...base, type:'ajuste', amount:-DN.amt, accountId:deudaCrear('pausa').id, src:'deuda-nueva' });
+    else if (DN.tipo === 'guardo') S.transactions.push({ ...base, type:'transferencia', accountId:deudaCrear('pagar').id, toAccountId:DN.acc });
+    else S.transactions.push({ ...base, type:'transferencia', accountId:DN.acc, toAccountId:deudaCrear('cobrar').id });
+    const msg = DN.tipo === 'debo' ? 'Deuda en pausa con ' + DN.persona : DN.tipo === 'guardo' ? 'Plata de ' + DN.persona + ' apartada' : 'Préstamo a ' + DN.persona + ' registrado';
+    sortTx(S); save(); DN = null; closeSheet(); render(); return toast(msg);
+  }
+}, true);
+document.addEventListener('input', e => { if (e.target.id === 'dn-amt') pesosCampo(e.target); });
+
+/* ----- persona en el formulario de registro, cuando el gasto lo pagó otra persona o la transferencia es un préstamo ----- */
+const deudaPersonaField = () => '<input class="inp" id="f-persona" value="' + esc(F.persona || '') + '" placeholder="¿Con quién? (opcional)" autocomplete="off" style="margin-top:8px">';
+document.addEventListener('input', e => { if (e.target.id === 'f-persona' && F) F.persona = e.target.value; });
 
 /* ---------- Día de pago: el cierre del mes en cuatro pasos ----------
    El mes cierra cuando llega el sueldo. Ese día hay que quedar al día, cuadrar y repartir:
@@ -5642,7 +5722,7 @@ function snapshot(st){
   put('settings', 'me', { name:st.settings.name || null, start_day:st.settings.startDay || 1, period_mode:st.settings.periodMode || null, pay_last:st.settings.payLast || null, rate:st.settings.rate || 0, last_account:st.lastAccount || null, card_map:st.cardMap || {}, perfil:st.settings.perfil || null, ia_saldo:st.settings.iaSaldo || null, metas:(st.settings.metas || []).length ? st.settings.metas : null, ...(st.settings.exc ? { exc:st.settings.exc } : {}), ...(st.settings.cierres ? { cierres:st.settings.cierres } : {}), pin:st.settings.pin || null });
   for (const a of st.accounts) put('accounts', a.id, { id:a.id, name:a.name, grp:a.group || 'Otros', sort:a.order || 0, hidden:!!a.hidden, card:a.card || null, apart:!!a.apart, debt:a.debt || null });
   for (const c of st.categories) put('categories', c.id, { id:c.id, name:c.name, emoji:c.emoji || null, type:c.type, parent_id:c.parentId || null, sort:c.order || 0, hidden:!!c.hidden });
-  for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts || null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
+  for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts || null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, persona:t.persona || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
   for (const [k, v] of Object.entries(st.budgets || {})) put('budgets', k, { category_id:k, amount:Math.round(v) });
   for (const b of st.bills || []) put('bills', b.id, { id:b.id, name:b.name, category_id:b.categoryId || null, account_id:b.accountId || null, due_day:b.dueDay, lead:b.lead || 0, estimate:b.estimate || 0, active:b.active !== false, cycles:b.cycles || {}, every:b.every || 1, anchor:b.anchor || null, url:b.url || null, ref:b.ref || null });
   for (const r of st.recurring || []) put('recurring', r.id, { id:r.id, name:r.name, amount:r.amount, type:r.type || 'gasto', day:r.day, category_id:r.categoryId || null, account_id:r.accountId || null, active:r.active !== false, next:r.next });
@@ -5657,7 +5737,7 @@ function fromRows(R){
   st.accounts = R.accounts.map(r => ({ id:r.id, name:r.name, group:r.grp, order:r.sort, hidden:r.hidden, ...(r.card ? { card:r.card } : {}), ...(r.apart ? { apart:true } : {}), ...(r.debt ? { debt:r.debt } : {}) })).sort((a, b) => a.order - b.order);
   st.categories = R.categories.map(r => ({ id:r.id, name:r.name, emoji:r.emoji || '', type:r.type, parentId:r.parent_id || null, order:r.sort, hidden:r.hidden })).sort((a, b) => a.order - b.order);
   st.transactions = R.transactions.map(r => { const t = { id:r.id, type:r.type, amount:+r.amount, date:r.date, ts:+r.ts || 0, accountId:r.account_id, note:r.note || '' };
-    if (r.to_account_id) t.toAccountId = r.to_account_id; if (r.category_id) t.categoryId = r.category_id; if (r.src) t.src = r.src; if (r.auto) t.auto = r.auto; if (r.pending) t.pending = true; if (r.fund) t.fund = r.fund; if (r.grp) t.grp = r.grp; return t; });
+    if (r.to_account_id) t.toAccountId = r.to_account_id; if (r.category_id) t.categoryId = r.category_id; if (r.src) t.src = r.src; if (r.auto) t.auto = r.auto; if (r.pending) t.pending = true; if (r.fund) t.fund = r.fund; if (r.grp) t.grp = r.grp; if (r.persona) t.persona = r.persona; return t; });
   for (const b of R.budgets) st.budgets[b.category_id] = +b.amount;
   st.bills = R.bills.map(r => ({ id:r.id, name:r.name, categoryId:r.category_id, accountId:r.account_id, dueDay:r.due_day, lead:r.lead, estimate:+r.estimate, active:r.active, cycles:r.cycles || {}, every:+r.every || 1, anchor:r.anchor || null, url:r.url || '', ref:r.ref || '' }));
   st.recurring = R.recurring.map(r => ({ id:r.id, name:r.name, amount:+r.amount, type:r.type, day:r.day, categoryId:r.category_id, accountId:r.account_id, active:r.active, next:r.next }));
@@ -5682,7 +5762,7 @@ async function pull(){
   const remote = empty ? null : fromRows(R);
   lastSnap = remote ? snapshot(remote) : emptySnap();
   let pending = false; try { pending = localStorage.getItem(PEND) === '1'; } catch (_) {}
-  if (remote && !pending) { S = remote; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} }
+  if (remote && !pending) { if (lastSnap && JSON.stringify(S) !== JSON.stringify(remote)) copiaPrevia(); S = remote; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} }
   else if (remote && pending && S.demo) { S = remote; }
   else if (remote && pending && !(S.plans || []).length && remote.plans.length) { S.plans = remote.plans; }
   completarEstado(S);
@@ -6056,7 +6136,7 @@ function txForm(t, tipo){
   /* la parte ajena se edita desde su gasto */
   if (t && t.src === 'ajena' && t.grp) t = S.transactions.find(x => x.grp === t.grp && x.type === 'gasto') || t;
   if (t) { const c = cat(t.categoryId);
-    F = { id:t.id, type:t.type, amount:t.amount, date:t.date, note:t.note || '', accountId:t.accountId, toAccountId:t.toAccountId || null,
+    F = { id:t.id, type:t.type, amount:t.amount, date:t.date, note:t.note || '', persona:t.persona || '', accountId:t.accountId, toAccountId:t.toAccountId || null,
       parent: c ? (c.parentId || c.id) : null, sub: c && c.parentId ? c.id : null, pending:!!t.pending, fund:t.fund || null };
     if (t.grp) { const all = S.transactions.filter(x => x.grp === t.grp && x.id !== t.id && x.type === 'gasto'), sib = excCargar(t, all);
       F.grp = t.grp; F.amount += all.filter(x => !sib.includes(x)).reduce((a, x) => a + x.amount, 0); F.parts = sib.map(x => ({ id:x.id, cat:x.categoryId || '', acc:x.accountId, amount:x.amount })); F.amount += sib.reduce((a, x) => a + x.amount, 0);
@@ -6253,6 +6333,7 @@ function submitForm(){
   if (F.type === 'transferencia') { t.toAccountId = F.toAccountId; if (F.parent && esDeuda(accById(F.toAccountId))) t.categoryId = F.parent; }
   if (F.pending && (F.type === 'gasto' || F.type === 'ingreso')) t.pending = true;
   if (F.type === 'gasto' && F.fund && cardOf(F.accountId)) t.fund = F.fund;
+  if (F.persona && F.persona.trim() && (esDeuda(accById(t.accountId)) || esDeuda(accById(t.toAccountId)))) t.persona = F.persona.trim();
   const exA = excMonto(), grp = parts.length || exA || aj ? (F.grp || uid()) : null;
   if (grp) { t.grp = grp; t.amount = Math.abs(F.amount) - partsSum() - exA - aj; }
   if (!F.id && !F.dupOk && S.transactions.some(x => x.type === t.type && x.amount === t.amount && x.date === t.date && x.accountId === t.accountId)) {
@@ -6318,6 +6399,93 @@ async function importJSON(file){
     S = s; save(); ui.view = 'inicio'; ui.offset = 0; render(); toast('Respaldo restaurado'); }
   catch(e){ $('#impmsg').textContent = 'Ese archivo no es un respaldo de Caudal.'; }
 }
+
+/* ---------- Copias en el celular: para periodos largos sin internet ----------
+   Todo lo que se registra ya queda en el celular (localStorage) y se sube a la nube al volver la conexión.
+   Además, aquí se guarda una copia completa por día en la base del navegador (IndexedDB), las últimas
+   COPIAS_DIAS, y una copia antes de que la nube reemplace los datos del celular. Se pueden restaurar
+   o descargar desde Ajustes › Datos. Se pide almacenamiento persistente para que Android no las borre. */
+const COPIAS_DIAS = 14, COPIAS_PREVIAS = 3;
+let COPIAS = null, COPIA_T = null;
+
+function copiasDB(){
+  return new Promise((ok, no) => {
+    try { const r = indexedDB.open('caudal-copias', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('copias', { keyPath:'id' });
+      r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error);
+    } catch (e) { no(e); }
+  });
+}
+async function copiasTx(modo, fn){
+  const db = await copiasDB();
+  return new Promise((ok, no) => { const tx = db.transaction('copias', modo), st = tx.objectStore('copias'), r = fn(st);
+    tx.oncomplete = () => { db.close(); ok(r && r.result); }; tx.onerror = () => { db.close(); no(tx.error); }; });
+}
+/* id: el día (AAAA-MM-DD) para la copia diaria, o 'previa-<ts>' para la que se toma antes de sincronizar */
+async function copiaGuardar(id, data){
+  if (S.demo) return;
+  const json = data || JSON.stringify(S), n = (JSON.parse(json).transactions || []).length;
+  try {
+    await copiasTx('readwrite', st => st.put({ id, ts:Date.now(), n, data:json }));
+    const todas = await copiasLeer(), diarias = todas.filter(c => !c.id.startsWith('previa')), previas = todas.filter(c => c.id.startsWith('previa'));
+    const sobran = diarias.slice(COPIAS_DIAS).concat(previas.slice(COPIAS_PREVIAS));
+    if (sobran.length) await copiasTx('readwrite', st => { sobran.forEach(c => st.delete(c.id)); });
+    COPIAS = null;
+  } catch (_) { /* sin IndexedDB (incógnito): los datos siguen en localStorage */ }
+}
+/* de la más nueva a la más vieja, sin el contenido (solo para listar) */
+async function copiasLeer(){
+  const all = await copiasTx('readonly', st => st.getAll());
+  return (all || []).map(c => ({ id:c.id, ts:c.ts, n:c.n })).sort((a, b) => b.ts - a.ts);
+}
+const copiaDato = async id => { const c = await copiasTx('readonly', st => st.get(id)); return c && c.data; };
+
+/* copia del día: unos segundos después de cada cambio, sobrescribe la de hoy */
+const _saveCopias = save;
+save = function(){ const r = _saveCopias.apply(this, arguments); clearTimeout(COPIA_T); COPIA_T = setTimeout(() => copiaGuardar(iso(new Date())), 4000); return r; };
+/* antes de que la nube reemplace lo del celular (nube.js) */
+const copiaPrevia = () => { if (!S.demo) copiaGuardar('previa-' + Date.now(), JSON.stringify(S)); };
+
+/* que Android no borre los datos del celular cuando le falta espacio */
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => p || navigator.storage.persist()); } catch (_) {}
+
+/* ----- aviso sin conexión en Inicio ----- */
+function offlineBanner(){
+  if (navigator.onLine !== false || S.demo) return '';
+  return '<div class="banner"><span><b>Sin conexión.</b> Todo lo que registres queda guardado en tu celular y se sube solo cuando vuelva el internet.</span></div>';
+}
+window.addEventListener('offline', () => render());
+window.addEventListener('online', () => { render(); toast('Volvió la conexión: subiendo tus cambios'); });
+
+/* ----- Ajustes › Datos ----- */
+function copiasRow(){
+  if (S.demo) return '';
+  if (!COPIAS) { copiasLeer().then(l => { COPIAS = l; if (ui.view === 'ajustes') render(); }).catch(() => { COPIAS = []; }); COPIAS = []; }
+  const ult = COPIAS[0], hace = ult ? fmtShort(new Date(ult.ts)) + ', ' + new Date(ult.ts).toLocaleTimeString('es-CO', { hour:'numeric', minute:'2-digit' }) : '';
+  return '<div class="set"><div class="t"><b>Copias en este celular</b><span>' + (ult ? COPIAS.length + (COPIAS.length === 1 ? ' copia' : ' copias') + ' · la última del ' + hace + ' · funcionan sin internet' : 'Se crea una cada día que registres algo, aunque no haya internet.') + '</span></div>' +
+    (ult ? '<button class="btn sm ghost" id="copias">Ver</button>' : '') + '</div>';
+}
+function copiasSheet(arm){
+  const lista = COPIAS || [];
+  const h = '<div class="sheet-h"><b id="sheet-title">Copias en este celular</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
+    '<p class="insight" style="margin:0">Una por día (las últimas ' + COPIAS_DIAS + ') y otra cada vez que la nube cambió los datos del celular. Restaurar reemplaza lo que tienes ahora por esa copia.</p><div>' +
+    lista.map((c, i) => '<div class="set"' + (i ? '' : ' style="border-top:0"') + '><div class="t"><b>' + (c.id.startsWith('previa') ? 'Antes de sincronizar · ' : '') + fmtShort(new Date(c.ts)) + ', ' + new Date(c.ts).toLocaleTimeString('es-CO', { hour:'numeric', minute:'2-digit' }) + '</b><span>' + nf.format(c.n) + (c.n === 1 ? ' movimiento' : ' movimientos') + '</span></div>' +
+      '<button class="pill" data-cpdesc="' + esc(c.id) + '">Descargar</button><button class="pill' + (arm === c.id ? ' solid' : '') + '" data-cprest="' + esc(c.id) + '">' + (arm === c.id ? '¿Seguro?' : 'Restaurar') + '</button></div>').join('') + '</div></div>';
+  if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
+}
+document.addEventListener('click', async e => {
+  const el = e.target.closest('button'); if (!el) return; const d = el.dataset;
+  if (el.id === 'copias') { e.stopPropagation(); COPIAS = await copiasLeer().catch(() => []); return copiasSheet(); }
+  if (d.cpdesc) { e.stopPropagation(); const data = await copiaDato(d.cpdesc); if (!data) return toast('No encontré esa copia');
+    const a = document.createElement('a'), url = URL.createObjectURL(new Blob([data], { type:'application/json' }));
+    a.href = url; a.download = 'caudal-copia-' + d.cpdesc.replace('previa-', 'previa ') + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1e4); return; }
+  if (d.cprest) { e.stopPropagation();
+    if (!el.classList.contains('solid')) return copiasSheet(d.cprest);
+    const data = await copiaDato(d.cprest); if (!data) return toast('No encontré esa copia');
+    copiaPrevia(); /* por si se arrepiente: lo de ahora también queda guardado */
+    S = completarEstado(normBackup(JSON.parse(data))); S.demo = false; sortTx(S); save(); closeSheet(); ui.offset = 0; go('inicio');
+    return toast('Copia restaurada'); }
+}, true);
 
 /* ---------- Android: botón atrás, instalar la app y accesos rápidos ----------
    Atrás (botón o gesto del sistema): cierra la ventana abierta; si no hay ninguna, vuelve a Inicio;

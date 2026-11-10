@@ -3,9 +3,9 @@
    en sus atributos, así que los colores viven aquí con los mismos valores.
    Si cambias un color, cámbialo en los dos lugares. */
 const PAL = {
-  lima:'#C8F542',      // marca, ingresos, lo que va bien
+  lima:'#B49BFF',      // ingresos y lo que va bien (morado claro; la marca es morado oscuro)
   rosa:'#FF5C8A',      // gastos y lo que se pasa del límite
-  lavanda:'#8FA2FF',   // transferencias y ahorro
+  lavanda:'#5CC8FF',   // transferencias y ahorro (celeste)
   ambar:'#FFB443',     // avisos y ajustes
   agua:'#3FBF8F',
   coral:'#FF8A5C',

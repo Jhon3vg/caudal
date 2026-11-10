@@ -25,17 +25,18 @@
   --muted:#9AA0A8;
   --faint:#767C86;
   /* marca y significado. Los mismos valores viven en paleta.js para las gráficas */
-  --brand:#C8F542;       /* acción principal */
-  --on-brand:#0F1114;    /* texto sobre lima */
-  --in:#C8F542;          /* ingreso */
+  --brand:#7C3AED;       /* acción principal: morado oscuro */
+  --on-brand:#FFFFFF;    /* texto sobre morado */
+  --on-tc:#0F1114;       /* texto sobre el color de cada tipo de movimiento (claros) */
+  --in:#B49BFF;          /* ingreso: morado claro para que se lea sobre el fondo oscuro */
   --out:#FF5C8A;         /* gasto */
-  --move:#8FA2FF;        /* transferencia */
+  --move:#5CC8FF;        /* transferencia: celeste, para no confundirse con el morado */
   --adjust:#FFB443;      /* ajuste de saldo */
   --pos:var(--in);
   --neg:var(--out);
   --warn:#FFB443;
   --track:#2A2E35;       /* fondo de barras de progreso */
-  --hero:linear-gradient(118deg,#79CF5C 0%,#B6EE4A 45%,#E2FA7C 100%);
+  --hero:linear-gradient(118deg,#2E1065 0%,#5B21B6 50%,#7C3AED 100%);
   /* forma */
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --r-card:22px;
@@ -107,7 +108,7 @@ body.scrolled .top::before{border-bottom-color:var(--line)}
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:0 12px calc(var(--safe-b) + 10px);pointer-events:none}
 .nav-in{pointer-events:auto;max-width:496px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;height:var(--nav-h);padding:0 4px;border-radius:24px;background:rgba(24,27,32,.9);border:1px solid var(--line-2);box-shadow:0 12px 32px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 .nav-in>button[data-v]{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:500;color:var(--faint);transition:color .2s}
-.nav-in>button[data-v]::before{content:"";position:absolute;top:9px;left:50%;width:62px;height:34px;margin-left:-31px;border-radius:999px;background:rgba(200,245,66,.14);opacity:0;transform:scale(.4);transition:transform .3s cubic-bezier(.2,.9,.3,1.25),opacity .2s}
+.nav-in>button[data-v]::before{content:"";position:absolute;top:9px;left:50%;width:62px;height:34px;margin-left:-31px;border-radius:999px;background:rgba(180,155,255,.14);opacity:0;transform:scale(.4);transition:transform .3s cubic-bezier(.2,.9,.3,1.25),opacity .2s}
 .nav-in>button[data-v] svg{position:relative;width:24px;height:24px;transition:color .2s,transform .3s}
 .nav-in>button[aria-current="page"]{color:var(--ink);font-weight:600}
 .nav-in>button[aria-current="page"]::before{opacity:1;transform:none}
@@ -118,7 +119,7 @@ body.scrolled .top::before{border-bottom-color:var(--line)}
 .fab:active{transform:scale(.95)}
 .fab::after{content:"Registrar";font-size:15px}
 /* celular: botón flotante a la derecha, al alcance del pulgar; al bajar se encoge a un círculo */
-body>.fab{position:fixed;z-index:11;right:max(16px,calc((100vw - 520px) / 2 + 16px));bottom:calc(var(--nav-h) + var(--safe-b) + 26px);height:56px;padding:0 22px 0 18px;border-radius:28px;box-shadow:0 12px 28px rgba(0,0,0,.5),0 0 0 6px rgba(200,245,66,.12);transition:padding .25s,transform .15s}
+body>.fab{position:fixed;z-index:11;right:max(16px,calc((100vw - 520px) / 2 + 16px));bottom:calc(var(--nav-h) + var(--safe-b) + 26px);height:56px;padding:0 22px 0 18px;border-radius:28px;box-shadow:0 12px 28px rgba(0,0,0,.5),0 0 0 6px rgba(180,155,255,.12);transition:padding .25s,transform .15s}
 body>.fab::after{max-width:110px;overflow:hidden;white-space:nowrap;transition:max-width .25s,opacity .2s}
 body.fab-min>.fab{padding:0 16px;gap:0}
 body.fab-min>.fab::after{max-width:0;opacity:0}
@@ -145,10 +146,10 @@ body.lock>.fab{visibility:hidden}
 .hero-sub b{color:var(--ink);font-weight:600}
 .tile-v{font-size:24px;font-weight:600;letter-spacing:-.01em}
 .tile-s{font-size:12px;color:var(--muted)}
-/* tarjeta destacada en degradado lima, como la tarjeta del banco. Dentro de ella
-   se redefinen los colores de texto para que todo lo que contiene se lea en oscuro */
-.card.hero{background:var(--hero);color:var(--ink);--brand:#0F1114;--ink:#0F1114;--muted:rgba(15,17,20,.64);--faint:rgba(15,17,20,.5);--line:rgba(15,17,20,.12);--pos:#0F1114;--neg:#0F1114;--warn:#0F1114;--out:#0F1114;--in:rgba(15,17,20,.3);--track:rgba(15,17,20,.16)}
-.card.hero .pill{background:rgba(15,17,20,.12);color:var(--ink)}
+/* tarjeta destacada en degradado morado, como la tarjeta del banco. Dentro de ella
+   se redefinen los colores de texto para que todo lo que contiene se lea en claro */
+.card.hero{background:var(--hero);color:var(--ink);--brand:#FFFFFF;--ink:#FFFFFF;--muted:rgba(255,255,255,.74);--faint:rgba(255,255,255,.56);--line:rgba(255,255,255,.16);--pos:#FFFFFF;--neg:#FFFFFF;--warn:#FFFFFF;--out:#FFFFFF;--in:rgba(255,255,255,.4);--track:rgba(255,255,255,.18)}
+.card.hero .pill{background:rgba(255,255,255,.16);color:var(--ink)}
 /* accesos rápidos de la tarjeta destacada: un toque para registrar cada tipo */
 .qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px}
 .qa button{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:500}
@@ -202,7 +203,7 @@ body.lock>.fab{visibility:hidden}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 88px);z-index:30;padding:10px 16px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:13px;white-space:nowrap;opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:opacity .2s,transform .2s}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .hit{animation:hit 1.8s ease}
-@keyframes hit{0%,40%{background:rgba(200,245,66,.16);box-shadow:0 0 0 8px rgba(200,245,66,.16)}100%{background:transparent;box-shadow:0 0 0 8px transparent}}
+@keyframes hit{0%,40%{background:rgba(180,155,255,.16);box-shadow:0 0 0 8px rgba(180,155,255,.16)}100%{background:transparent;box-shadow:0 0 0 8px transparent}}
 /* barra de búsqueda e IA de inicio */
 .ask{display:flex;align-items:center;gap:8px}
 .ask-main,.ask-in{flex:1;min-width:0;border-radius:999px;background:var(--surface)}
@@ -319,7 +320,7 @@ body.lock>.fab{visibility:hidden}
 .rit-v>span{font-size:13px;line-height:1.5;color:var(--muted)}
 .rit-v>span b{font-weight:600}
 .subbar{position:relative;display:flex;justify-content:space-between;gap:10px;width:100%;margin-top:6px;padding:10px 12px;overflow:hidden;border:1px solid var(--line);border-radius:12px;font-size:13.5px;text-align:left}
-.subbar i{position:absolute;inset:0 auto 0 0;background:rgba(200,245,66,.16)}
+.subbar i{position:absolute;inset:0 auto 0 0;background:rgba(180,155,255,.16)}
 .subbar span{position:relative}
 .subbar .num{font-weight:600}
 .subbar.on{border-color:var(--brand)}
@@ -368,7 +369,7 @@ body.lock>.fab{visibility:hidden}
 /* día de pago: las tareas de cada paso se leen completas */
 .dp .rmain span{white-space:normal;margin-top:2px}
 .dp .pill{height:auto;min-height:32px;padding-block:6px;white-space:normal;text-align:left;max-width:100%}
-.pchk{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(200,245,66,.14);color:var(--pos);font-weight:600}
+.pchk{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(180,155,255,.14);color:var(--pos);font-weight:600}
 .pdot{flex:none;width:10px;height:10px;border-radius:50%}
 
 /* ---------- 7. Formularios y hoja inferior ---------- */
@@ -420,8 +421,8 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .pendt[aria-pressed="true"]{color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
 /* registro: cada tipo pinta la hoja con su color (--tc) y su versión suave (--tcs) */
 .sheet.t-gasto{--tc:var(--out);--tcs:rgba(255,92,138,.12)}
-.sheet.t-ingreso{--tc:var(--in);--tcs:rgba(200,245,66,.10)}
-.sheet.t-transferencia{--tc:var(--move);--tcs:rgba(143,162,255,.13)}
+.sheet.t-ingreso{--tc:var(--in);--tcs:rgba(180,155,255,.10)}
+.sheet.t-transferencia{--tc:var(--move);--tcs:rgba(92,200,255,.13)}
 .sheet.t-ajuste{--tc:var(--adjust);--tcs:rgba(255,180,67,.12)}
 .sheet[class*="t-"]{--brand:var(--tc)}
 .ttl{display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:19px!important}
@@ -430,12 +431,12 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 /* pestañas de tipo: un indicador del color del tipo se desliza bajo la pestaña activa (y sigue el dedo) */
 .seg.tabs{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:0;padding:4px;border-radius:999px;background:var(--surface)}
 .sheet .seg.tabs button,.sheet .seg.tabs button[aria-pressed="true"]{position:relative;z-index:1;justify-content:center;height:38px;padding-inline:6px;background:transparent;color:var(--muted);transition:color .2s}
-.sheet .seg.tabs button[aria-pressed="true"]{color:var(--on-brand);font-weight:600}
+.sheet .seg.tabs button[aria-pressed="true"]{color:var(--on-tc);font-weight:600}
 .seg-ind{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px) / var(--n));border-radius:999px;background:var(--tc,var(--surface-3));transform:translateX(calc(var(--i) * 100%));transition:transform .28s cubic-bezier(.2,.8,.2,1),background .2s}
 .fpage{display:flex;flex-direction:column;gap:18px}
 .sheet[class*="t-"] .ctile[aria-pressed="true"],
 .sheet[class*="t-"] .chip[aria-pressed="true"],
-.sheet[class*="t-"] .btn.accent{background:var(--tc);color:var(--on-brand)}
+.sheet[class*="t-"] .btn.accent{background:var(--tc);color:var(--on-tc)}
 .sheet[class*="t-"] .amount{background:var(--tcs);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tc) 40%,transparent)}
 .sheet[class*="t-"] .amount span,.sheet[class*="t-"] .amount input{color:var(--tc)}
 .sheet[class*="t-"] .amount input::placeholder{color:color-mix(in srgb,var(--tc) 45%,transparent)}
@@ -470,7 +471,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .smart-tools{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px;border-top:1px solid var(--line)}
 .tool{display:inline-flex;align-items:center;gap:6px;height:36px;padding-inline:12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted)}
 .tool.rec{background:var(--brand);color:var(--on-brand);border-color:transparent;animation:pulse 1.2s infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(200,245,66,.2)}}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(180,155,255,.2)}}
 .thumbs{display:flex;flex-wrap:wrap;gap:8px}
 .thumb{position:relative;width:72px;height:72px;overflow:hidden;border:1px solid var(--line-2);border-radius:var(--r-field)}
 .thumb img{width:100%;height:100%;object-fit:cover}
@@ -570,7 +571,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .setrow .t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brow .r{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .bst{padding:2px 8px;border-radius:99px;background:var(--surface-2);font-size:11px;white-space:nowrap;color:var(--muted)}
-.bst.ok{background:rgba(200,245,66,.14);color:var(--pos)}
+.bst.ok{background:rgba(180,155,255,.14);color:var(--pos)}
 .bst.due{background:rgba(255,180,67,.16);color:var(--warn)}
 /* categorías en Ajustes */
 .brow .catdet{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
