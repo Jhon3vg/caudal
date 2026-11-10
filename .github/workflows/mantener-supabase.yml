@@ -1,0 +1,49 @@
+# Mantiene activo el proyecto gratuito de Supabase de Caudal.
+# Supabase pausa los proyectos gratuitos que pasan 7 días sin actividad en la base. Esta tarea hace una
+# consulta mínima todos los días (la función mantener_activo, que solo devuelve la hora), aunque nadie abra la app.
+# GitHub apaga las tareas programadas de un repo público que pasa 60 días sin cambios; por eso, si el último
+# cambio tiene más de 45 días, deja un commit vacío para que siga corriendo.
+name: Mantener Supabase activo
+
+on:
+  schedule:
+    - cron: '17 13 * * *'   # todos los días, 8:17 a. m. hora de Colombia
+  workflow_dispatch:         # también se puede correr a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  consulta:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consulta a la base de datos
+        env:
+          URL: https://nsjhlribblnlasdqywgt.supabase.co
+          KEY: sb_publishable_MDEzoyM1UcL-AmiqIcoppg_Lc_GqESl   # llave pública: puede ir en el repo
+        run: |
+          for intento in 1 2 3; do
+            codigo=$(curl -s -o respuesta.txt -w '%{http_code}' -X POST "$URL/rest/v1/rpc/mantener_activo" \
+              -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}')
+            echo "Intento $intento: $codigo $(cat respuesta.txt)"
+            [ "$codigo" = "200" ] && exit 0
+            sleep 20
+          done
+          echo "Supabase no respondió. Si el proyecto está pausado, reanúdalo en supabase.com (Resume project)."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Evitar que GitHub apague esta tarea
+        run: |
+          ultimo=$(git log -1 --format=%ct)
+          dias=$(( ( $(date +%s) - ultimo ) / 86400 ))
+          echo "Último cambio hace $dias días"
+          if [ "$dias" -ge 45 ]; then
+            git config user.name "Caudal"
+            git config user.email "caudal@users.noreply.github.com"
+            git commit --allow-empty -m "Mantener activa la tarea diaria de Supabase"
+            git push
+          fi
