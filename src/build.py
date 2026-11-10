@@ -21,6 +21,7 @@ ORDEN = [
     'recibos.js', 'categorias.js', 'teclado.js',
     'plan.js', 'reacomodar.js', 'preguntar.js', 'explorar.js', 'cuadre.js', 'asistente.js', 'tarjeta.js', 'excedentes.js', 'deudas.js', 'diapago.js', 'intereses.js', 'aprendizaje.js', 'avisos.js', 'nube.js', 'clave.js',
     'registro.js', 'importacion.js',
+    'bienvenida.js',         # bienvenida de 3 pasos y primeros pasos en Inicio
     'cuentas-editar.js',     # crear y editar cuentas, tarjetas de crédito y su orden
     'copias.js',             # copias diarias en el celular para cuando no hay internet
     'android.js',            # botón atrás, instalar y accesos rápidos en Android

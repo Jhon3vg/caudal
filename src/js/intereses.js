@@ -22,7 +22,7 @@ const intHechos = () => { const c = intCat(), desde = intDesde(); return c ? S.t
 
 function interesesBanner(){
   const hoy = new Date().getDate();
-  if (S.demo || hoy < INT_DIA || hoy > 12 || intHechos().length || lsGet('int.luego') === iso(new Date()) || !intCuentas().length) return '';
+  if (S.demo || !S.settings.rate || hoy < INT_DIA || hoy > 12 || intHechos().length || lsGet('int.luego') === iso(new Date()) || !intCuentas().length) return '';
   return '<div class="banner"><span><b>Llegaron los intereses del mes.</b> Regístralos para que tus bolsillos sigan cuadrados.</span><span style="display:flex;gap:6px;flex-wrap:wrap">' +
     '<button class="btn sm ghost" data-intluego>Aún no</button>' + (aiOn() ? '<button class="btn sm" data-intfoto>Con captura</button>' : '') + '<button class="btn sm' + (aiOn() ? ' ghost' : '') + '" data-intmano>A mano</button></span></div>';
 }

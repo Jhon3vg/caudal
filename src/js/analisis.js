@@ -215,6 +215,9 @@ function flowCard(p){
 }
 function vAnalisis(p){
   const { exp } = totals(p);
+  if (!S.transactions.some(t => t.type === 'gasto')) return '<div class="hello"><h1>Análisis</h1><p>En qué se va tu plata</p></div>' +
+    '<section class="card vacio"><h2>Aquí vas a ver en qué se te va la plata</h2><p class="insight">Cuando registres tus gastos, esta pantalla te muestra cuánto gastas por categoría, si vas más rápido de lo que alcanza y cómo te va frente al mes pasado.</p>' +
+    '<button class="btn accent block" data-paso="gasto">Registrar mi primer gasto</button></section>';
   return '<div class="hello"><h1>Análisis</h1><p>' + money(exp) + ' gastados del ' + fmtShort(p.start) + ' al ' + fmtShort(p.end) + '</p></div>' +
     flowCard(p) + chartRitmo(p) + chartCategorias(p) + (planFor(p) ? '' : chartPresupuestos(p)) + chartCalendario(p) + chartPeriodos();
 }

@@ -75,7 +75,7 @@ function avItems(){
     if (pend.length) add('mover', at(day(1), 12, 30), (pend.length === 1 ? 'Un valor' : pend.length + ' valores') + ' por confirmar', 'Corrígelos con lo que dice el banco para que tus cuentas cuadren.');
   }
   if (avOn('cierre')) { const p1 = period(1); add('cierre', at(p1.start, 9), 'Cerró tu periodo', 'Mira cómo te fue y qué ajustar del plan.'); }
-  if (avOn('intereses')) { const d = new Date(), m = d.getDate() > INT_DIA || intHechos().length ? 1 : 0;
+  if (avOn('intereses') && S.settings.rate) { const d = new Date(), m = d.getDate() > INT_DIA || intHechos().length ? 1 : 0;
     add('intereses', at(new Date(d.getFullYear(), d.getMonth() + m, INT_DIA), 9), 'Llegaron los intereses', 'Regístralos en Caudal con una captura de tus bolsillos.'); }
   return out;
 }
@@ -107,7 +107,7 @@ function pushCard(){
   if (!AV.on) return h + '<p class="insight">Te llegan al celular aunque no abras la app: recibos por vencer, el pago de la tarjeta, un recordatorio para registrar el día y más.</p>' +
     (AV.msg ? '<div class="err">' + esc(AV.msg) + '</div>' : '') + '<button class="btn accent block" data-avon' + (AV.busy ? ' disabled' : '') + '>' + (AV.busy ? 'Activando…' : 'Activar avisos') + '</button></section>';
   const P = avPrefs();
-  h += '<div>' + AV_KINDS.map(([k, t, s], i) => '<div class="set"' + (i ? '' : ' style="border-top:0"') + '><div class="t"><b>' + t + '</b><span>' + s + '</span></div><button class="pill" data-avk="' + k + '" aria-pressed="' + (P[k] !== false) + '">' + (P[k] !== false ? 'Sí' : 'No') + '</button></div>').join('') + '</div>';
+  h += '<div>' + AV_KINDS.filter(([k]) => k !== 'intereses' || S.settings.rate).map(([k, t, s], i) => '<div class="set"' + (i ? '' : ' style="border-top:0"') + '><div class="t"><b>' + t + '</b><span>' + s + '</span></div><button class="pill" data-avk="' + k + '" aria-pressed="' + (P[k] !== false) + '">' + (P[k] !== false ? 'Sí' : 'No') + '</button></div>').join('') + '</div>';
   const hr = +(P.hora || 20);
   if (P.diario !== false) h += '<div class="field" style="margin-top:6px"><span class="label">Hora del repaso del día</span><div class="pills">' + [19, 20, 21, 22].map(x => '<button class="pill" data-avh="' + x + '" aria-pressed="' + (hr === x) + '">' + (x - 12) + ' p. m.</button>').join('') + '</div></div>';
   return h + '<div class="two"><button class="btn ghost" data-avtest>Enviar prueba</button><button class="btn ghost" data-avoff>Desactivar</button></div></section>';

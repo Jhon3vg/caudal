@@ -51,12 +51,13 @@ function installBanner(){
   if (!INSTALL) return '';
   return '<div class="banner"><span><b>Instala Caudal.</b> Queda como app en tu celular, con su ícono y sin la barra del navegador.</span><button class="btn sm" id="instalar">Instalar</button></div>';
 }
-document.addEventListener('click', async e => {
-  if (!e.target.closest('#instalar') || !INSTALL) return;
+async function instalarApp(){
+  if (!INSTALL) return toast('En Chrome: menú ⋮ → Instalar app (o Agregar a pantalla principal)', 4000);
   const ev = INSTALL; INSTALL = null; ev.prompt();
   try { const r = await ev.userChoice; if (r.outcome !== 'accepted') INSTALL = ev; } catch (_) {}
   render();
-});
+}
+document.addEventListener('click', e => { if (e.target.closest('#instalar')) instalarApp(); });
 
 /* ----- accesos rápidos del ícono (mantener presionado) ----- */
 function lanzarAccion(){

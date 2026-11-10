@@ -16,6 +16,7 @@ function closeSheet(){
   if (document.body.classList.contains('lock')) { document.body.classList.remove('lock'); document.body.style.top = ''; window.scrollTo(0, LOCKY); }
   F = null; SM = null; BF = null; if (typeof MF !== 'undefined') MF = null; RF = null; PF = null; IF = null; CQ = null; CQ_RET = null; if (REC) { try { REC.stop(); } catch (_) {} REC = null; }
 }
+document.addEventListener('toggle', e => { if (F && e.target.classList && e.target.classList.contains('masop')) F.masOpen = e.target.open; }, true);
 function lastAccount(){ return S.lastAccount && accById(S.lastAccount) ? S.lastAccount : (S.accounts.find(a => !a.hidden) || {}).id; }
 function txForm(t, tipo){
   ui.delArm = false;
@@ -49,6 +50,7 @@ function drawForm(){
     types.map(([k, l]) => '<button type="button" data-ft="' + k + '" aria-pressed="' + (F.type === k) + '">' + l + '</button>').join('') + '</div><div class="fpage">';
   h += freqChips();
   h += '<div class="amount"><span>' + (F.type === 'ajuste' ? (F.amount < 0 ? '−' : '+') : TIPOS[F.type].signo) + '$' + '</span><input id="f-amt" class="num" inputmode="numeric" autocomplete="off" placeholder="0" value="' + (F.amount ? nf.format(Math.abs(F.amount)) : '') + '" aria-label="Valor"></div><div class="err" id="f-err"></div>';
+  let mas = '', masOn = false; /* opciones avanzadas: van al final, en "Más opciones" */
   if (F.type === 'gasto' || F.type === 'ingreso') {
     const g = F.type === 'gasto', m = g ? F.splitMode : null;
     const tog = g && !excMonto() ? '<button type="button" class="xtog" data-xmode aria-pressed="' + !!m + '">' + (m ? '✕ No dividir' : '÷ Dividir') + '</button>' : '';
@@ -59,7 +61,8 @@ function drawForm(){
     const deu = g && esDeuda(accById(F.accountId));
     /* dividido: cada fila trae su cuenta, así que aquí solo se resume de dónde sale la plata */
     h += m ? '</div><div class="field"><span class="label">Sale de</span><div class="xres" id="f-xres">' + splitCuentas() + '</div></div>' + fundField() + ajenaField()
-      : '</div><div class="field"><span class="label">Cuenta</span>' + (deu ? deudaNota() : accChips('accountId')) + (g ? deudaToggle() : '') + '</div>' + (deu ? '' : fundField() + excField() + (g ? ajenaField() : ''));
+      : '</div><div class="field"><span class="label">Cuenta</span>' + (deu ? deudaNota() : accChips('accountId')) + '</div>' + (deu ? '' : fundField() + excField());
+    if (g && !m) { mas += deudaToggle() + (deu ? '' : ajenaField()); masOn = deu || !!(F.ajena && F.ajena.on); }
   } else if (F.type === 'transferencia') {
     const deu = esDeuda(accById(F.toAccountId));
     h += '<div class="field"><span class="label">Desde</span>' + accChips('accountId') + '</div><div class="field"><span class="label">Hacia</span>' + (deu ? deudaNota() : accChips('toAccountId')) + deudaToggle() + '</div>' + (deu ? deudaRubro() : '');
@@ -69,7 +72,8 @@ function drawForm(){
   /* la nota va a lo ancho y crece con el texto, para leerla completa al abrir el movimiento */
   h += '<div class="field"><label class="label" for="f-note">Nota</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Opcional">' + esc(F.note) + '</textarea></div>' +
     '<div class="field"><label class="label" for="f-date">Fecha</label><input class="inp" type="date" id="f-date" value="' + F.date + '"></div>';
-  if (F.type === 'gasto' || F.type === 'ingreso') h += '<button type="button" class="pill pendt" id="f-pend" aria-pressed="' + !!F.pending + '">' + (F.pending ? '◐ Valor aproximado: por confirmar' : '◐ ¿No recuerdas el valor exacto? Márcalo por confirmar') + '</button>';
+  if (F.type === 'gasto' || F.type === 'ingreso') { masOn = masOn || !!F.pending; mas += '<button type="button" class="pill pendt" id="f-pend" aria-pressed="' + !!F.pending + '">' + (F.pending ? '◐ Valor aproximado: por confirmar' : '◐ ¿No recuerdas el valor exacto? Márcalo por confirmar') + '</button>'; }
+  if (mas) h += '<details class="howto masop"' + (masOn || F.masOpen ? ' open' : '') + '><summary>Más opciones</summary><div class="masop-in">' + mas + '</div></details>';
   h += '<button class="btn accent block" type="submit">' + (F.id ? (F.pending ? 'Guardar' : 'Guardar cambios') : 'Registrar') + '</button>';
   if (F.id) h += '<button class="btn block ' + (ui.delArm ? 'danger' : 'ghost') + '" type="button" id="f-del">' + (ui.delArm ? 'Toca otra vez para eliminar' : (F.grp ? 'Eliminar el gasto completo' : 'Eliminar movimiento')) + '</button>';
   h += '</div></form>';

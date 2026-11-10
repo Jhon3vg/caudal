@@ -49,7 +49,7 @@ function vInicio(p){
   const N = daysIn(p), ti = todayIdx(p);
   const head = '<div class="hello"><h1>Hola' + (userName() ? ', <em>' + esc(userName()) + '</em>' : '') + '</h1><p>Así va tu dinero del ' + fmtShort(p.start) + ' al ' + fmtShort(p.end) + '</p></div>';
   let out = '';
-  const demo = offlineBanner() + installBanner() + (!S.demo ? '' : '<div class="banner"><span><b>Datos de ejemplo.</b> Tus categorías y cuentas con movimientos ficticios.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="fresh">Empezar en blanco</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>');
+  const demo = offlineBanner() + installBanner() + pasosCard() + (!S.demo ? '' : '<div class="banner"><span><b>Estos son datos de ejemplo</b> para que veas cómo funciona. Cuando quieras, arma tu Caudal con tus cuentas reales.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="bienvenida">Configurar mi Caudal</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>');
   const saleW = inc ? Math.min(100, exp / inc * 100) : (exp ? 100 : 0);
   const rate = inc ? Math.round((inc - exp) / inc * 100) : null;
   out += semanalCard() + inboxCard() + pendingCard() + movesCard() + (iaBanner() || diaPagoBanner() || interesesBanner() || cuadreReminder() || aiNudges());
@@ -134,7 +134,7 @@ function vInicioDesk(p, x){
 function txCells(t){
   const a = accById(t.accountId), nm = id => { const z = accById(id); return z ? accShort(z.id) : '?'; };
   if (t.type === 'transferencia') return { ico:'⇄', desc:t.note || 'Transferencia', cat:'Transferencia', acc:nm(t.accountId) + ' → ' + nm(t.toAccountId), amt:money(t.amount), cls:'muted' };
-  if (t.type === 'ajuste') return { ico:'±', desc:t.src === 'cuadre' ? 'Cuadre de cuenta' : 'Ajuste de saldo', cat:'Ajuste', acc:a ? accShort(a.id) : '', amt:money(t.amount, true), cls:'muted' };
+  if (t.type === 'ajuste') return { ico:'±', desc:t.src === 'cuadre' ? 'Cuadre de cuenta' : t.note === 'Saldo inicial' ? 'Saldo inicial' : 'Ajuste de saldo', cat:'Ajuste', acc:a ? accShort(a.id) : '', amt:money(t.amount, true), cls:'muted' };
   const c = cat(t.categoryId), pc = parentOf(c);
   return { ico:(c && c.emoji) || (pc && pc.emoji) || '•', desc:t.note || (c ? c.name : 'Sin categoría'), cat:c ? (c.parentId && pc ? pc.name + ' › ' + c.name : c.name) : 'Sin categoría',
     acc:(a ? accShort(a.id) : '') + (t.fund ? ' · con ' + accShort(t.fund) : ''), amt:t.type === 'ingreso' ? money(t.amount, true) : money(-t.amount), cls:t.type === 'ingreso' ? 'pos' : '' };

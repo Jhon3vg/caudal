@@ -89,8 +89,6 @@ document.addEventListener('click', e => {
   if (d.close !== undefined) return closeSheet();
   if (el.id === 'copyjson') { const txt = JSON.stringify(S);
     navigator.clipboard.writeText(txt).then(() => toast('Respaldo copiado'), () => { $('#impmsg').textContent = 'Tu navegador no dejó copiar. Intenta de nuevo desde Chrome.'; }); return; }
-  /* salir del ejemplo sin respaldo: cuentas y categorías base, sin movimientos; desde aquí se guarda en la nube */
-  if (el.id === 'fresh') { S = completarEstado({ ...JSON.parse(JSON.stringify(SEED)), demo:false, transactions:[], budgets:{} }); save(); ui.offset = 0; go('inicio'); return toast('Listo: empieza a registrar tus movimientos'); }
   if (el.id === 'reset') { if (!ui.resetArm) { ui.resetArm = true; return render(); }
     try { localStorage.removeItem(KEY); } catch(_){} S = makeDemo(); ui = { ...ui, resetArm:false, offset:0, accFilter:null }; go('inicio'); return toast('Datos borrados'); }
   if (d.k && d.k.startsWith('rv') && (d.gp || d.gsel || d.gs || d.gopen) && SM && SM.items) { const it = SM.items[+d.k.slice(2)]; if (!it) return;
