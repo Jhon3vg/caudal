@@ -3,11 +3,13 @@ let F = null, LOCKY = 0;
 function openSheet(html){
   $('#sheet').classList.remove('t-gasto', 't-ingreso', 't-transferencia', 't-ajuste');
   const sh = $('#sheet'), sc = $('#scrim');
+  if (sh.hidden) sheetPushed(); /* Android: atrás cierra la ventana */
   sh.className = 'sheet'; sh.innerHTML = '<div class="grab"></div>' + html; sh.hidden = false; sc.hidden = false; sh.scrollTop = 0;
   if (!document.body.classList.contains('lock')) { LOCKY = window.scrollY; document.body.style.top = -LOCKY + 'px'; document.body.classList.add('lock'); }
   requestAnimationFrame(() => { sh.classList.add('on'); sc.classList.add('on'); });
 }
 function closeSheet(){
+  sheetClosed();
   const sh = $('#sheet'), sc = $('#scrim');
   sh.classList.remove('on'); sc.classList.remove('on');
   setTimeout(() => { sh.hidden = true; sc.hidden = true; sh.innerHTML = ''; sh.className = 'sheet'; }, 260);

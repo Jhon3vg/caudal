@@ -50,4 +50,4 @@ document.addEventListener('submit', e => {
 
 completarEstado(S);
 runRecurring();
-intake();
+setTimeout(intake, 0); /* después de cargar todos los módulos: guardar usa funciones de recibos.js */

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -886,7 +886,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261110001233';
+const BUILD = '20261110001809';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -1283,7 +1283,7 @@ function vInicio(p){
   const N = daysIn(p), ti = todayIdx(p);
   const head = '<div class="hello"><h1>Hola' + (userName() ? ', <em>' + esc(userName()) + '</em>' : '') + '</h1><p>Así va tu dinero del ' + fmtShort(p.start) + ' al ' + fmtShort(p.end) + '</p></div>';
   let out = '';
-  const demo = !S.demo ? '' : '<div class="banner"><span><b>Datos de ejemplo.</b> Tus categorías y cuentas con movimientos ficticios.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="fresh">Empezar en blanco</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>';
+  const demo = installBanner() + (!S.demo ? '' : '<div class="banner"><span><b>Datos de ejemplo.</b> Tus categorías y cuentas con movimientos ficticios.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="fresh">Empezar en blanco</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>');
   const saleW = inc ? Math.min(100, exp / inc * 100) : (exp ? 100 : 0);
   const rate = inc ? Math.round((inc - exp) / inc * 100) : null;
   out += semanalCard() + inboxCard() + pendingCard() + movesCard() + (iaBanner() || diaPagoBanner() || interesesBanner() || cuadreReminder() || aiNudges());
@@ -1677,8 +1677,8 @@ const SET_SECS = [
   { id:'asistente', t:'Asistente con IA', k:'ia inteligencia artificial perfil creditos consumo claude saldo lo que debe saber',
     i:SI('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>'),
     show:() => !!iaCard(), s:() => 'Lo que sabe de ti y cuánto gasta' },
-  { id:'atajos', t:'Registro automático', k:'atajos iphone apple pay sms correo siri llave direccion banco notificacion',
-    i:SI('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'), s:() => 'Atajos del iPhone, Apple Pay y SMS' },
+  { id:'atajos', t:'Registro automático', k:'atajos android macrodroid notificacion banco sms compartir llave direccion',
+    i:SI('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'), s:() => 'Notificaciones del banco, SMS y compartir' },
   { id:'cuenta', t:'Cuenta y nube', k:'nube supabase sesion cerrar sincronizar correo cuenta entrar salir',
     i:SI('<path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 10.5 3.75 3.75 0 0 0 7 18z"/>'),
     show:() => typeof sb !== 'undefined' && !!sb, s:() => typeof session !== 'undefined' && session ? (session.user.email || 'Sesión iniciada') : 'Solo en este dispositivo' },
@@ -1719,7 +1719,7 @@ function setSecBody(id){
       '<div class="set" style="border-top:0"><div class="t"><b>Importar de Money Manager</b><span>Archivo .mmbak. Se lee aquí mismo, no se sube a ningún lado.</span></div><label class="btn sm file">Elegir<input type="file" id="mmfile" accept=".mmbak,.db,.sqlite,application/octet-stream"></label></div>' +
       '<div class="set"><div class="t"><b>Restaurar respaldo</b><span>Archivo .json copiado antes desde Caudal.</span></div><label class="btn sm ghost file">Elegir<input type="file" id="jsonfile" accept=".json,application/json,text/plain"></label></div>' +
       '<div class="set"><div class="t"><b>Pegar respaldo</b><span>Restaura el texto que copiaste con Copiar respaldo.</span></div><button class="btn sm ghost" id="pastejson">Pegar</button></div></div></section>' +
-      '<p class="note" id="impmsg">' + (storageOk ? (cloudAI() ? 'Tus datos se guardan en este teléfono y en tu propia base en Supabase. Si pierdes el teléfono, entras con tu cuenta y vuelven.' : 'Tus datos se guardan solo en este navegador.') : 'Este navegador no permite guardar datos: lo que registres se pierde al cerrar. Abre la app en Safari o Chrome normal.') + '</p>' +
+      '<p class="note" id="impmsg">' + (storageOk ? (cloudAI() ? 'Tus datos se guardan en este teléfono y en tu propia base en Supabase. Si pierdes el teléfono, entras con tu cuenta y vuelven.' : 'Tus datos se guardan solo en este navegador.') : 'Este navegador no permite guardar datos: lo que registres se pierde al cerrar. Abre la app en Chrome normal (no en incógnito).') + '</p>' +
       '<section class="card"><div class="card-h"><h2>Zona delicada</h2></div><div><div class="set" style="border-top:0"><div class="t"><b>' + (ui.resetArm ? '¿Seguro? Se borra todo' : 'Empezar de cero') + '</b><span>Borra los datos guardados en este navegador.</span></div><button class="btn sm ' + (ui.resetArm ? 'danger' : 'ghost') + '" id="reset">' + (ui.resetArm ? 'Sí, borrar' : 'Borrar') + '</button></div></div></section>';
   return '';
 }
@@ -2382,7 +2382,7 @@ function recCard(){
   return h + '</section>';
 }
 
-/* Bandeja: lo que llega de los atajos del iPhone espera aquí hasta revisarlo. */
+/* Bandeja: lo que llega de MacroDroid (notificaciones y SMS del banco) o de Compartir espera aquí hasta revisarlo. */
 function parseInboxSrc(src){
   const L = learn(), day = src.date || iso(new Date());
   if (Array.isArray(src.items) && src.items.length) return src.items.map(x => clean1({ date:day, ...x }, L)).filter(Boolean).map(it => ({ ...it, src:src.kind === 'sms' ? 'banco' : 'siri' })); // ya leído con IA en el servidor
@@ -2425,26 +2425,25 @@ function autoInbox(){
 }
 function inboxCard(){
   const n = (S.inbox || []).length; if (!n) return '';
-  return '<section class="card glow"><div class="card-h"><h2>Por revisar</h2><span class="pill">' + n + '</span></div><p class="insight">Llegaron desde tus atajos del iPhone. Confírmalos para que cuenten en tus números.</p><button class="btn" data-inbox>Revisar ahora</button></section>';
+  return '<section class="card glow"><div class="card-h"><h2>Por revisar</h2><span class="pill">' + n + '</span></div><p class="insight">Llegaron solos desde tu celular. Confírmalos para que cuenten en tus números.</p><button class="btn" data-inbox>Revisar ahora</button></section>';
 }
 
 /* Respaldo descargable y recordatorio mensual. */
 /* el respaldo semanal del atajo viene por tablas (como la base); se convierte al formato de la app */
 function normBackup(s){ return s && s.app === 'Caudal' && Array.isArray(s.settings) ? fromRows({ inbox:[], ...s }) : s; }
 function lastBackup(){ let l = 0; try { l = +localStorage.getItem('caudal.lastBackup') || 0; } catch (_) {} const a = S.settings && S.settings.backupAt ? Date.parse(S.settings.backupAt) : 0; return Math.max(l, a || 0); }
-function backupAge(){ const l = lastBackup(); if (!l) return 'Archivo con todos tus datos. Aún no has guardado ninguno en este teléfono.'; const d = Math.floor((Date.now() - l) / 864e5); return 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Se guarda en Archivos del iPhone.'; }
+function backupAge(){ const l = lastBackup(); if (!l) return 'Archivo con todos tus datos. Aún no has guardado ninguno en este teléfono.'; const d = Math.floor((Date.now() - l) / 864e5); return 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Se guarda en los archivos del celular.'; }
 function autoBackupRow(){
   const a = S.settings && S.settings.backupAt ? Date.parse(S.settings.backupAt) : 0, d = a ? Math.floor((Date.now() - a) / 864e5) : null;
   const url = (typeof CTOKEN !== 'undefined' && CTOKEN && typeof CLOUD !== 'undefined') ? CLOUD.url + '/functions/v1/respaldo?k=' + CTOKEN : '';
-  return '<div class="set"><div class="t"><b>Respaldo automático en iCloud</b><span>' + (a ? 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Lo hace un atajo del iPhone.' : 'Aún no está activo. Se configura una vez con un atajo del iPhone.') + '</span></div>' +
+  return '<div class="set"><div class="t"><b>Respaldo automático</b><span>' + (a ? 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Lo hace MacroDroid en tu celular.' : 'Aún no está activo. Se configura una vez con MacroDroid.') + '</span></div>' +
     (url ? '<button class="btn sm ghost" data-copy="' + esc(url) + '">Copiar dirección</button>' : '') + '</div>' +
     '<details class="howto"><summary>Cómo activarlo (2 minutos)</summary><div>' +
-    '1. En Archivos crea la carpeta <b>iCloud Drive › Caudal</b> (o la que quieras).<br>' +
-    '2. En Atajos: <b>+</b> → nombre <b>Respaldo Caudal</b>.<br>' +
-    '3. Acción <b>Obtener contenido de URL</b> y pega la dirección (botón Copiar dirección). Método GET.<br>' +
-    '4. Acción <b>Establecer nombre</b>: <b>caudal-respaldo.json</b> (siempre el mismo, así se sobrescribe).<br>' +
-    '5. Acción <b>Guardar archivo</b>: apaga "Preguntar dónde guardar", elige tu carpeta y prende <b>Sobrescribir si existe</b>.<br>' +
-    '6. Pestaña Automatización → <b>+</b> → <b>Hora del día</b>: elige la hora y la frecuencia (diaria, semanal o mensual) → <b>Ejecutar inmediatamente</b> → el atajo Respaldo Caudal.<br>' +
+    '1. Instala <b>MacroDroid</b> (gratis, en Play Store).<br>' +
+    '2. <b>Agregar macro</b> → nombre <b>Respaldo Caudal</b>.<br>' +
+    '3. Disparador: <b>Fecha/Hora</b> → <b>Día de la semana/hora</b>: elige el día y la hora.<br>' +
+    '4. Acción: <b>Solicitud HTTP</b>, método <b>GET</b>, y pega la dirección (botón Copiar dirección). Activa la opción de <b>guardar la respuesta en un archivo</b> y ponle <b>caudal-respaldo.json</b> en tu carpeta de Descargas o Drive.<br>' +
+    '5. Guarda la macro.<br>' +
     'Cada vez que corra, aquí verás la fecha del último respaldo.</div></details>';
 }
 async function downloadBackup(){
@@ -2468,7 +2467,7 @@ function smartPill(){
   return '<div class="ask"><button class="ask-main" data-smart="texto">' + SPARK + '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anota un gasto…</span></button><button class="ask-ic" data-smart="voz" aria-label="Registrar por voz">' + MIC + '</button></div>';
 }
 
-/* Vista Asistente (chat con tus gastos y herramientas de la IA) y guía de atajos del iPhone. */
+/* Vista Asistente (chat con tus gastos y herramientas de la IA) */
 /* ----- vista Asistente: todo lo de la IA en un lugar (resumen del día, revisión y cierre, guardados) y el chat ----- */
 function vAsistente(){
   const head = '<div class="hello"><h1>Tu <em>asistente</em></h1><p>Lo que pide tu atención hoy y una conversación sobre tu plata</p></div>';
@@ -2620,20 +2619,6 @@ document.addEventListener('click', e => {
 }, true);
 document.addEventListener('click', e => { const b = e.target.closest('button[data-v="asistente"], [data-go="asistente"]'); if (b && ASK.msgs.length) setTimeout(askScroll, 60); });
 
-/* ----- atajos del iPhone (guía) ----- */
-function shortcutsCard(){
-  const base = /claude|localhost|^file/.test(location.href) ? 'https://TU-ENLACE/caudal/' : location.origin + location.pathname;
-  const step = (t, d) => '<details class="howto"><summary>' + t + '</summary><div>' + d + '</div></details>';
-  return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div>' +
-    '<p class="insight">Atajos del iPhone que mandan tus movimientos a Caudal sin escribirlos. Todos llegan a <b>Por revisar</b> para que confirmes con un toque.</p>' +
-    step('Al pagar con Apple Pay', 'Atajos → Automatización → Nueva → <b>Transacción</b> → elige tus tarjetas → <b>Ejecutar de inmediato</b>. Acción <b>Abrir URL</b>:<code>' + esc(base) + '?monto=[Importe]&amp;comercio=[Comercio]&amp;tarjeta=[Tarjeta]</code>') +
-    step('Con el SMS del banco', 'Automatización → <b>Mensaje</b> → "El mensaje contiene" Bancolombia, Lulo o Nequi → Ejecutar de inmediato. Acciones: <b>Codificar URL</b> (Contenido del mensaje) y <b>Abrir URL</b>:<code>' + esc(base) + '?n=[URL codificada]</code>') +
-    step('Con el correo del banco', 'Automatización → <b>Correo</b> → remitente de tu banco. Igual que el SMS, usando el cuerpo del correo.') +
-    step('“Oye Siri, anota un gasto”', 'Crea un atajo llamado <b>Anota un gasto</b> con <b>Dictar texto</b> → <b>Codificar URL</b> → <b>Abrir URL</b>:<code>' + esc(base) + '?t=[URL codificada]</code>Di "Oye Siri, anota un gasto" y luego "almuerzo 25 mil en efectivo".') +
-    step('Ícono de gasto rápido', 'Agrega el atajo de Siri a la pantalla de inicio o al botón de acción del iPhone para dictar con un toque.') +
-    '<p class="note" style="padding:0">Los atajos funcionan cuando la app esté alojada en tu propio enlace (siguiente paso). Las notificaciones de las apps de los bancos no se pueden leer en iPhone; los SMS, correos y Apple Pay sí. Mientras tanto, prueba el lector pegando una notificación en <b>Registrar con IA</b>.</p>' +
-    '<button class="btn ghost block" data-smart="banco">Probar con una notificación</button></section>';
-}
 
 /* Eventos del registro con IA, pagos programados, bandeja y chat; arranque de pagos y bandeja. */
 document.addEventListener('click', e => {
@@ -2687,7 +2672,7 @@ document.addEventListener('submit', e => {
 
 completarEstado(S);
 runRecurring();
-intake();
+setTimeout(intake, 0); /* después de cargar todos los módulos: guardar usa funciones de recibos.js */
 
 /* Recibos: pagar unos días antes del vencimiento y ver cuánto rinde la plata mientras tanto. */
 /*
@@ -2852,7 +2837,7 @@ function billSheet(b){
     '<span class="tile-s">' + (c.cy.paid ? 'Pagaste ' + money(c.cy.amount || 0) + (c.cy.paidOn ? ' el ' + fmtShort(parseISO(c.cy.paidOn)) : '') + (c.cy.auto ? ', lo vi en tus movimientos' : '') : 'Te aviso el ' + DIAL[c.pay.getDay()].toLowerCase() + ' ' + c.pay.getDate() + ' de ' + MESL[c.pay.getMonth()] + (y >= 1 ? ' · tu dinero rinde ≈ ' + money(y) + ' mientras tanto' : '')) + '</span></section>' +
     (c.cy.paid ? '' : '<div class="field"><label class="label" for="b-amt">¿Ya llegó? Valor de este recibo</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="b-amt" inputmode="numeric" class="num" value="' + (c.cy.amount ? nf.format(c.cy.amount) : '') + '" placeholder="' + (BF.estimate ? nf.format(BF.estimate) + ' aprox.' : 'Cuando llegue') + '" style="font-size:28px"></div></div>' +
     (BF.url ? '<button class="btn block" type="button" id="b-go">Ir a pagar ↗' + (BF.ref ? ' · copio la cuenta' : '') + '</button>' : '') +
-    '<button class="btn ' + (BF.url ? 'ghost ' : '') + 'block" type="button" id="b-pay">Ya lo pagué: registrar el gasto</button><p class="note" style="padding:0;margin-top:-6px">Si lo pagas con el atajo del banco o lo anotas tú, se marca solo.</p>');
+    '<button class="btn ' + (BF.url ? 'ghost ' : '') + 'block" type="button" id="b-pay">Ya lo pagué: registrar el gasto</button><p class="note" style="padding:0;margin-top:-6px">Si llega la notificación del pago o lo anotas tú, se marca solo.</p>');
   h += BF.id ? '<details class="fold"><summary>Ajustar recibo<span>' + esc(billEvTxt(+BF.every || 1) + ' · vence el ' + BF.dueDay) + '</span></summary><div class="fold-b">' + billFields() + '</div></details>' : billFields();
   h += '<div class="err" id="b-err"></div><button class="btn ' + (BF.id ? 'ghost' : '') + ' block" type="submit">' + (BF.id ? 'Guardar cambios' : 'Crear recibo') + '</button>';
   if (BF.id) h += '<button class="btn ghost block" type="button" id="b-ics">Agregar al calendario del celular</button><button class="btn ghost block" type="button" id="b-del">Eliminar recibo</button>';
@@ -5544,7 +5529,7 @@ async function avEnable(){
   AV.busy = true; AV.msg = ''; render();
   try {
     const perm = await Notification.requestPermission();
-    if (perm !== 'granted') throw new Error('Sin permiso. Actívalo en Ajustes del iPhone > Notificaciones > Caudal.');
+    if (perm !== 'granted') throw new Error('Sin permiso. Actívalo en Ajustes del celular > Apps > Caudal (o Chrome) > Notificaciones.');
     const reg = await navigator.serviceWorker.ready;
     const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64u(PUSH_PUB) });
     const j = sub.toJSON();
@@ -5623,7 +5608,7 @@ setTimeout(() => avState().then(() => avSchedule()), 4000);
 
 function pushCard(){
   let h = '<section class="card"><div class="card-h"><h2>Avisos</h2></div>';
-  if (!pushCapable()) return h + '<p class="insight">Para recibir avisos en el iPhone, abre Caudal desde su ícono en la pantalla de inicio (no desde Safari) y vuelve a esta sección.</p></section>';
+  if (!pushCapable()) return h + '<p class="insight">Este navegador no permite avisos. Abre Caudal en Chrome, instálala desde el menú ⋮ y vuelve a esta sección.</p></section>';
   if (!AV.on) return h + '<p class="insight">Te llegan al celular aunque no abras la app: recibos por vencer, el pago de la tarjeta, un recordatorio para registrar el día y más.</p>' +
     (AV.msg ? '<div class="err">' + esc(AV.msg) + '</div>' : '') + '<button class="btn accent block" data-avon' + (AV.busy ? ' disabled' : '') + '>' + (AV.busy ? 'Activando…' : 'Activar avisos') + '</button></section>';
   const P = avPrefs();
@@ -5845,22 +5830,20 @@ function cloudCard(){
     '<div class="two"><button class="btn ghost" id="cl-sync">Sincronizar</button><button class="btn ghost" id="cl-out">Cerrar sesión</button></div></section>';
 }
 function shortcutsCard(){
-  if (!sb || !session) return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div><p class="insight">Entra a tu cuenta para activar los atajos del iPhone.</p></section>';
+  if (!sb || !session) return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div><p class="insight">Entra a tu cuenta para que tu celular anote solo los movimientos del banco.</p></section>';
   loadToken();
   const ep = CLOUD.url + '/functions/v1/atajo';
   const step = (t, d) => '<details class="howto"><summary>' + t + '</summary><div>' + d + '</div></details>';
-  const body = k => '<code>{"token": "TU-LLAVE", ' + k + '}</code>';
+  const body = k => '<code>{"n": "' + k + '"}</code>';
   return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div>' +
-    '<p class="insight">Tus atajos mandan cada movimiento a <b>Por revisar</b> sin abrir la app. En todos usas la acción <b>Obtener contenido de URL</b> con método <b>POST</b> y cuerpo <b>JSON</b>.</p>' +
-    '<div class="set" style="border-top:0"><div class="t"><b>Dirección</b><span style="word-break:break-all">' + esc(ep) + '</span></div><button class="btn sm ghost" data-copy="' + esc(ep) + '">Copiar</button></div>' +
-    (CTOKEN ? '<div class="set"><div class="t"><b>Dirección con tu llave</b><span>La más fácil: pégala tal cual en el atajo y solo agregas un campo.</span></div><button class="btn sm" data-copy="' + esc(ep + '?k=' + CTOKEN) + '">Copiar</button></div>' +
-      '<div class="set"><div class="t"><b>Dirección del respaldo</b><span>Para el atajo semanal que guarda tu copia en iCloud Drive.</span></div><button class="btn sm ghost" data-copy="' + esc(CLOUD.url + '/functions/v1/respaldo?k=' + CTOKEN) + '">Copiar</button></div>' : '') +
-    '<div class="set"><div class="t"><b>Tu llave personal</b><span>' + (CTOKEN ? 'No la compartas: con ella se puede anotar en tu cuenta.' : 'Cargando…') + '</span></div>' + (CTOKEN ? '<button class="btn sm ghost" data-copy="' + esc(CTOKEN) + '">Copiar</button>' : '') + '</div>' +
-    step('Al pagar con Apple Pay', 'Atajos → Automatización → Nueva → <b>Transacción</b> → tus tarjetas → <b>Ejecutar de inmediato</b>. Acción <b>Obtener contenido de URL</b> con estos campos:' + body('"monto": Importe, "comercio": Comercio, "tarjeta": Tarjeta')) +
-    step('Con el SMS del banco', 'Automatización → <b>Mensaje</b> → "El mensaje contiene" Bancolombia, Lulo o Nequi → Ejecutar de inmediato. Acción <b>Obtener contenido de URL</b>:' + body('"n": Contenido del mensaje')) +
-    step('Con el correo del banco', 'Automatización → <b>Correo</b> → remitente de tu banco. Igual que el SMS, con el cuerpo del correo en "n".') +
-    step('“Oye Siri, anota un gasto”', 'Atajo llamado <b>Anota un gasto</b>: <b>Dictar texto</b> → <b>Obtener contenido de URL</b>:' + body('"t": Texto dictado') + 'Termina con <b>Mostrar notificación</b> "Anotado en Caudal". Ponlo también en el botón de acción o en la pantalla de inicio.') +
-    '<p class="note" style="padding:0">Las notificaciones de las apps de los bancos no se pueden leer en iPhone; los SMS, correos y Apple Pay sí.</p>' +
+    '<p class="insight">En Android, la app gratuita <b>MacroDroid</b> lee las notificaciones y los SMS del banco y los manda a <b>Por revisar</b> sin abrir Caudal. La IA descarta lo que no es un movimiento.</p>' +
+    (CTOKEN ? '<div class="set" style="border-top:0"><div class="t"><b>Dirección con tu llave</b><span>La que pegas en MacroDroid.</span></div><button class="btn sm" data-copy="' + esc(ep + '?k=' + CTOKEN) + '">Copiar</button></div>' +
+      '<div class="set"><div class="t"><b>Dirección del respaldo</b><span>Para el respaldo automático semanal (Ajustes › Datos).</span></div><button class="btn sm ghost" data-copy="' + esc(CLOUD.url + '/functions/v1/respaldo?k=' + CTOKEN) + '">Copiar</button></div>' : '') +
+    '<div class="set"' + (CTOKEN ? '' : ' style="border-top:0"') + '><div class="t"><b>Tu llave personal</b><span>' + (CTOKEN ? 'No la compartas: con ella se puede anotar en tu cuenta.' : 'Cargando…') + '</span></div>' + (CTOKEN ? '<button class="btn sm ghost" data-copy="' + esc(CTOKEN) + '">Copiar</button>' : '') + '</div>' +
+    step('Con las notificaciones del banco', '1. Instala <b>MacroDroid</b> desde Play Store y dale el permiso de <b>acceso a notificaciones</b>.<br>2. <b>Agregar macro</b> → Disparador <b>Notificación</b> → <b>Notificación recibida</b> → elige las apps de tus bancos (Nequi, Bancolombia, Daviplata, Nu…).<br>3. Acción <b>Solicitud HTTP</b>: método <b>POST</b>, pega la <b>Dirección con tu llave</b>, contenido <b>JSON</b> con este cuerpo, poniendo el texto de la notificación con el botón de texto mágico:' + body('[título y texto de la notificación]') + '4. Guarda la macro y quita la optimización de batería de MacroDroid para que no se duerma.') +
+    step('Con el SMS del banco', 'Igual que el anterior, con el disparador <b>SMS recibido</b> filtrado por el número o nombre de tu banco, y el texto del mensaje en "n".') +
+    step('Compartir a Caudal', 'Con la app instalada, en cualquier notificación, SMS o correo: <b>Compartir</b> → <b>Caudal</b>. El texto llega a Por revisar.') +
+    step('Ícono de gasto rápido', 'Mantén presionado el ícono de Caudal: salen <b>Anotar gasto</b> y <b>Anotar con IA</b>. Arrástralos a la pantalla de inicio para tenerlos a un toque.') +
     '<button class="btn ghost block" data-smart="banco">Probar el lector con una notificación</button></section>';
 }
 
@@ -6054,11 +6037,13 @@ let F = null, LOCKY = 0;
 function openSheet(html){
   $('#sheet').classList.remove('t-gasto', 't-ingreso', 't-transferencia', 't-ajuste');
   const sh = $('#sheet'), sc = $('#scrim');
+  if (sh.hidden) sheetPushed(); /* Android: atrás cierra la ventana */
   sh.className = 'sheet'; sh.innerHTML = '<div class="grab"></div>' + html; sh.hidden = false; sc.hidden = false; sh.scrollTop = 0;
   if (!document.body.classList.contains('lock')) { LOCKY = window.scrollY; document.body.style.top = -LOCKY + 'px'; document.body.classList.add('lock'); }
   requestAnimationFrame(() => { sh.classList.add('on'); sc.classList.add('on'); });
 }
 function closeSheet(){
+  sheetClosed();
   const sh = $('#sheet'), sc = $('#scrim');
   sh.classList.remove('on'); sc.classList.remove('on');
   setTimeout(() => { sh.hidden = true; sc.hidden = true; sh.innerHTML = ''; sh.className = 'sheet'; }, 260);
@@ -6334,6 +6319,76 @@ async function importJSON(file){
   catch(e){ $('#impmsg').textContent = 'Ese archivo no es un respaldo de Caudal.'; }
 }
 
+/* ---------- Android: botón atrás, instalar la app y accesos rápidos ----------
+   Atrás (botón o gesto del sistema): cierra la ventana abierta; si no hay ninguna, vuelve a Inicio;
+   en Inicio avisa y un segundo toque sale de la app. Chrome ignora las entradas de historial creadas
+   sin un toque del usuario, por eso el "colchón" de Inicio se arma en el siguiente toque y no solo al volver.
+   Instalar: Chrome ofrece instalar la app (beforeinstallprompt); Inicio muestra el botón mientras no esté instalada.
+   Accesos rápidos: los atajos del ícono (manifest) abren con ?accion=gasto o ?accion=ia. */
+const ANDROID = /Android/i.test(navigator.userAgent);
+let SHEET_POP = null, INSTALL = null;
+
+/* colchón de Inicio: una entrada en el historial que el botón atrás consume sin salir de la app */
+function armarBase(){
+  if (!ANDROID || isDesk() || NAVH.base || NAVH.depth) return;
+  try { history.pushState({ cau:'base' }, ''); NAVH.base = true; } catch (_) {}
+}
+document.addEventListener('pointerdown', armarBase, true);
+
+/* atrás sin nada apilado: devuelve true si lo atendió (entonces no sale de la app) */
+function atrasRaiz(){
+  if (!NAVH.base) return false;
+  NAVH.base = false;
+  const sh = $('#sheet');
+  if (sh && !sh.hidden) { closeSheet(); return true; }
+  if (ui.view !== 'inicio') { go('inicio'); return true; }
+  toast('Toca atrás otra vez para salir'); /* el colchón no se rearma hasta el próximo toque: el segundo atrás sale */
+  return true;
+}
+
+/* cada ventana (hoja de abajo) ocupa una entrada: atrás la cierra. Si se cierra y enseguida se abre otra,
+   reutiliza la misma entrada en vez de quitarla y ponerla (history.go es asíncrono y se cruzarían). */
+function sheetPushed(){
+  if (!ANDROID || isDesk()) return;
+  if (SHEET_POP) { clearTimeout(SHEET_POP); SHEET_POP = null; return; }
+  if (!NAVH.sheet) { navPush('sheet'); NAVH.sheet = true; }
+}
+function sheetClosed(){
+  if (!NAVH.sheet || SHEET_POP) return;
+  SHEET_POP = setTimeout(() => { SHEET_POP = null; if (NAVH.sheet) { NAVH.sheet = false; navTo(NAVH.depth - 1); } }, 300);
+}
+/* atrás que consumió la entrada de una ventana: true si era de una ventana */
+function atrasVentana(){
+  if (!NAVH.sheet) return false;
+  NAVH.sheet = false; if (SHEET_POP) { clearTimeout(SHEET_POP); SHEET_POP = null; }
+  const sh = $('#sheet'); if (sh && !sh.hidden) closeSheet();
+  return true;
+}
+
+/* ----- instalar la app ----- */
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); INSTALL = e; render(); });
+window.addEventListener('appinstalled', () => { INSTALL = null; render(); toast('Caudal quedó instalada'); });
+function installBanner(){
+  if (!INSTALL) return '';
+  return '<div class="banner"><span><b>Instala Caudal.</b> Queda como app en tu celular, con su ícono y sin la barra del navegador.</span><button class="btn sm" id="instalar">Instalar</button></div>';
+}
+document.addEventListener('click', async e => {
+  if (!e.target.closest('#instalar') || !INSTALL) return;
+  const ev = INSTALL; INSTALL = null; ev.prompt();
+  try { const r = await ev.userChoice; if (r.outcome !== 'accepted') INSTALL = ev; } catch (_) {}
+  render();
+});
+
+/* ----- accesos rápidos del ícono (mantener presionado) ----- */
+function lanzarAccion(){
+  let a; try { a = new URLSearchParams(location.search).get('accion'); } catch (_) { return; }
+  if (!a) return;
+  try { history.replaceState(null, '', location.pathname); } catch (_) {}
+  if (a === 'gasto') txForm(null, 'gasto');
+  else if (a === 'ia') smartOpen('texto');
+}
+setTimeout(lanzarAccion, 500);
+
 /* Eventos generales, navegación, privacidad y arranque de la app. */
 let toastT;
 function toast(m, ms){ const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms || 2000); }
@@ -6364,14 +6419,15 @@ function go(v, sec){
 /* ---------- volver con el gesto del celular ----------
    Ajustes y sus secciones se apilan en el historial del navegador: el gesto de volver (o el botón atrás
    de Android) regresa de la sección a la lista y de la lista a la pantalla donde estabas.
-   En la app instalada en el iPhone, que no trae ese gesto, se hace a mano deslizando desde el borde izquierdo. */
-const NAVH = { depth:0, skip:0, popAt:0 };
+   El deslizamiento a mano desde el borde izquierdo es solo para iPhone: Android ya trae su gesto de atrás. */
+const NAVH = { depth:0, skip:0, popAt:0, base:false, sheet:false };
 function navPush(s){ if (isDesk()) return; try { history.pushState({ cau:s }, ''); NAVH.depth++; } catch (_) {} }
 function navTo(n){ if (NAVH.depth > n) { const k = NAVH.depth - n; NAVH.depth = n; NAVH.skip++; try { history.go(-k); } catch (_) { NAVH.skip--; } } }
 function navAnim(cls){ const v = document.querySelector('#main .view'); if (v) { v.classList.remove('navfwd', 'navback'); void v.offsetWidth; v.classList.add(cls); } }
 window.addEventListener('popstate', () => {
   if (NAVH.skip) { NAVH.skip--; return; }
-  NAVH.popAt = Date.now(); if (NAVH.depth > 0) NAVH.depth--;
+  NAVH.popAt = Date.now();
+  if (NAVH.depth > 0) { NAVH.depth--; if (atrasVentana()) return; } else if (atrasRaiz()) return; /* Android (android.js) */
   const sh = $('#sheet'); if (sh && !sh.hidden) { closeSheet(); navPush('sheet'); return; } /* con una ventana abierta, el gesto solo la cierra */
   if (ui.view !== 'ajustes') return;
   if (ui.setSec && !isDesk()) { ui.setSec = null; ui.setQ = ''; }
@@ -6380,7 +6436,7 @@ window.addEventListener('popstate', () => {
 });
 (() => {
   const standalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-  if (!standalone) return;
+  if (!standalone || ANDROID) return;
   let x0 = null, y0 = 0, dx = 0, on = false, t0 = 0;
   const main = () => $('#main');
   document.addEventListener('touchstart', e => {
@@ -6423,7 +6479,7 @@ document.addEventListener('click', e => {
   if (d.newcat !== undefined) return catForm(null, d.newcat || null);
   if (d.close !== undefined) return closeSheet();
   if (el.id === 'copyjson') { const txt = JSON.stringify(S);
-    navigator.clipboard.writeText(txt).then(() => toast('Respaldo copiado'), () => { $('#impmsg').textContent = 'Tu navegador no dejó copiar. Intenta de nuevo desde Safari o Chrome.'; }); return; }
+    navigator.clipboard.writeText(txt).then(() => toast('Respaldo copiado'), () => { $('#impmsg').textContent = 'Tu navegador no dejó copiar. Intenta de nuevo desde Chrome.'; }); return; }
   /* salir del ejemplo sin respaldo: cuentas y categorías base, sin movimientos; desde aquí se guarda en la nube */
   if (el.id === 'fresh') { S = completarEstado({ ...JSON.parse(JSON.stringify(SEED)), demo:false, transactions:[], budgets:{} }); save(); ui.offset = 0; go('inicio'); return toast('Listo: empieza a registrar tus movimientos'); }
   if (el.id === 'reset') { if (!ui.resetArm) { ui.resetArm = true; return render(); }

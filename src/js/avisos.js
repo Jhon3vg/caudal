@@ -24,7 +24,7 @@ async function avEnable(){
   AV.busy = true; AV.msg = ''; render();
   try {
     const perm = await Notification.requestPermission();
-    if (perm !== 'granted') throw new Error('Sin permiso. Actívalo en Ajustes del iPhone > Notificaciones > Caudal.');
+    if (perm !== 'granted') throw new Error('Sin permiso. Actívalo en Ajustes del celular > Apps > Caudal (o Chrome) > Notificaciones.');
     const reg = await navigator.serviceWorker.ready;
     const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64u(PUSH_PUB) });
     const j = sub.toJSON();
@@ -103,7 +103,7 @@ setTimeout(() => avState().then(() => avSchedule()), 4000);
 
 function pushCard(){
   let h = '<section class="card"><div class="card-h"><h2>Avisos</h2></div>';
-  if (!pushCapable()) return h + '<p class="insight">Para recibir avisos en el iPhone, abre Caudal desde su ícono en la pantalla de inicio (no desde Safari) y vuelve a esta sección.</p></section>';
+  if (!pushCapable()) return h + '<p class="insight">Este navegador no permite avisos. Abre Caudal en Chrome, instálala desde el menú ⋮ y vuelve a esta sección.</p></section>';
   if (!AV.on) return h + '<p class="insight">Te llegan al celular aunque no abras la app: recibos por vencer, el pago de la tarjeta, un recordatorio para registrar el día y más.</p>' +
     (AV.msg ? '<div class="err">' + esc(AV.msg) + '</div>' : '') + '<button class="btn accent block" data-avon' + (AV.busy ? ' disabled' : '') + '>' + (AV.busy ? 'Activando…' : 'Activar avisos') + '</button></section>';
   const P = avPrefs();

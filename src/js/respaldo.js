@@ -2,19 +2,18 @@
 /* el respaldo semanal del atajo viene por tablas (como la base); se convierte al formato de la app */
 function normBackup(s){ return s && s.app === 'Caudal' && Array.isArray(s.settings) ? fromRows({ inbox:[], ...s }) : s; }
 function lastBackup(){ let l = 0; try { l = +localStorage.getItem('caudal.lastBackup') || 0; } catch (_) {} const a = S.settings && S.settings.backupAt ? Date.parse(S.settings.backupAt) : 0; return Math.max(l, a || 0); }
-function backupAge(){ const l = lastBackup(); if (!l) return 'Archivo con todos tus datos. Aún no has guardado ninguno en este teléfono.'; const d = Math.floor((Date.now() - l) / 864e5); return 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Se guarda en Archivos del iPhone.'; }
+function backupAge(){ const l = lastBackup(); if (!l) return 'Archivo con todos tus datos. Aún no has guardado ninguno en este teléfono.'; const d = Math.floor((Date.now() - l) / 864e5); return 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Se guarda en los archivos del celular.'; }
 function autoBackupRow(){
   const a = S.settings && S.settings.backupAt ? Date.parse(S.settings.backupAt) : 0, d = a ? Math.floor((Date.now() - a) / 864e5) : null;
   const url = (typeof CTOKEN !== 'undefined' && CTOKEN && typeof CLOUD !== 'undefined') ? CLOUD.url + '/functions/v1/respaldo?k=' + CTOKEN : '';
-  return '<div class="set"><div class="t"><b>Respaldo automático en iCloud</b><span>' + (a ? 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Lo hace un atajo del iPhone.' : 'Aún no está activo. Se configura una vez con un atajo del iPhone.') + '</span></div>' +
+  return '<div class="set"><div class="t"><b>Respaldo automático</b><span>' + (a ? 'Último: ' + (d === 0 ? 'hoy' : d === 1 ? 'ayer' : 'hace ' + d + ' días') + '. Lo hace MacroDroid en tu celular.' : 'Aún no está activo. Se configura una vez con MacroDroid.') + '</span></div>' +
     (url ? '<button class="btn sm ghost" data-copy="' + esc(url) + '">Copiar dirección</button>' : '') + '</div>' +
     '<details class="howto"><summary>Cómo activarlo (2 minutos)</summary><div>' +
-    '1. En Archivos crea la carpeta <b>iCloud Drive › Caudal</b> (o la que quieras).<br>' +
-    '2. En Atajos: <b>+</b> → nombre <b>Respaldo Caudal</b>.<br>' +
-    '3. Acción <b>Obtener contenido de URL</b> y pega la dirección (botón Copiar dirección). Método GET.<br>' +
-    '4. Acción <b>Establecer nombre</b>: <b>caudal-respaldo.json</b> (siempre el mismo, así se sobrescribe).<br>' +
-    '5. Acción <b>Guardar archivo</b>: apaga "Preguntar dónde guardar", elige tu carpeta y prende <b>Sobrescribir si existe</b>.<br>' +
-    '6. Pestaña Automatización → <b>+</b> → <b>Hora del día</b>: elige la hora y la frecuencia (diaria, semanal o mensual) → <b>Ejecutar inmediatamente</b> → el atajo Respaldo Caudal.<br>' +
+    '1. Instala <b>MacroDroid</b> (gratis, en Play Store).<br>' +
+    '2. <b>Agregar macro</b> → nombre <b>Respaldo Caudal</b>.<br>' +
+    '3. Disparador: <b>Fecha/Hora</b> → <b>Día de la semana/hora</b>: elige el día y la hora.<br>' +
+    '4. Acción: <b>Solicitud HTTP</b>, método <b>GET</b>, y pega la dirección (botón Copiar dirección). Activa la opción de <b>guardar la respuesta en un archivo</b> y ponle <b>caudal-respaldo.json</b> en tu carpeta de Descargas o Drive.<br>' +
+    '5. Guarda la macro.<br>' +
     'Cada vez que corra, aquí verás la fecha del último respaldo.</div></details>';
 }
 async function downloadBackup(){

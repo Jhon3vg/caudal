@@ -201,22 +201,20 @@ function cloudCard(){
     '<div class="two"><button class="btn ghost" id="cl-sync">Sincronizar</button><button class="btn ghost" id="cl-out">Cerrar sesión</button></div></section>';
 }
 function shortcutsCard(){
-  if (!sb || !session) return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div><p class="insight">Entra a tu cuenta para activar los atajos del iPhone.</p></section>';
+  if (!sb || !session) return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div><p class="insight">Entra a tu cuenta para que tu celular anote solo los movimientos del banco.</p></section>';
   loadToken();
   const ep = CLOUD.url + '/functions/v1/atajo';
   const step = (t, d) => '<details class="howto"><summary>' + t + '</summary><div>' + d + '</div></details>';
-  const body = k => '<code>{"token": "TU-LLAVE", ' + k + '}</code>';
+  const body = k => '<code>{"n": "' + k + '"}</code>';
   return '<section class="card"><div class="card-h"><h2>Registro automático</h2>' + SPARK + '</div>' +
-    '<p class="insight">Tus atajos mandan cada movimiento a <b>Por revisar</b> sin abrir la app. En todos usas la acción <b>Obtener contenido de URL</b> con método <b>POST</b> y cuerpo <b>JSON</b>.</p>' +
-    '<div class="set" style="border-top:0"><div class="t"><b>Dirección</b><span style="word-break:break-all">' + esc(ep) + '</span></div><button class="btn sm ghost" data-copy="' + esc(ep) + '">Copiar</button></div>' +
-    (CTOKEN ? '<div class="set"><div class="t"><b>Dirección con tu llave</b><span>La más fácil: pégala tal cual en el atajo y solo agregas un campo.</span></div><button class="btn sm" data-copy="' + esc(ep + '?k=' + CTOKEN) + '">Copiar</button></div>' +
-      '<div class="set"><div class="t"><b>Dirección del respaldo</b><span>Para el atajo semanal que guarda tu copia en iCloud Drive.</span></div><button class="btn sm ghost" data-copy="' + esc(CLOUD.url + '/functions/v1/respaldo?k=' + CTOKEN) + '">Copiar</button></div>' : '') +
-    '<div class="set"><div class="t"><b>Tu llave personal</b><span>' + (CTOKEN ? 'No la compartas: con ella se puede anotar en tu cuenta.' : 'Cargando…') + '</span></div>' + (CTOKEN ? '<button class="btn sm ghost" data-copy="' + esc(CTOKEN) + '">Copiar</button>' : '') + '</div>' +
-    step('Al pagar con Apple Pay', 'Atajos → Automatización → Nueva → <b>Transacción</b> → tus tarjetas → <b>Ejecutar de inmediato</b>. Acción <b>Obtener contenido de URL</b> con estos campos:' + body('"monto": Importe, "comercio": Comercio, "tarjeta": Tarjeta')) +
-    step('Con el SMS del banco', 'Automatización → <b>Mensaje</b> → "El mensaje contiene" Bancolombia, Lulo o Nequi → Ejecutar de inmediato. Acción <b>Obtener contenido de URL</b>:' + body('"n": Contenido del mensaje')) +
-    step('Con el correo del banco', 'Automatización → <b>Correo</b> → remitente de tu banco. Igual que el SMS, con el cuerpo del correo en "n".') +
-    step('“Oye Siri, anota un gasto”', 'Atajo llamado <b>Anota un gasto</b>: <b>Dictar texto</b> → <b>Obtener contenido de URL</b>:' + body('"t": Texto dictado') + 'Termina con <b>Mostrar notificación</b> "Anotado en Caudal". Ponlo también en el botón de acción o en la pantalla de inicio.') +
-    '<p class="note" style="padding:0">Las notificaciones de las apps de los bancos no se pueden leer en iPhone; los SMS, correos y Apple Pay sí.</p>' +
+    '<p class="insight">En Android, la app gratuita <b>MacroDroid</b> lee las notificaciones y los SMS del banco y los manda a <b>Por revisar</b> sin abrir Caudal. La IA descarta lo que no es un movimiento.</p>' +
+    (CTOKEN ? '<div class="set" style="border-top:0"><div class="t"><b>Dirección con tu llave</b><span>La que pegas en MacroDroid.</span></div><button class="btn sm" data-copy="' + esc(ep + '?k=' + CTOKEN) + '">Copiar</button></div>' +
+      '<div class="set"><div class="t"><b>Dirección del respaldo</b><span>Para el respaldo automático semanal (Ajustes › Datos).</span></div><button class="btn sm ghost" data-copy="' + esc(CLOUD.url + '/functions/v1/respaldo?k=' + CTOKEN) + '">Copiar</button></div>' : '') +
+    '<div class="set"' + (CTOKEN ? '' : ' style="border-top:0"') + '><div class="t"><b>Tu llave personal</b><span>' + (CTOKEN ? 'No la compartas: con ella se puede anotar en tu cuenta.' : 'Cargando…') + '</span></div>' + (CTOKEN ? '<button class="btn sm ghost" data-copy="' + esc(CTOKEN) + '">Copiar</button>' : '') + '</div>' +
+    step('Con las notificaciones del banco', '1. Instala <b>MacroDroid</b> desde Play Store y dale el permiso de <b>acceso a notificaciones</b>.<br>2. <b>Agregar macro</b> → Disparador <b>Notificación</b> → <b>Notificación recibida</b> → elige las apps de tus bancos (Nequi, Bancolombia, Daviplata, Nu…).<br>3. Acción <b>Solicitud HTTP</b>: método <b>POST</b>, pega la <b>Dirección con tu llave</b>, contenido <b>JSON</b> con este cuerpo, poniendo el texto de la notificación con el botón de texto mágico:' + body('[título y texto de la notificación]') + '4. Guarda la macro y quita la optimización de batería de MacroDroid para que no se duerma.') +
+    step('Con el SMS del banco', 'Igual que el anterior, con el disparador <b>SMS recibido</b> filtrado por el número o nombre de tu banco, y el texto del mensaje en "n".') +
+    step('Compartir a Caudal', 'Con la app instalada, en cualquier notificación, SMS o correo: <b>Compartir</b> → <b>Caudal</b>. El texto llega a Por revisar.') +
+    step('Ícono de gasto rápido', 'Mantén presionado el ícono de Caudal: salen <b>Anotar gasto</b> y <b>Anotar con IA</b>. Arrástralos a la pantalla de inicio para tenerlos a un toque.') +
     '<button class="btn ghost block" data-smart="banco">Probar el lector con una notificación</button></section>';
 }
 

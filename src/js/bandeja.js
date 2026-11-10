@@ -1,4 +1,4 @@
-/* Bandeja: lo que llega de los atajos del iPhone espera aquí hasta revisarlo. */
+/* Bandeja: lo que llega de MacroDroid (notificaciones y SMS del banco) o de Compartir espera aquí hasta revisarlo. */
 function parseInboxSrc(src){
   const L = learn(), day = src.date || iso(new Date());
   if (Array.isArray(src.items) && src.items.length) return src.items.map(x => clean1({ date:day, ...x }, L)).filter(Boolean).map(it => ({ ...it, src:src.kind === 'sms' ? 'banco' : 'siri' })); // ya leído con IA en el servidor
@@ -41,5 +41,5 @@ function autoInbox(){
 }
 function inboxCard(){
   const n = (S.inbox || []).length; if (!n) return '';
-  return '<section class="card glow"><div class="card-h"><h2>Por revisar</h2><span class="pill">' + n + '</span></div><p class="insight">Llegaron desde tus atajos del iPhone. Confírmalos para que cuenten en tus números.</p><button class="btn" data-inbox>Revisar ahora</button></section>';
+  return '<section class="card glow"><div class="card-h"><h2>Por revisar</h2><span class="pill">' + n + '</span></div><p class="insight">Llegaron solos desde tu celular. Confírmalos para que cuenten en tus números.</p><button class="btn" data-inbox>Revisar ahora</button></section>';
 }

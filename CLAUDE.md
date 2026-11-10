@@ -18,3 +18,10 @@
 - Tras cambiar `src/`, subir el número de `CACHE` en `sw.js`. `build.py` también escribe `version.json`: la app abierta compara su versión con ese archivo y se recarga sola cuando hay una nueva. Publicar siempre `index.html` y `version.json` juntos.
 - Idioma de la app y de los textos: español de Colombia. Sin raya larga en los textos.
 - IA: esta instalación usa Gemini (plan gratuito) con `GEMINI_API_KEY` en los secretos de Supabase: registrar con `gemini-3.5-flash-lite` y asistente, chat y resumen semanal con `gemini-3.8-flash` (se cambian con `GEMINI_MODEL` y `GEMINI_MODEL_ASK`). Si algún día se agrega `ANTHROPIC_API_KEY`, las funciones pasan a Claude solas. El contexto grande va en `cache` (instrucción de sistema) y la conversación en `messages`.
+
+## Versión Android (instalación de Jhon)
+
+- Esta copia es para Android y vive aparte del Caudal original (yefersonv5/caudal): los cambios de una no pasan a la otra.
+- `android.js`: botón atrás (cierra la ventana abierta, vuelve a Inicio y en Inicio pide un segundo toque para salir), botón de instalar (beforeinstallprompt) y accesos rápidos del ícono (`?accion=gasto`, `?accion=ia`).
+- `manifest.webmanifest`: accesos rápidos (mantener presionado el ícono) y `share_target`: Compartir → Caudal manda el texto como `?n=` a la bandeja.
+- Registro automático con MacroDroid (notificaciones y SMS del banco → función `atajo`); el respaldo semanal también con MacroDroid. No hay Atajos de iPhone, Siri ni Apple Pay.

@@ -28,14 +28,15 @@ function go(v, sec){
 /* ---------- volver con el gesto del celular ----------
    Ajustes y sus secciones se apilan en el historial del navegador: el gesto de volver (o el botón atrás
    de Android) regresa de la sección a la lista y de la lista a la pantalla donde estabas.
-   En la app instalada en el iPhone, que no trae ese gesto, se hace a mano deslizando desde el borde izquierdo. */
-const NAVH = { depth:0, skip:0, popAt:0 };
+   El deslizamiento a mano desde el borde izquierdo es solo para iPhone: Android ya trae su gesto de atrás. */
+const NAVH = { depth:0, skip:0, popAt:0, base:false, sheet:false };
 function navPush(s){ if (isDesk()) return; try { history.pushState({ cau:s }, ''); NAVH.depth++; } catch (_) {} }
 function navTo(n){ if (NAVH.depth > n) { const k = NAVH.depth - n; NAVH.depth = n; NAVH.skip++; try { history.go(-k); } catch (_) { NAVH.skip--; } } }
 function navAnim(cls){ const v = document.querySelector('#main .view'); if (v) { v.classList.remove('navfwd', 'navback'); void v.offsetWidth; v.classList.add(cls); } }
 window.addEventListener('popstate', () => {
   if (NAVH.skip) { NAVH.skip--; return; }
-  NAVH.popAt = Date.now(); if (NAVH.depth > 0) NAVH.depth--;
+  NAVH.popAt = Date.now();
+  if (NAVH.depth > 0) { NAVH.depth--; if (atrasVentana()) return; } else if (atrasRaiz()) return; /* Android (android.js) */
   const sh = $('#sheet'); if (sh && !sh.hidden) { closeSheet(); navPush('sheet'); return; } /* con una ventana abierta, el gesto solo la cierra */
   if (ui.view !== 'ajustes') return;
   if (ui.setSec && !isDesk()) { ui.setSec = null; ui.setQ = ''; }
@@ -44,7 +45,7 @@ window.addEventListener('popstate', () => {
 });
 (() => {
   const standalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-  if (!standalone) return;
+  if (!standalone || ANDROID) return;
   let x0 = null, y0 = 0, dx = 0, on = false, t0 = 0;
   const main = () => $('#main');
   document.addEventListener('touchstart', e => {
@@ -87,7 +88,7 @@ document.addEventListener('click', e => {
   if (d.newcat !== undefined) return catForm(null, d.newcat || null);
   if (d.close !== undefined) return closeSheet();
   if (el.id === 'copyjson') { const txt = JSON.stringify(S);
-    navigator.clipboard.writeText(txt).then(() => toast('Respaldo copiado'), () => { $('#impmsg').textContent = 'Tu navegador no dejó copiar. Intenta de nuevo desde Safari o Chrome.'; }); return; }
+    navigator.clipboard.writeText(txt).then(() => toast('Respaldo copiado'), () => { $('#impmsg').textContent = 'Tu navegador no dejó copiar. Intenta de nuevo desde Chrome.'; }); return; }
   /* salir del ejemplo sin respaldo: cuentas y categorías base, sin movimientos; desde aquí se guarda en la nube */
   if (el.id === 'fresh') { S = completarEstado({ ...JSON.parse(JSON.stringify(SEED)), demo:false, transactions:[], budgets:{} }); save(); ui.offset = 0; go('inicio'); return toast('Listo: empieza a registrar tus movimientos'); }
   if (el.id === 'reset') { if (!ui.resetArm) { ui.resetArm = true; return render(); }
