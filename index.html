@@ -594,6 +594,11 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 /* categorías en Ajustes */
 .brow .catdet{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .catmas{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.catord{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line)}
+.catord:first-child{border-top:0}
+.catord .brow{flex:1;min-width:0;border-top:0}
+.catord .pill{flex:none;width:34px;height:30px;padding:0}
+.catord .pill[disabled]{opacity:.35}
 .bill{display:flex;align-items:center;gap:10px}
 .bill-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding-block:10px;text-align:left}
 .bill.hoy .rmain span{color:var(--warn)}
@@ -901,7 +906,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261110005450';
+const BUILD = '20261110033020';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -1692,9 +1697,12 @@ const SET_SECS = [
   { id:'avisos', t:'Avisos', k:'notificaciones push recordatorio hora repaso tarjeta celular alertas',
     i:SI('<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>'),
     s:() => typeof AV !== 'undefined' && AV.on ? 'Activados en este celular' : 'Desactivados' },
-  { id:'presupuesto', t:'Presupuesto y categorías', k:'presupuesto limite categorias subcategoria meta ingresos plan nueva categoria',
+  { id:'categorias', t:'Categorías', k:'categorias subcategorias gastos ingresos editar renombrar nombre emoji nueva crear ocultar eliminar borrar orden unir juntar mover tipo',
+    i:SI('<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>'),
+    s:() => { const n = t => S.categories.filter(c => !c.parentId && !c.hidden && c.type === t).length; return n('gasto') + ' de gasto · ' + n('ingreso') + ' de ingreso'; } },
+  { id:'presupuesto', t:'Presupuesto', k:'presupuesto limite meta ingresos plan',
     i:SI('<path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>'),
-    s:() => S.categories.filter(c => !c.hidden).length + ' categorías' + ((S.plans || []).length ? ' · límites en tu Plan' : '') },
+    s:() => (S.plans || []).length ? 'Límites en tu Plan' : money(expenseBudgetTotal()) + ' al mes' },
   { id:'asistente', t:'Asistente con IA', k:'ia inteligencia artificial perfil creditos consumo claude saldo lo que debe saber',
     i:SI('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>'),
     show:() => !!iaCard(), s:() => 'Lo que sabe de ti y cuánto gasta' },
@@ -1727,7 +1735,8 @@ function setSecBody(id){
     if ((S.plans || []).length) out += '<section class="card"><div class="card-h"><h2>Presupuesto</h2><button class="pill" data-go="plan">Abrir plan</button></div><p class="insight">Tus límites y tu meta de ingresos salen de tu <b>Plan</b>. Edítalos allá y todo se actualiza.</p></section>';
     else out += '<section class="card"><div class="card-h"><h2>Presupuesto mensual</h2><span class="aside num">' + money(expenseBudgetTotal()) + '</span></div><div>' + exp.map(bRow).join('') + '</div></section>' +
       '<section class="card"><div class="card-h"><h2>Meta de ingresos</h2></div><div>' + inc.map(bRow).join('') + '</div></section>';
-    return out + catsAdminCard(); }
+    return out + '<section class="card"><div class="card-h"><h2>Categorías</h2><button class="pill" data-setsec="categorias">Editar</button></div><p class="insight">Crea, renombra, ordena o une tus categorías de gasto e ingreso en Categorías.</p></section>'; }
+  if (id === 'categorias') return catsAdminCard();
   if (id === 'asistente') return iaCard();
   if (id === 'atajos') return shortcutsCard();
   if (id === 'cuenta') return cloudCard();
@@ -1826,7 +1835,7 @@ function catSheet(id, sub){
   avg3 = n3 ? avg3 / n3 : 0;
   const pl = planFor(p), it = pl ? itemOfCat(pl, id) : null;
   const dl = (a, b) => !b ? '' : Math.abs(a - b) / b < .05 ? '≈ igual' : (a > b ? '↑ ' : '↓ ') + Math.round(Math.abs(a - b) / b * 100) + '%';
-  let h = '<div class="sheet-h"><b id="sheet-title">' + esc((c && c.emoji ? c.emoji + ' ' : '') + (c ? c.name : 'Sin categoría')) + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">';
+  let h = '<div class="sheet-h"><b id="sheet-title">' + esc((c && c.emoji ? c.emoji + ' ' : '') + (c ? c.name : 'Sin categoría')) + '</b>' + (c ? '<button class="pill" data-cated="' + esc(c.id) + '">Editar</button>' : '') + '<button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">';
   h += '<section class="card glow" style="padding:16px"><span class="label">' + esc(pLabel(p)) + '</span><div class="tile-v num">' + money(x.total) + '</div>' +
     '<div class="stats3" style="margin-top:6px"><div><span>Del gasto total</span><b class="num">' + (total ? Math.round(x.total / total * 100) : 0) + '%</b></div>' +
     '<div><span>Periodo anterior</span><b class="num">' + money(prevT) + '</b><span class="' + (x.total > prevT ? 'neg' : 'pos') + '" style="font-size:11.5px">' + dl(x.total, prevT) + '</span></div>' +
@@ -3019,8 +3028,9 @@ document.addEventListener('input', e => { const t = e.target; if (t.id === 'b-am
 document.addEventListener('change', e => { if (e.target.id === 'b-rate') { const v = parseFloat(String(e.target.value).replace(',', '.')); S.settings.rate = v > 0 && v < 100 ? v : 0; save(); toast('Rendimiento guardado'); } });
 S.bills = S.bills || [];
 
-/* Categorías: lista para consultarlas en Ajustes y hoja para crearlas o editarlas
-   (emoji, nombre, dónde va, subcategorías, ocultar y eliminar cuando no se usan),
+/* Categorías: lista para consultarlas en Ajustes › Categorías (con flechas de orden) y hoja para crearlas o editarlas
+   (emoji, nombre, dónde va, gasto o ingreso si aún no se usa, subcategorías con su orden, ocultar, eliminar cuando
+   no se usan y pasar todo a otra categoría para unirlas),
    con su lugar en el plan: presupuesto opcional al crearla y "Agregar al plan" al editarla.
    Si se crea sin emoji, la IA le pone uno en segundo plano. */
 
@@ -3045,17 +3055,47 @@ function catsAdminCard(){
   const tipo = ui.catTab || 'gasto', uso = catUso();
   const mains = t => S.categories.filter(c => !c.parentId && c.type === t);
   const activas = mains(tipo).filter(c => !c.hidden), ocultas = mains(tipo).filter(c => c.hidden);
-  const fila = c => {
+  const fila = (c, k, n) => {
     const subs = catSubs(c.id), total = (uso[c.id] || 0) + subs.reduce((s, x) => s + (uso[x.id] || 0), 0);
     const det = subs.length ? subs.map(x => x.name + (x.hidden ? ' (oculta)' : '')).join(', ') : 'Sin subcategorías';
-    return '<button class="brow" data-cated="' + esc(c.id) + '"><span class="ico">' + esc(c.emoji || '•') + '</span><span class="t"><b>' + esc(c.name) + '</b><span class="catdet">' + esc(det) + '</span></span><span class="r"><span class="bst">' + plural(total, 'mov.', 'mov.') + '</span></span>' + CHEV + '</button>';
+    return '<div class="catord"><button class="brow" data-cated="' + esc(c.id) + '"><span class="ico">' + esc(c.emoji || '•') + '</span><span class="t"><b>' + esc(c.name) + '</b><span class="catdet">' + esc(det) + ' · ' + plural(total, 'mov.', 'mov.') + '</span></span>' + CHEV + '</button>' + catFlechas(c, k, n) + '</div>';
   };
   const tab = (t, txt) => '<button type="button" data-cattab="' + t + '" aria-pressed="' + (tipo === t) + '">' + txt + ' · ' + mains(t).filter(c => !c.hidden).length + '</button>';
   return '<section class="card" id="set-cats"><div class="card-h"><h2>Categorías</h2><button class="pill" data-newcat>Nueva categoría</button></div>' +
     '<div class="seg sm cattabs" role="group" aria-label="Tipo de categoría">' + tab('gasto', 'Gastos') + tab('ingreso', 'Ingresos') + '</div>' +
-    (activas.length ? '<div>' + activas.map(fila).join('') + '</div>' : '<p class="insight">Aún no tienes categorías de ' + (tipo === 'gasto' ? 'gasto' : 'ingreso') + '.</p>') +
-    (ocultas.length ? '<details class="fold"><summary>Ocultas<span>' + ocultas.length + '</span></summary><div>' + ocultas.map(fila).join('') + '</div></details>' : '') +
-    '<p class="note">Toca una categoría para cambiarle el nombre, el emoji o moverla. Los cambios se ven en todos tus movimientos.</p></section>';
+    (activas.length ? '<div>' + activas.map((c, k) => fila(c, k, activas.length)).join('') + '</div>' : '<p class="insight">Aún no tienes categorías de ' + (tipo === 'gasto' ? 'gasto' : 'ingreso') + '.</p>') +
+    (ocultas.length ? '<details class="fold"><summary>Ocultas<span>' + ocultas.length + '</span></summary><div>' + ocultas.map(c => fila(c, 0, 1)).join('') + '</div></details>' : '') +
+    '<p class="note">Toca una categoría para cambiarle el nombre, el emoji, moverla o unirla con otra. Con las flechas cambias el orden en que salen al registrar. Los cambios se ven en todos tus movimientos.</p></section>';
+}
+
+/* flechas de orden; n es cuántas hay en la misma lista */
+const catFlechas = (c, k, n) => n < 2 ? '' :
+  '<button class="pill" data-catmove="' + esc(c.id) + '" data-dir="-1" aria-label="Subir ' + esc(c.name) + '"' + (k ? '' : ' disabled') + '>↑</button>' +
+  '<button class="pill" data-catmove="' + esc(c.id) + '" data-dir="1" aria-label="Bajar ' + esc(c.name) + '"' + (k < n - 1 ? '' : ' disabled') + '>↓</button>';
+
+/* sube o baja una categoría entre sus hermanas visibles (mismo tipo y misma principal). El orden de la lista
+   es el orden de S.categories; se guarda en order para que la nube lo devuelva igual. */
+function catMover(id, dir){
+  const c = cat(id); if (!c) return;
+  const her = S.categories.filter(x => x.type === c.type && (x.parentId || null) === (c.parentId || null) && !x.hidden);
+  const i = her.indexOf(c), j = i + dir; if (i < 0 || j < 0 || j >= her.length) return;
+  const a = S.categories.indexOf(c), b = S.categories.indexOf(her[j]);
+  [S.categories[a], S.categories[b]] = [S.categories[b], S.categories[a]];
+  S.categories.forEach((x, k) => { x.order = k; });
+  save(); render(); if ($('#catf') && !$('#sheet').hidden) { const f = cat($('#catf').dataset.id); if (f) catForm(f); }
+}
+
+/* une c con otra: sus movimientos, recibos, pagos fijos y rubros del plan pasan a dest, sus subcategorías
+   quedan dentro de dest (si dest es principal) y c se elimina. */
+function catUnir(c, dest){
+  const subs = catSubs(c.id);
+  for (const t of S.transactions) if (t.categoryId === c.id) t.categoryId = dest.id;
+  for (const b of S.bills || []) if (b.categoryId === c.id) b.categoryId = dest.id;
+  for (const r of S.recurring || []) if (r.categoryId === c.id) r.categoryId = dest.id;
+  for (const p of S.plans || []) for (const i of p.items || []) if ((i.cats || []).includes(c.id)) i.cats = [...new Set(i.cats.map(x => x === c.id ? dest.id : x))];
+  if (S.budgets[c.id]) { if (!dest.parentId) S.budgets[dest.id] = (S.budgets[dest.id] || 0) + S.budgets[c.id]; delete S.budgets[c.id]; }
+  subs.forEach(x => { x.parentId = dest.id; });
+  S.categories = S.categories.filter(x => x.id !== c.id);
 }
 
 /* hoja para crear (c = null) o editar una categoría; par preselecciona la principal al crear una subcategoría */
@@ -3066,6 +3106,8 @@ function catForm(c, par){
   let dentro;
   if (!c) dentro = opt('', 'Ninguna (categoría principal de gasto)', !par && tipo === 'gasto') + opt('__inc', 'Ninguna (categoría principal de ingreso)', !par && tipo === 'ingreso') +
     S.categories.filter(x => !x.parentId && !x.hidden).map(x => opt(x.id, x.emoji + ' ' + x.name, x.id === par)).join('');
+  else if (!subs.length && !catUsos(c).length) dentro = opt('', 'Ninguna (categoría principal de gasto)', !c.parentId && c.type === 'gasto') + opt('__inc', 'Ninguna (categoría principal de ingreso)', !c.parentId && c.type === 'ingreso') +
+    S.categories.filter(x => !x.parentId && x.id !== c.id && (!x.hidden || x.id === c.parentId)).map(x => opt(x.id, x.emoji + ' ' + x.name + ' (' + x.type + ')', x.id === c.parentId)).join('');
   else dentro = opt('', 'Ninguna (categoría principal)', !c.parentId) +
     S.categories.filter(x => !x.parentId && x.type === c.type && x.id !== c.id && (!x.hidden || x.id === c.parentId)).map(x => opt(x.id, x.emoji + ' ' + x.name, x.id === c.parentId)).join('');
 
@@ -3087,12 +3129,18 @@ function catForm(c, par){
   if (c) {
     const uso = catUso(); h += '<div class="form catmas">' + catPlanBloque(c);
     if (!c.parentId) h += '<div class="field"><span class="label">Subcategorías</span><div>' +
-      subs.map(x => '<button class="brow" data-cated="' + esc(x.id) + '"><span class="ico">' + esc(x.emoji || c.emoji || '•') + '</span><span class="t"><b>' + esc(x.name) + '</b><span>' + plural(uso[x.id] || 0, 'movimiento', 'movimientos') + '</span></span>' + (x.hidden ? '<span class="r"><span class="bst">Oculta</span></span>' : '') + CHEV + '</button>').join('') +
+      subs.map(x => { const vis = subs.filter(y => !y.hidden);
+        return '<div class="catord"><button class="brow" data-cated="' + esc(x.id) + '"><span class="ico">' + esc(x.emoji || c.emoji || '•') + '</span><span class="t"><b>' + esc(x.name) + '</b><span>' + plural(uso[x.id] || 0, 'movimiento', 'movimientos') + (x.hidden ? ' · oculta' : '') + '</span></span>' + CHEV + '</button>' + (x.hidden ? '' : catFlechas(x, vis.indexOf(x), vis.length)) + '</div>'; }).join('') +
       '</div><button class="btn block ghost" data-newcat="' + esc(c.id) + '">+ Subcategoría</button></div>';
     const usos = catUsos(c), borrable = !usos.length;
     h += '<div class="field"><span class="label">' + (borrable ? 'Sin uso todavía' : 'Se usa en ' + usos.join(', ')) + '</span>' +
       '<button class="btn block ghost" data-cathide="' + esc(c.id) + '">' + (c.hidden ? 'Mostrar de nuevo' : 'Ocultar al registrar') + '</button>' +
-      (borrable ? '<button class="btn block ghost" data-catdel="' + esc(c.id) + '">Eliminar</button>' : '<p class="note">Como ya se usa, no se puede eliminar. Ocúltala si no quieres verla al registrar; tu historial no cambia.</p>') + '</div>';
+      (borrable ? '<button class="btn block ghost" data-catdel="' + esc(c.id) + '">Eliminar</button>' : '<p class="note">Como ya se usa, no se puede eliminar sola. Ocúltala si no quieres verla al registrar, o únela con otra.</p>') + '</div>';
+    if (!borrable) { const dests = catDestinos(c);
+      if (dests.length) h += '<div class="field"><label class="label" for="c-unir">Unir con otra categoría</label><select class="inp" id="c-unir">' +
+        opt('', 'Elige a cuál pasa todo', true) + dests.map(x => opt(x.id, (x.parentId ? cat(x.parentId).name + ' › ' : '') + x.emoji + ' ' + x.name, false)).join('') + '</select>' +
+        '<span class="tile-s">Sus movimientos, recibos y lugar en el plan pasan a la que elijas' + (subs.length ? ', sus subcategorías quedan dentro de ella' : '') + ' y ' + esc(c.name) + ' se elimina.</span>' +
+        '<button class="btn block ghost" data-catunir="' + esc(c.id) + '" style="margin-top:8px">Pasar todo y eliminar</button></div>'; }
     if (c.parentId) h += '<button class="btn block ghost" data-cated="' + esc(c.parentId) + '">Volver a ' + esc(cat(c.parentId).name) + '</button>';
     h += '</div>';
   }
@@ -3106,6 +3154,13 @@ function catPlanBloque(c){
   if (!it) return '<div class="field"><span class="label">En tu plan</span><p class="insight" style="margin:0 0 8px">No está en tu plan: lo que gastes aquí sale como Fuera del plan.</p><button class="btn block ghost" data-catplan="' + esc(c.id) + '">Agregar al plan</button></div>';
   const directo = (it.cats || []).includes(c.id);
   return '<div class="field"><span class="label">En tu plan</span><button class="brow" data-catrubro="' + esc(it.id) + '" data-catback="' + esc(c.id) + '"><span class="ico">' + esc(c.emoji || '•') + '</span><span class="t"><b>Rubro ' + esc(it.name) + '</b><span>' + money(it.amount) + ' al mes' + (directo ? '' : ' · cuenta por ' + esc(cat(c.parentId).name)) + '</span></span>' + CHEV + '</button></div>';
+}
+
+/* a dónde se puede unir: mismo tipo, ni ella ni sus subcategorías; si tiene subcategorías, solo a una principal */
+function catDestinos(c){
+  const tiene = catSubs(c.id).length > 0;
+  return S.categories.filter(x => x.type === c.type && x.id !== c.id && x.parentId !== c.id && !x.hidden && (!tiene || !x.parentId) && !catClave(c))
+    .sort((a, b) => (a.parentId ? 1 : 0) - (b.parentId ? 1 : 0));
 }
 
 /* dónde se usa una categoría; si la lista queda vacía se puede eliminar sin dejar nada huérfano */
@@ -3142,8 +3197,13 @@ async function catEmojiIA(pend){
 const catRefrescar = id => { save(); render(); if (id && cat(id)) catForm(cat(id)); else closeSheet(); };
 
 document.addEventListener('click', e => {
-  const el = e.target.closest('[data-cated],[data-cattab],[data-cathide],[data-catdel],[data-catplan],[data-catrubro],[data-ccls]'); if (!el) return;
+  const el = e.target.closest('[data-cated],[data-cattab],[data-cathide],[data-catdel],[data-catplan],[data-catrubro],[data-ccls],[data-catmove],[data-catunir]'); if (!el) return;
   const d = el.dataset;
+  if (d.catmove) { e.stopPropagation(); return catMover(d.catmove, +d.dir); }
+  if (d.catunir) { const c = cat(d.catunir), dest = cat(($('#c-unir') || {}).value); if (!c) return;
+    if (!dest) { $('#c-unir').focus(); return toast('Elige a qué categoría pasa todo'); }
+    if (!el.classList.contains('danger')) { el.classList.add('danger'); el.classList.remove('ghost'); el.textContent = '¿Seguro? Pasa todo a ' + dest.name + ' y elimina ' + c.name; return; }
+    catUnir(c, dest); catRefrescar(dest.id); return toast('Listo: todo quedó en ' + dest.name); }
   if (d.ccls) { document.querySelectorAll('[data-ccls]').forEach(b => b.setAttribute('aria-pressed', b === el)); return; }
   /* abre el rubro del plan y, al guardarlo, vuelve a esta categoría */
   if (d.catplan) { const c = cat(d.catplan); PF = planFor(period(0)); if (c && PF) itemSheet(null, { name:c.name, cats:[c.id], back:c.id }); return; }
@@ -3158,7 +3218,11 @@ document.addEventListener('click', e => {
 });
 
 /* el presupuesto opcional solo aplica a una categoría principal de gasto */
-document.addEventListener('change', e => { if (e.target.id === 'c-parent' && $('#c-planf')) $('#c-planf').hidden = e.target.value !== ''; });
+document.addEventListener('change', e => {
+  if (e.target.id === 'c-parent' && $('#c-planf')) $('#c-planf').hidden = e.target.value !== '';
+  /* al elegir otra categoría para unir, el botón vuelve a pedir confirmación */
+  if (e.target.id === 'c-unir') { const b = $('[data-catunir]'); if (b) { b.classList.remove('danger'); b.classList.add('ghost'); b.textContent = 'Pasar todo y eliminar'; } }
+});
 document.addEventListener('input', e => { if (e.target.id === 'c-amt') pesosCampo(e.target); });
 
 document.addEventListener('submit', e => {
@@ -3167,7 +3231,9 @@ document.addEventListener('submit', e => {
   const name = $('#c-name').value.trim(), emoji = $('#c-emoji').value.trim(), selP = $('#c-parent'), par = selP ? selP.value : null, err = $('#c-err');
   if (!name) { err.textContent = 'Escribe el nombre de la categoría.'; return; }
   const parent = par && par !== '__inc' ? cat(par) : null;
-  const tipo = c ? c.type : parent ? parent.type : par === '__inc' ? 'ingreso' : 'gasto';
+  /* al editar, el tipo solo cambia si la hoja ofreció ambos (categoría sin uso ni subcategorías) */
+  const libre = c && selP && [...selP.options].some(o => o.value === '__inc');
+  const tipo = c && !libre ? c.type : parent ? parent.type : par === '__inc' ? 'ingreso' : 'gasto';
   const parentId = c && !selP ? c.parentId : parent ? parent.id : null;
   const dup = S.categories.find(x => x !== c && x.type === tipo && (x.parentId || null) === parentId && norm(x.name) === norm(name));
   if (dup) { err.textContent = 'Ya tienes una categoría con ese nombre ahí.'; return; }
@@ -3181,7 +3247,7 @@ document.addEventListener('submit', e => {
     save(); closeSheet(); render(); return toast(pl ? 'Categoría creada y agregada a tu plan' : 'Categoría creada');
   }
   const clave = catClave(c); if (clave && !clave.ok(name)) { err.textContent = clave.msg; return; }
-  c.name = name; c.emoji = emoji || (parent ? parent.emoji : '•'); c.parentId = parentId;
+  c.name = name; c.emoji = emoji || (parent ? parent.emoji : '•'); c.parentId = parentId; c.type = tipo;
   if (!emoji) catEmojiIA({ [c.id]:c.emoji });
   catRefrescar(c.parentId); toast('Cambios guardados');
 });

@@ -576,6 +576,11 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 /* categorías en Ajustes */
 .brow .catdet{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .catmas{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.catord{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line)}
+.catord:first-child{border-top:0}
+.catord .brow{flex:1;min-width:0;border-top:0}
+.catord .pill{flex:none;width:34px;height:30px;padding:0}
+.catord .pill[disabled]{opacity:.35}
 .bill{display:flex;align-items:center;gap:10px}
 .bill-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding-block:10px;text-align:left}
 .bill.hoy .rmain span{color:var(--warn)}

@@ -14,9 +14,12 @@ const SET_SECS = [
   { id:'avisos', t:'Avisos', k:'notificaciones push recordatorio hora repaso tarjeta celular alertas',
     i:SI('<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>'),
     s:() => typeof AV !== 'undefined' && AV.on ? 'Activados en este celular' : 'Desactivados' },
-  { id:'presupuesto', t:'Presupuesto y categorías', k:'presupuesto limite categorias subcategoria meta ingresos plan nueva categoria',
+  { id:'categorias', t:'Categorías', k:'categorias subcategorias gastos ingresos editar renombrar nombre emoji nueva crear ocultar eliminar borrar orden unir juntar mover tipo',
+    i:SI('<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>'),
+    s:() => { const n = t => S.categories.filter(c => !c.parentId && !c.hidden && c.type === t).length; return n('gasto') + ' de gasto · ' + n('ingreso') + ' de ingreso'; } },
+  { id:'presupuesto', t:'Presupuesto', k:'presupuesto limite meta ingresos plan',
     i:SI('<path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>'),
-    s:() => S.categories.filter(c => !c.hidden).length + ' categorías' + ((S.plans || []).length ? ' · límites en tu Plan' : '') },
+    s:() => (S.plans || []).length ? 'Límites en tu Plan' : money(expenseBudgetTotal()) + ' al mes' },
   { id:'asistente', t:'Asistente con IA', k:'ia inteligencia artificial perfil creditos consumo claude saldo lo que debe saber',
     i:SI('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>'),
     show:() => !!iaCard(), s:() => 'Lo que sabe de ti y cuánto gasta' },
@@ -49,7 +52,8 @@ function setSecBody(id){
     if ((S.plans || []).length) out += '<section class="card"><div class="card-h"><h2>Presupuesto</h2><button class="pill" data-go="plan">Abrir plan</button></div><p class="insight">Tus límites y tu meta de ingresos salen de tu <b>Plan</b>. Edítalos allá y todo se actualiza.</p></section>';
     else out += '<section class="card"><div class="card-h"><h2>Presupuesto mensual</h2><span class="aside num">' + money(expenseBudgetTotal()) + '</span></div><div>' + exp.map(bRow).join('') + '</div></section>' +
       '<section class="card"><div class="card-h"><h2>Meta de ingresos</h2></div><div>' + inc.map(bRow).join('') + '</div></section>';
-    return out + catsAdminCard(); }
+    return out + '<section class="card"><div class="card-h"><h2>Categorías</h2><button class="pill" data-setsec="categorias">Editar</button></div><p class="insight">Crea, renombra, ordena o une tus categorías de gasto e ingreso en Categorías.</p></section>'; }
+  if (id === 'categorias') return catsAdminCard();
   if (id === 'asistente') return iaCard();
   if (id === 'atajos') return shortcutsCard();
   if (id === 'cuenta') return cloudCard();
