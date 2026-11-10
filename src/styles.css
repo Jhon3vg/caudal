@@ -48,7 +48,9 @@
 
 /* ---------- 2. Base ---------- */
 *{box-sizing:border-box}
-html{background:var(--bg);touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* overscroll-behavior-y: sin el "arrastrar para recargar" de Chrome en Android: la app se sincroniza y se actualiza sola */
+html{background:var(--bg);touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior-y:none}
+body{overscroll-behavior-y:none}
 body{margin:0;min-height:100vh;overflow-x:clip;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;letter-spacing:-.003em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 body.lock{position:fixed;left:0;right:0;overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
@@ -271,6 +273,10 @@ body.lock>.fab{visibility:hidden}
 .acc{display:flex;align-items:center;gap:12px;width:100%;padding:12px 0;text-align:left}
 .acc .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
 .acc .nm small{display:block;margin-top:2px;font-size:12px;font-weight:400;color:var(--muted)}
+/* fila de cuenta en la pestaña Cuentas: la cuenta (abre movimientos) y su botón Editar */
+.accrow{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line)}
+.accrow:first-child{border-top:0}
+.accrow .acc{flex:1;min-width:0;border-top:0}
 .acc .am{font-weight:500}
 .chev{flex:none;color:var(--faint)}
 .cq>.btn.block,.cq #cq-res>.btn.block{margin-top:8px}
@@ -579,8 +585,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .catord{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line)}
 .catord:first-child{border-top:0}
 .catord .brow{flex:1;min-width:0;border-top:0}
-.catord .pill{flex:none;width:34px;height:30px;padding:0}
-.catord .pill[disabled]{opacity:.35}
+/* subir y bajar en listas ordenables (categorías y cuentas): dos botones redondos con el ícono centrado */
+.ordbtns{flex:none;display:flex;gap:6px}
+.ordbtn{display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:50%;background:var(--surface-2);color:var(--ink)}
+.ordbtn[disabled]{opacity:.3}
 .bill{display:flex;align-items:center;gap:10px}
 .bill-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding-block:10px;text-align:left}
 .bill.hoy .rmain span{color:var(--warn)}

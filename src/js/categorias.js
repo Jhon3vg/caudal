@@ -38,10 +38,14 @@ function catsAdminCard(){
     '<p class="note">Toca una categoría para cambiarle el nombre, el emoji, moverla o unirla con otra. Con las flechas cambias el orden en que salen al registrar. Los cambios se ven en todos tus movimientos.</p></section>';
 }
 
-/* flechas de orden; n es cuántas hay en la misma lista */
-const catFlechas = (c, k, n) => n < 2 ? '' :
-  '<button class="pill" data-catmove="' + esc(c.id) + '" data-dir="-1" aria-label="Subir ' + esc(c.name) + '"' + (k ? '' : ' disabled') + '>↑</button>' +
-  '<button class="pill" data-catmove="' + esc(c.id) + '" data-dir="1" aria-label="Bajar ' + esc(c.name) + '"' + (k < n - 1 ? '' : ' disabled') + '>↓</button>';
+/* botones de orden (subir y bajar) para cualquier lista: attr es el data-* que atiende el clic, k la posición y n
+   cuántas hay. Íconos dibujados: el carácter de flecha se ve diminuto y corrido en Android. */
+const ICO_SUBIR = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>';
+const ICO_BAJAR = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+const ordenBtns = (attr, id, nombre, k, n) => n < 2 ? '' : '<span class="ordbtns">' +
+  '<button class="ordbtn" ' + attr + '="' + esc(id) + '" data-dir="-1" aria-label="Subir ' + esc(nombre) + '"' + (k ? '' : ' disabled') + '>' + ICO_SUBIR + '</button>' +
+  '<button class="ordbtn" ' + attr + '="' + esc(id) + '" data-dir="1" aria-label="Bajar ' + esc(nombre) + '"' + (k < n - 1 ? '' : ' disabled') + '>' + ICO_BAJAR + '</button></span>';
+const catFlechas = (c, k, n) => ordenBtns('data-catmove', c.id, c.name, k, n);
 
 /* sube o baja una categoría entre sus hermanas visibles (mismo tipo y misma principal). El orden de la lista
    es el orden de S.categories; se guarda en order para que la nube lo devuelva igual. */
