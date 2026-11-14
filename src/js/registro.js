@@ -42,8 +42,10 @@ document.addEventListener('keydown', e => { if (e.target.id === 'f-note' && e.ke
 function drawForm(){
   splitIgual();
   const types = ['gasto', 'ingreso', 'transferencia'].concat(F.type === 'ajuste' ? ['ajuste'] : []).map(k => [k, TIPOS[k].nombre]);
-  const accs = S.accounts.filter(a => (!a.hidden && !esDeuda(a)) || a.id === F.accountId || a.id === F.toAccountId);
-  const accChips = (key) => '<div class="cgrid">' + accs.filter(a => !esDeuda(a) || a.id === F[key]).map(a => '<button type="button" class="ctile sm" data-fa="' + key + '" data-id="' + esc(a.id) + '" aria-pressed="' + (F[key] === a.id) + '"><span class="nm">' + esc(accShort(a.id)) + '</span></button>').join('') + '</div>';
+  /* cada cuenta con su saldo de hoy y, si guarda plata de otros, cuánto es tuyo; las subcuentas junto a su cuenta */
+  const fb = balances(), faj = ajenaPorCuenta(fb);
+  const accChips = (key) => { const l = cuentasElegibles(fb, F[key]), extra = S.accounts.filter(a => a.id === F[key] && !l.includes(a) && !esDeuda(a));
+    return '<div class="cgrid">' + l.concat(extra).map(a => cuentaTile(a, 'data-fa="' + key + '" data-id="' + esc(a.id) + '"', F[key] === a.id, fb, faj)).join('') + '</div>'; };
     let h = '<div class="sheet-h"><b id="sheet-title" class="ttl"><span class="tbadge">' + tipoIcono(F.type) + '</span>' + (F.id ? TIPOS[F.type].editar : TIPOS[F.type].nuevo) + '</b>' + (F.id ? '' : '<button class="pill solid" id="go-smart" type="button" aria-label="Registrar con IA">✦ IA</button>') + '<button class="x" data-close aria-label="Cerrar">✕</button></div><form class="form" id="txf" novalidate>';
   /* pestañas de tipo con un indicador que se desliza; el resto del formulario es la "página" que se mueve con el dedo */
   h += '<div class="seg tabs" role="group" aria-label="Tipo" style="--n:' + types.length + ';--i:' + types.findIndex(([k]) => k === F.type) + '"><i class="seg-ind" aria-hidden="true"></i>' +
@@ -223,7 +225,7 @@ function submitForm(){
   if (F.type === 'transferencia') { t.toAccountId = F.toAccountId; if (F.parent && esDeuda(accById(F.toAccountId))) t.categoryId = F.parent; }
   if (F.pending && (F.type === 'gasto' || F.type === 'ingreso')) t.pending = true;
   if (F.type === 'gasto' && F.fund && cardOf(F.accountId)) t.fund = F.fund;
-  if (F.persona && F.persona.trim() && (esDeuda(accById(t.accountId)) || esDeuda(accById(t.toAccountId)))) t.persona = F.persona.trim();
+  if (F.persona && F.persona.trim() && (esDeuda(accById(t.accountId)) || esDeuda(accById(t.toAccountId)))) t.persona = personaCanon(F.persona);
   const exA = excMonto(), grp = parts.length || exA || aj ? (F.grp || uid()) : null;
   if (grp) { t.grp = grp; t.amount = Math.abs(F.amount) - partsSum() - exA - aj; }
   if (!F.id && !F.dupOk && S.transactions.some(x => x.type === t.type && x.amount === t.amount && x.date === t.date && x.accountId === t.accountId)) {

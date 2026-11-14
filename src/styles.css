@@ -278,6 +278,22 @@ body.lock>.fab{visibility:hidden}
 .accrow:first-child{border-top:0}
 .accrow .acc{flex:1;min-width:0;border-top:0}
 .acc .am{font-weight:500}
+.acc .nm small{white-space:normal}
+.accrow.sub{padding-left:16px;border-top-style:dashed}
+.accrow.sub .acc{padding:9px 0}
+.accrow.sub .acc .nm{font-size:14px}
+.accrow.sub .acc .nm::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-left:1.5px solid var(--faint);border-bottom:1.5px solid var(--faint);border-bottom-left-radius:3px;vertical-align:2px}
+.set.subacc{padding-left:18px}
+.prow{display:flex;align-items:center;gap:12px;width:100%;padding:12px 0;text-align:left;border-top:1px solid var(--line)}
+.prow:first-child{border-top:0}
+.prow .pav{flex:0 0 38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--surface-3);color:var(--ink);font-size:13px;font-weight:600}
+.prow .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.prow .t b{font-weight:500}
+.prow .t span{font-size:12px;color:var(--muted)}
+.prow .num{font-weight:600;white-space:nowrap}
+.prow svg{flex:none;color:var(--faint)}
+.form.pers button.set{width:100%;text-align:left;border-top:1px solid var(--line)}
+.form.pers .label+button.set{border-top:0}
 .chev{flex:none;color:var(--faint)}
 .cq>.btn.block,.cq #cq-res>.btn.block{margin-top:8px}
 .distlg{display:flex;flex-direction:column;gap:7px}
@@ -412,6 +428,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
 .cgrid,.csubs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .ctile{position:relative;min-width:0;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 6px;border-radius:18px;background:var(--surface-2);font-size:12.5px;font-weight:500;line-height:1.2;text-align:center}
 .ctile.sm{min-height:44px}
+.ctile.acct{gap:1px;padding:7px 6px}
+.ctile.acct .bal{font-size:11.5px;font-weight:400;opacity:.75}
+.ctile.acct .bal2{font-size:10.5px;font-weight:400;opacity:.6}
+.ctile.acct[aria-pressed="true"] .bal,.ctile.acct[aria-pressed="true"] .bal2{opacity:.9}
 .ctile .em{font-size:19px;line-height:1}
 .ctile .nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .ctile .chev{position:absolute;right:7px;top:6px;font-size:8px}

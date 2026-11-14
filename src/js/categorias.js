@@ -2,7 +2,23 @@
    (emoji, nombre, dónde va, gasto o ingreso si aún no se usa, subcategorías con su orden, ocultar, eliminar cuando
    no se usan y pasar todo a otra categoría para unirlas),
    con su lugar en el plan: presupuesto opcional al crearla y "Agregar al plan" al editarla.
-   Si se crea sin emoji, la IA le pone uno en segundo plano. */
+   Si se crea sin emoji, la IA le pone uno en segundo plano.
+   Los gastos no llevan subcategorías: cada gasto va a una categoría grande y el detalle se escribe en la nota.
+   Las subcategorías de gasto que hubiera se unen a su categoría (sinSubGasto); los ingresos sí pueden tenerlas. */
+
+/* une cada subcategoría de gasto con su categoría: sus movimientos pasan a la categoría y, si no tenían nota,
+   el nombre de la subcategoría queda como nota para no perder el detalle. Devuelve true si cambió algo. */
+function sinSubGasto(s){
+  const subs = (s.categories || []).filter(c => c.type === 'gasto' && c.parentId && s.categories.some(p => p.id === c.parentId)); if (!subs.length) return false;
+  const madre = new Map(subs.map(c => [c.id, c.parentId])), nombre = new Map(subs.map(c => [c.id, c.name]));
+  for (const t of s.transactions || []) if (madre.has(t.categoryId)) { if (!String(t.note || '').trim()) t.note = nombre.get(t.categoryId); t.categoryId = madre.get(t.categoryId); }
+  for (const x of (s.bills || []).concat(s.recurring || [])) if (madre.has(x.categoryId)) x.categoryId = madre.get(x.categoryId);
+  for (const x of s.inbox || []) if (x.item && madre.has(x.item.categoryId)) x.item.categoryId = madre.get(x.item.categoryId);
+  for (const pl of s.plans || []) for (const i of pl.items || []) if ((i.cats || []).some(id => madre.has(id))) i.cats = [...new Set(i.cats.map(id => madre.get(id) || id))];
+  for (const [id, m] of madre) if (s.budgets && s.budgets[id]) { if (!s.budgets[m]) s.budgets[m] = s.budgets[id]; delete s.budgets[id]; }
+  s.categories = s.categories.filter(c => !madre.has(c.id));
+  return true;
+}
 
 /* movimientos por categoría, contando solo la propia (sin subcategorías) */
 function catUso(){
@@ -27,8 +43,8 @@ function catsAdminCard(){
   const activas = mains(tipo).filter(c => !c.hidden), ocultas = mains(tipo).filter(c => c.hidden);
   const fila = (c, k, n) => {
     const subs = catSubs(c.id), total = (uso[c.id] || 0) + subs.reduce((s, x) => s + (uso[x.id] || 0), 0);
-    const det = subs.length ? subs.map(x => x.name + (x.hidden ? ' (oculta)' : '')).join(', ') : 'Sin subcategorías';
-    return '<div class="catord"><button class="brow" data-cated="' + esc(c.id) + '"><span class="ico">' + esc(c.emoji || '•') + '</span><span class="t"><b>' + esc(c.name) + '</b><span class="catdet">' + esc(det) + ' · ' + plural(total, 'mov.', 'mov.') + '</span></span>' + CHEV + '</button>' + catFlechas(c, k, n) + '</div>';
+    const det = subs.length ? subs.map(x => x.name + (x.hidden ? ' (oculta)' : '')).join(', ') + ' · ' : c.type === 'ingreso' ? 'Sin subcategorías · ' : '';
+    return '<div class="catord"><button class="brow" data-cated="' + esc(c.id) + '"><span class="ico">' + esc(c.emoji || '•') + '</span><span class="t"><b>' + esc(c.name) + '</b><span class="catdet">' + esc(det) + plural(total, 'movimiento', 'movimientos') + '</span></span>' + CHEV + '</button>' + catFlechas(c, k, n) + '</div>';
   };
   const tab = (t, txt) => '<button type="button" data-cattab="' + t + '" aria-pressed="' + (tipo === t) + '">' + txt + ' · ' + mains(t).filter(c => !c.hidden).length + '</button>';
   return '<section class="card" id="set-cats"><div class="card-h"><h2>Categorías</h2><button class="pill" data-newcat>Nueva categoría</button></div>' +
@@ -79,9 +95,9 @@ function catForm(c, par){
   const opt = (v, txt, sel) => '<option value="' + esc(v) + '"' + (sel ? ' selected' : '') + '>' + esc(txt) + '</option>';
   let dentro;
   if (!c) dentro = opt('', 'Ninguna (categoría principal de gasto)', !par && tipo === 'gasto') + opt('__inc', 'Ninguna (categoría principal de ingreso)', !par && tipo === 'ingreso') +
-    S.categories.filter(x => !x.parentId && !x.hidden).map(x => opt(x.id, x.emoji + ' ' + x.name, x.id === par)).join('');
+    S.categories.filter(x => !x.parentId && !x.hidden && x.type === 'ingreso').map(x => opt(x.id, 'Dentro de ' + x.emoji + ' ' + x.name + ' (ingreso)', x.id === par)).join('');
   else if (!subs.length && !catUsos(c).length) dentro = opt('', 'Ninguna (categoría principal de gasto)', !c.parentId && c.type === 'gasto') + opt('__inc', 'Ninguna (categoría principal de ingreso)', !c.parentId && c.type === 'ingreso') +
-    S.categories.filter(x => !x.parentId && x.id !== c.id && (!x.hidden || x.id === c.parentId)).map(x => opt(x.id, x.emoji + ' ' + x.name + ' (' + x.type + ')', x.id === c.parentId)).join('');
+    S.categories.filter(x => !x.parentId && x.type === 'ingreso' && x.id !== c.id && (!x.hidden || x.id === c.parentId)).map(x => opt(x.id, 'Dentro de ' + x.emoji + ' ' + x.name + ' (ingreso)', x.id === c.parentId)).join('');
   else dentro = opt('', 'Ninguna (categoría principal)', !c.parentId) +
     S.categories.filter(x => !x.parentId && x.type === c.type && x.id !== c.id && (!x.hidden || x.id === c.parentId)).map(x => opt(x.id, x.emoji + ' ' + x.name, x.id === c.parentId)).join('');
 
@@ -92,7 +108,8 @@ function catForm(c, par){
     (clave ? '<p class="note">' + esc(clave.msg) + '</p>' : '');
 
   if (subs.length) h += '<div class="field"><span class="label">Tipo</span><p class="insight">Categoría principal de ' + c.type + '. Como tiene subcategorías, se queda como principal.</p></div>';
-  else h += '<div class="field"><label class="label" for="c-parent">Dentro de</label><select class="inp" id="c-parent">' + dentro + '</select></div>';
+  else if (c && c.type === 'gasto' && catUsos(c).length) h += '<p class="note" style="padding:0">Categoría de gasto. Escribe el detalle de cada gasto en su nota.</p>';
+  else h += '<div class="field"><label class="label" for="c-parent">Tipo</label><select class="inp" id="c-parent">' + dentro + '</select></div>';
   /* al crear una categoría principal de gasto, de una vez su presupuesto en el plan (opcional) */
   if (!c && planFor(period(0))) h += '<div class="field" id="c-planf"' + (!par && tipo === 'gasto' ? '' : ' hidden') + '><label class="label" for="c-amt">¿Cuánto le asignas al mes? <span class="tile-s">opcional</span></label>' +
     '<input class="inp num" id="c-amt" inputmode="numeric" placeholder="$ 0" autocomplete="off"><div class="chips" style="margin-top:8px">' +
@@ -102,7 +119,7 @@ function catForm(c, par){
 
   if (c) {
     const uso = catUso(); h += '<div class="form catmas">' + catPlanBloque(c);
-    if (!c.parentId) h += '<div class="field"><span class="label">Subcategorías</span><div>' +
+    if (!c.parentId && c.type === 'ingreso') h += '<div class="field"><span class="label">Subcategorías</span><div>' +
       subs.map(x => { const vis = subs.filter(y => !y.hidden);
         return '<div class="catord"><button class="brow" data-cated="' + esc(x.id) + '"><span class="ico">' + esc(x.emoji || c.emoji || '•') + '</span><span class="t"><b>' + esc(x.name) + '</b><span>' + plural(uso[x.id] || 0, 'movimiento', 'movimientos') + (x.hidden ? ' · oculta' : '') + '</span></span>' + CHEV + '</button>' + (x.hidden ? '' : catFlechas(x, vis.indexOf(x), vis.length)) + '</div>'; }).join('') +
       '</div><button class="btn block ghost" data-newcat="' + esc(c.id) + '">+ Subcategoría</button></div>';

@@ -87,5 +87,5 @@ function makeDemo(){
   return s;
 }
 /* listas que versiones antiguas o respaldos pueden no traer */
-function completarEstado(s){ s.inbox = s.inbox || []; s.bills = s.bills || []; s.recurring = s.recurring || []; s.cardMap = s.cardMap || {}; return s; }
+function completarEstado(s){ s.inbox = s.inbox || []; s.bills = s.bills || []; s.recurring = s.recurring || []; s.cardMap = s.cardMap || {}; s.categories = s.categories || []; if (sinSubGasto(s)) s.sinSub = true; return s; }
 function sortTx(s){ s.transactions.sort((a, b) => b.date.localeCompare(a.date) || (b.ts||0) - (a.ts||0)); }

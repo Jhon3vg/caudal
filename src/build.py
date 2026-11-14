@@ -19,7 +19,7 @@ ORDEN = [
     'detalles.js', 'tooltips.js',
     'registro-ia.js', 'pagos.js', 'bandeja.js', 'respaldo.js', 'chat.js', 'eventos-secundarios.js',
     'recibos.js', 'categorias.js', 'teclado.js',
-    'plan.js', 'reacomodar.js', 'preguntar.js', 'explorar.js', 'cuadre.js', 'asistente.js', 'tarjeta.js', 'excedentes.js', 'deudas.js', 'diapago.js', 'intereses.js', 'aprendizaje.js', 'avisos.js', 'nube.js', 'clave.js',
+    'plan.js', 'reacomodar.js', 'preguntar.js', 'explorar.js', 'cuadre.js', 'asistente.js', 'tarjeta.js', 'excedentes.js', 'deudas.js', 'personas.js', 'diapago.js', 'intereses.js', 'aprendizaje.js', 'avisos.js', 'nube.js', 'clave.js',
     'registro.js', 'importacion.js',
     'bienvenida.js',         # bienvenida de 3 pasos y primeros pasos en Inicio
     'cuentas-editar.js',     # crear y editar cuentas, tarjetas de crédito y su orden
