@@ -77,6 +77,8 @@ function accEditGuardar(){
   if (AE.madre && !AE.tarjeta) { if (a.parentAcc !== AE.madre) { const her = subsDe(AE.madre).filter(x => x.id !== a.id); a.order = her.length ? Math.max(...her.map(x => x.order || 0)) + 1 : (accById(AE.madre).order || 0) + .5; } a.parentAcc = AE.madre; } else delete a.parentAcc;
   if (!AE.id) { const v = leerPesos(AE.bal || ''); /* en una tarjeta, lo que debes queda como saldo negativo */
     if (v) S.transactions.push({ id:uid(), type:'ajuste', amount:AE.tarjeta ? -v : v, date:iso(new Date()), ts:Date.now(), accountId:a.id, note:'Saldo inicial' }); }
+  /* posiciones siempre enteras (la base las guarda así): la subcuenta queda justo después de su cuenta */
+  if (a.parentAcc) cuentasOrden().forEach((x, k) => { x.order = k + 1; });
   const nuevo = !AE.id, madre = AE.madre; sortTx(S); save(); AE = null;
   if (nuevo && madre) { accEditSheet(madre); render(); return toast('Subcuenta creada'); }
   closeSheet(); render(); toast(nuevo ? 'Cuenta creada' : 'Cuenta actualizada');

@@ -18,6 +18,12 @@ function tuyoYAjeno(b, aj, a, conSubs){
   return { tot, ajeno, tuyo:tot - ajeno, quien };
 }
 const ajenoTxt = x => x.ajeno ? 'Tuyo ' + money(x.tuyo) + ' · ' + money(x.ajeno) + ' de ' + (x.quien.length ? esc(x.quien.slice(0, 2).join(' y ')) + (x.quien.length > 2 ? ' y otros' : '') : 'otros') : '';
+/* de dónde sale el total de plata de otros (el mismo de Personas): en tus cuentas, prestada y ya usada */
+function ajenaDesglose(AT, enVis){
+  if (!AT.suya || (!AT.fuera && !AT.usado && AT.cuentas === enVis)) return '';
+  const l = [money(enVis) + ' en tus cuentas', AT.cuentas > enVis ? money(AT.cuentas - enVis) + ' en cuentas ocultas' : '', AT.fuera ? money(AT.fuera) + ' prestados a otros' : '', AT.usado ? money(AT.usado) + ' que ya usaste y debes reponer' : ''].filter(Boolean);
+  return '<p class="note" style="padding:0;margin:-6px 0 10px">De otras personas: ' + l.join(' · ') + '.</p>';
+}
 /* botón de cuenta para los selectores: nombre, saldo y, si hay plata de otros, cuánto es tuyo */
 function cuentaTile(a, attrs, pressed, b, aj){
   const x = tuyoYAjeno(b, aj, a, false);
@@ -32,12 +38,12 @@ function vCuentas(){
   const b = balances(), aj = ajenaPorCuenta(b), vis = cuentasOrden(), tops = vis.filter(a => !madreDe(a) || madreDe(a).hidden);
   const pos = vis.filter(a => (b[a.id] || 0) > 0).sort((x, y) => b[y.id] - b[x.id]), posTotal = pos.reduce((x, a) => x + b[a.id], 0) || 1;
   const col = a => serieColor(pos.indexOf(a));
-  const enCuentas = vis.reduce((x, a) => x + (b[a.id] || 0), 0), deOtros = vis.reduce((x, a) => x + ((aj[a.id] || {}).v || 0), 0);
+  const enCuentas = vis.reduce((x, a) => x + (b[a.id] || 0), 0), deOtros = vis.reduce((x, a) => x + ((aj[a.id] || {}).v || 0), 0), AT = ajenaTotales();
   let out = '<div class="hello"><h1>Cuentas</h1><p>' + tops.length + (tops.length === 1 ? ' cuenta activa' : ' cuentas activas') + '</p></div>';
   const aparts = vis.filter(a => a.apart), apartSum = aparts.reduce((x, a) => x + (b[a.id] || 0), 0), disp = dispTotal(b);
   out += '<section class="card glow"><span class="label">Disponible tuyo</span><div class="big num">' + (disp < 0 ? '<small>−</small>' : '') + '<small>$</small>' + nf.format(Math.abs(disp)) + '</div>' +
-    '<div class="stats3" style="margin:2px 0 12px"><div><span>En tus cuentas</span><b class="num">' + money(enCuentas) + '</b></div><div><span>Es tuyo</span><b class="num">' + money(enCuentas - deOtros) + '</b></div><div><span>De otras personas</span><b class="num' + (deOtros ? ' warn' : '') + '">' + money(deOtros) + '</b></div></div>' +
-    '<p class="note" style="padding:0;margin:-4px 0 10px">' + (aparts.length ? 'Apartado ' + money(apartSum) + ' (' + esc(aparts.map(a => accShort(a.id)).join(', ')) + '), no cuenta en tu disponible. ' : '') + (deOtros ? 'La plata de otras personas está en tus cuentas, pero no es tuya: ya no cuenta en tu disponible. ' : '') + (S.accounts.some(a => isCard(a)) ? 'Ya descuenta lo que debes en tarjetas.' : '') + '</p>' +
+    '<div class="stats3" style="margin:2px 0 12px"><div><span>En tus cuentas</span><b class="num">' + money(enCuentas) + '</b></div><div><span>Es tuyo</span><b class="num">' + money(enCuentas - deOtros) + '</b></div><div><span>De otras personas</span><b class="num' + (AT.suya ? ' warn' : '') + '">' + money(AT.suya) + '</b></div></div>' + ajenaDesglose(AT, deOtros) +
+    '<p class="note" style="padding:0;margin:-4px 0 10px">' + (aparts.length ? 'Apartado ' + money(apartSum) + ' (' + esc(aparts.map(a => accShort(a.id)).join(', ')) + '), no cuenta en tu disponible. ' : '') + (AT.suya ? 'La plata de otras personas no es tuya: no cuenta en tu disponible. ' : '') + (S.accounts.some(a => isCard(a)) ? 'Ya descuenta lo que debes en tarjetas.' : '') + '</p>' +
     '<div class="dist" aria-hidden="true">' + pos.map(a => '<i style="width:' + (b[a.id] / posTotal * 100).toFixed(1) + '%;background:' + col(a) + '"></i>').join('') + '</div>' +
     '<div class="distlg">' + pos.map(a => '<div><i style="background:' + col(a) + '"></i><span>' + esc(accShort(a.id)) + '</span><b class="num">' + Math.round(b[a.id] / posTotal * 100) + '% · ' + money(b[a.id]) + '</b></div>').join('') + '</div></section>';
   const fila = (a, sub) => { const t = cuentaTipo(a), x = tuyoYAjeno(b, aj, a, !sub), at = ajenoTxt(x), subs = sub ? [] : subsDe(a.id);

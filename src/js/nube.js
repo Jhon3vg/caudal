@@ -12,8 +12,8 @@ function snapshot(st){
   const m = {}, put = (t, k, row) => { (m[t] = m[t] || new Map()).set(k, JSON.stringify(row)); };
   ['settings','accounts','categories','transactions','budgets','bills','recurring','inbox','plans'].forEach(t => m[t] = new Map());
   put('settings', 'me', { name:st.settings.name || null, start_day:st.settings.startDay || 1, period_mode:st.settings.periodMode || null, pay_last:st.settings.payLast || null, rate:st.settings.rate || 0, last_account:st.lastAccount || null, card_map:st.cardMap || {}, perfil:st.settings.perfil || null, ia_saldo:st.settings.iaSaldo || null, metas:(st.settings.metas || []).length ? st.settings.metas : null, ...(st.settings.exc ? { exc:st.settings.exc } : {}), ...(st.settings.cierres ? { cierres:st.settings.cierres } : {}), pin:st.settings.pin || null, avisos:st.settings.avisos || null });
-  for (const a of st.accounts) put('accounts', a.id, { id:a.id, name:a.name, grp:a.group || 'Otros', sort:a.order || 0, hidden:!!a.hidden, card:a.card || null, apart:!!a.apart, debt:a.debt || null, parent_id:a.parentAcc || null });
-  for (const c of st.categories) put('categories', c.id, { id:c.id, name:c.name, emoji:c.emoji || null, type:c.type, parent_id:c.parentId || null, sort:c.order || 0, hidden:!!c.hidden });
+  for (const a of st.accounts) put('accounts', a.id, { id:a.id, name:a.name, grp:a.group || 'Otros', sort:Math.round(a.order || 0), hidden:!!a.hidden, card:a.card || null, apart:!!a.apart, debt:a.debt || null, parent_id:a.parentAcc || null });
+  for (const c of st.categories) put('categories', c.id, { id:c.id, name:c.name, emoji:c.emoji || null, type:c.type, parent_id:c.parentId || null, sort:Math.round(c.order || 0), hidden:!!c.hidden });
   for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts || null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, persona:t.persona || null, de:t.de || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
   for (const [k, v] of Object.entries(st.budgets || {})) put('budgets', k, { category_id:k, amount:Math.round(v) });
   for (const b of st.bills || []) put('bills', b.id, { id:b.id, name:b.name, category_id:b.categoryId || null, account_id:b.accountId || null, due_day:b.dueDay, lead:b.lead || 0, estimate:b.estimate || 0, active:b.active !== false, cycles:b.cycles || {}, every:b.every || 1, anchor:b.anchor || null, url:b.url || null, ref:b.ref || null });
@@ -116,16 +116,27 @@ async function pushNow(desdePull){
   try { const { data } = await sb.auth.getSession(); if (data && data.session) session = data.session; } catch (_) {}
   const snap = snapshot(S), uidv = session.user.id;
   try {
+    /* cada tabla se sube por separado: si una falla, las demás igual quedan en la nube (antes una cuenta mala frenaba los movimientos).
+       Si un bloque falla, se reintenta fila por fila para que solo quede pendiente la fila con problema. */
+    const hecho = { ...lastSnap }, fallas = [];
     for (const t of Object.keys(snap)) {
       const cur = snap[t], old = lastSnap[t] || new Map(), up = [], del = [];
       for (const [k, v] of cur) if (old.get(k) !== v) up.push({ ...JSON.parse(v), user_id:uidv });
       for (const k of old.keys()) if (!cur.has(k)) del.push(k);
       const conflict = t === 'settings' ? 'user_id' : t === 'budgets' ? 'user_id,category_id' : 'user_id,id';
-      for (let i = 0; i < up.length; i += 500) { const { error } = await sb.from(t).upsert(up.slice(i, i + 500), { onConflict:conflict }); if (error) throw error; }
+      let ok = true;
+      for (let i = 0; i < up.length; i += 500) {
+        const lote = up.slice(i, i + 500), { error } = await sb.from(t).upsert(lote, { onConflict:conflict });
+        if (!error) continue;
+        if (navigator.onLine === false || lote.length === 1) { ok = false; fallas.push(error); continue; }
+        for (const fila of lote) { const r = await sb.from(t).upsert([fila], { onConflict:conflict }); if (r.error) { ok = false; fallas.push(r.error); } }
+      }
       const col = PK[t] || 'id';
-      for (let i = 0; i < del.length; i += 200) { if (t === 'settings') break; const { error } = await sb.from(t).delete().eq('user_id', uidv).in(col, del.slice(i, i + 200)); if (error) throw error; }
+      for (let i = 0; i < del.length; i += 200) { if (t === 'settings') break; const { error } = await sb.from(t).delete().eq('user_id', uidv).in(col, del.slice(i, i + 200)); if (error) { ok = false; fallas.push(error); } }
+      if (ok) hecho[t] = cur;
     }
-    lastSnap = snap; pushedAt = Date.now(); baseGuardar(snap);
+    lastSnap = hecho; pushedAt = Date.now(); baseGuardar(hecho);
+    if (fallas.length) throw fallas[0];
     if (snapIgual(snapshot(S), snap)) { try { localStorage.removeItem(PEND); } catch (_) {} } else scheduleSync(300); /* se registró algo mientras subía */
     syncedAt = Date.now(); setSync('ok');
     if (offlineHubo) { offlineHubo = false; toast('Listo: lo que anotaste sin internet ya quedó en tu nube', 3500); }

@@ -24,6 +24,8 @@ ORDEN = [
     'bienvenida.js',         # bienvenida de 3 pasos y primeros pasos en Inicio
     'cuentas-editar.js',     # crear y editar cuentas, tarjetas de crédito y su orden
     'copias.js',             # copias diarias en el celular para cuando no hay internet
+    'notas.js',              # notas habituales: sugerencias y misma forma de escribirlas
+    'buscar.js',             # buscar movimientos por persona, categoría, cuenta o nota
     'android.js',            # botón atrás, instalar y accesos rápidos en Android
     'eventos.js',            # eventos generales y arranque: siempre al final
 ]

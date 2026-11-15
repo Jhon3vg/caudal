@@ -85,7 +85,7 @@ function vInicio(p){
   let txs = S.transactions.filter(t => inP(t, p) && !hiddenTx(t));
   const f = ui.txf || 'todos';
   if (isDesk()) return vInicioDesk(p, { head, demo, notices, hero, bud, ases, bills, accs, txs, inc, exp });
-  out += '<section class="card" id="movs"><div class="card-h"><h2>Movimientos</h2><span class="aside">' + txs.length + ' en el periodo</span></div>' +
+  out += '<section class="card" id="movs"><div class="card-h"><h2>Movimientos</h2><button class="pill" data-buscar aria-label="Buscar movimientos">🔍 Buscar</button></div><p class="note" style="padding:0;margin:-6px 0 8px">' + txs.length + ' en el periodo</p>' +
     '<div class="pills">' + [['todos','Todos'],['gasto','Gastos'],['ingreso','Ingresos'],['transferencia','Transferencias']].map(([k, l]) => '<button class="pill" data-txf="' + k + '" aria-pressed="' + (f === k) + '">' + l + '</button>').join('') + '</div>';
   if (f !== 'todos') txs = txs.filter(t => t.type === f);
   if (ui.accFilter) { const a = accById(ui.accFilter); txs = txs.filter(t => t.accountId === ui.accFilter || t.toAccountId === ui.accFilter);

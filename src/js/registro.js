@@ -72,7 +72,7 @@ function drawForm(){
     h += '<div class="field"><span class="label">Cuenta</span>' + accChips('accountId') + '</div><div class="seg" role="group" aria-label="Sentido del ajuste"><button type="button" data-sign="1" aria-pressed="' + (F.amount >= 0) + '">Sumar al saldo</button><button type="button" data-sign="-1" aria-pressed="' + (F.amount < 0) + '">Restar al saldo</button></div>';
   }
   /* la nota va a lo ancho y crece con el texto, para leerla completa al abrir el movimiento */
-  h += '<div class="field"><label class="label" for="f-note">Nota</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Opcional">' + esc(F.note) + '</textarea></div>' +
+  h += '<div class="field"><label class="label" for="f-note">Nota</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Opcional">' + esc(F.note) + '</textarea>' + notasChips() + '</div>' +
     '<div class="field"><label class="label" for="f-date">Fecha</label><input class="inp" type="date" id="f-date" value="' + F.date + '"></div>';
   if (F.type === 'gasto' || F.type === 'ingreso') { masOn = masOn || !!F.pending; mas += '<button type="button" class="pill pendt" id="f-pend" aria-pressed="' + !!F.pending + '">' + (F.pending ? '◐ Valor aproximado: por confirmar' : '◐ ¿No recuerdas el valor exacto? Márcalo por confirmar') + '</button>'; }
   if (mas) h += '<details class="howto masop"' + (masOn || F.masOpen ? ' open' : '') + '><summary>Más opciones</summary><div class="masop-in">' + mas + '</div></details>';
@@ -220,7 +220,7 @@ function submitForm(){
     if (Math.abs(F.amount) - aj - partsSum() <= 0) return err('La parte de la otra persona no puede ser todo el gasto.');
     if (F.ajena.devuelto && !F.ajena.abonos && !F.ajena.acc) return err('Elige a qué cuenta te llegó lo que te devolvió.');
   }
-  const t = { id: F.id || uid(), type:F.type, amount: F.type === 'ajuste' ? F.amount : Math.abs(F.amount), date:F.date, ts:Date.now(), accountId:F.accountId, note:F.note.trim() };
+  const t = { id: F.id || uid(), type:F.type, amount: F.type === 'ajuste' ? F.amount : Math.abs(F.amount), date:F.date, ts:Date.now(), accountId:F.accountId, note:notaCanon(F.note) };
   if (F.type === 'gasto' || F.type === 'ingreso') t.categoryId = F.sub || F.parent;
   if (F.type === 'transferencia') { t.toAccountId = F.toAccountId; if (F.parent && esDeuda(accById(F.toAccountId))) t.categoryId = F.parent; }
   if (F.pending && (F.type === 'gasto' || F.type === 'ingreso')) t.pending = true;

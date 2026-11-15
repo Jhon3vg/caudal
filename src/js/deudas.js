@@ -22,11 +22,18 @@ const dispTotal = b => S.accounts.filter(a => !a.hidden && !a.apart).reduce((s, 
 /* lo que debes: ya está comprometido aunque la plata siga en tu cuenta */
 const debesTotal = b => { const P = deudaAcc('pagar'); return P ? Math.max(0, -(b[P.id] || 0)) : 0; };
 
-/* todas las deudas con sus abonos (de la más antigua a la más reciente); las abiertas son las que tienen saldo */
+/* qué tipo de saldo con la persona es cada deuda: debes (le debes), suya (su plata la tienes tú), teDebe (te debe) */
+const deudaClase = it => it.k === 'cobrar' ? 'teDebe' : it.guardo ? 'suya' : 'debes';
+/* todas las deudas con sus abonos (de la más antigua a la más reciente); las abiertas son las que tienen saldo.
+   Un abono puede ser de una sola deuda (auto = id de la deuda) o un pago por persona (auto = '*debes', '*suya' o '*teDebe'
+   y persona): un solo movimiento que se reparte entre sus deudas de ese tipo, de la más vieja a la más nueva. */
+let DCACHE = null;
 function deudasTodas(){
   const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'); if (!P && !C && !Z) return [];
-  const abonos = {};
-  for (const x of S.transactions) if (x.type === 'transferencia' && x.src === 'deuda' && x.auto) (abonos[x.auto] = abonos[x.auto] || []).push(x);
+  let firma = S.transactions.length; for (const x of S.transactions) firma += (x.ts || 0) % 9973 + x.amount + (x.auto ? x.auto.length : 0) + (x.persona ? x.persona.length : 0) + (x.de ? 7 : 0) + (x.pending ? 3 : 0);
+  if (DCACHE && DCACHE.tx === S.transactions && DCACHE.firma === firma) return DCACHE.out;
+  const abonos = {}, porPersona = [];
+  for (const x of S.transactions) if (x.type === 'transferencia' && x.src === 'deuda') { if (x.auto && x.auto[0] === '*') { if (x.persona) porPersona.push(x); } else if (x.auto) (abonos[x.auto] = abonos[x.auto] || []).push(x); }
   const out = [];
   for (const t of S.transactions) {
     const guardo = !!P && t.type === 'transferencia' && t.accountId === P.id && t.src !== 'deuda';
@@ -34,65 +41,163 @@ function deudasTodas(){
       : C && t.type === 'transferencia' && t.toAccountId === C.id && t.src !== 'deuda' ? 'cobrar'
       : Z && t.type === 'ajuste' && t.accountId === Z.id && t.amount < 0 ? 'pausa' : null;
     if (!k) continue;
-    const monto = Math.abs(t.amount), ab = (abonos[t.id] || []).sort((a, b) => a.date.localeCompare(b.date) || a.ts - b.ts), pagado = ab.reduce((a, x) => a + x.amount, 0);
+    const monto = Math.abs(t.amount), ab = (abonos[t.id] || []).slice(), pagado = ab.reduce((a, x) => a + x.amount, 0);
     out.push({ t, k, guardo, monto, abonos:ab, pagado, falta:Math.max(0, monto - pagado) });
   }
-  return out.sort((a, b) => a.t.date.localeCompare(b.t.date));
+  out.sort((a, b) => a.t.date.localeCompare(b.t.date) || (a.t.ts || 0) - (b.t.ts || 0));
+  porPersona.sort((a, b) => a.date.localeCompare(b.date) || (a.ts || 0) - (b.ts || 0));
+  for (const x of porPersona) {
+    const clase = x.auto.slice(1), quien = normP(x.persona); let resta = x.amount;
+    for (const it of out) {
+      if (resta <= 0) break;
+      if (!it.falta || deudaClase(it) !== clase || normP(it.t.persona) !== quien) continue;
+      const D = deudaAcc(it.k); if (!D || (clase === 'teDebe' ? x.accountId : x.toAccountId) !== D.id) continue;
+      const parte = Math.min(resta, it.falta); resta -= parte;
+      it.abonos.push(parte === x.amount ? x : { ...x, amount:parte, total:x.amount }); it.pagado += parte; it.falta -= parte;
+    }
+  }
+  for (const it of out) it.abonos.sort((a, b) => a.date.localeCompare(b.date) || (a.ts || 0) - (b.ts || 0));
+  DCACHE = { tx:S.transactions, firma, out };
+  return out;
 }
+const deudaItem = id => deudasTodas().find(x => x.t.id === id) || null;
 const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
-/* plata de cada persona que tienes: { clave: { nombre, suya, fuera, acc:{ id:v } } }.
-   suya: lo que aún no le devuelves. fuera: lo que de eso prestaste y no te han pagado (nunca más que suya).
-   acc: dónde está lo demás: entra en la cuenta donde la recibiste, sale con cada préstamo hecho con su plata
-   y vuelve en la cuenta donde te pagan ese préstamo. */
+/* plata de cada persona que tienes: { clave: { nombre, suya, fuera, usado, acc:{ id:v } } }.
+   suya: lo que aún no le devuelves (lo mismo que dice Personas). Siempre se cumple suya = cuentas + fuera + usado:
+     acc:    dónde está. Se sigue movimiento por movimiento, en orden: entra en la cuenta donde la recibiste; lo que gastas
+             o sacas de una cuenta sale primero de tu plata, y solo cuando tu parte no alcanza toca la de otros: si es
+             una transferencia a otra de tus cuentas, su plata se mueve con ella; si no, queda como usada.
+     fuera:  lo que de su plata prestaste y aún no te pagan. Cuando te pagan, vuelve a ser suya en la cuenta donde llega.
+     usado:  lo que de su plata ya no está en tus cuentas porque lo gastaste o pagaste algo con ella: le debes reponerlo. */
 function ajenaPersonas(){
-  const m = new Map(), todas = deudasTodas();
-  for (const it of todas) { if (!it.guardo || !it.falta) continue;
-    const n = (it.t.persona || '').trim(), k = normP(n) || '_', x = m.get(k) || { nombre:n, suya:0, fuera:0, acc:{} };
-    x.suya += it.falta; x.acc[it.t.toAccountId] = (x.acc[it.t.toAccountId] || 0) + it.falta; m.set(k, x); }
-  for (const it of todas) { if (it.k !== 'cobrar' || !it.t.de) continue;
-    const x = m.get(normP(it.t.de)); if (!x) continue;
-    x.fuera += it.falta; x.acc[it.t.accountId] = (x.acc[it.t.accountId] || 0) - it.monto;
-    for (const a of it.abonos) x.acc[a.toAccountId] = (x.acc[a.toAccountId] || 0) + a.amount; }
-  for (const x of m.values()) { x.fuera = Math.min(x.fuera, x.suya);
-    let sobra = Object.values(x.acc).reduce((s, v) => s + Math.max(0, v), 0) - (x.suya - x.fuera);
-    for (const id in x.acc) { x.acc[id] = Math.max(0, x.acc[id]); const q = Math.min(sobra, x.acc[id]); if (sobra > 0) { x.acc[id] -= q; sobra -= q; } } }
+  const items = deudasTodas(), m = new Map(), suyaDe = new Map();
+  for (const it of items) if (it.guardo && it.falta) { const k = normP(it.t.persona) || '_'; suyaDe.set(k, (suyaDe.get(k) || 0) + it.falta); }
+  const prestamo = new Map(), deTx = new Map(); /* préstamos hechos con plata de otros; pago → partes por deuda */
+  for (const it of items) { if (it.k === 'cobrar' && it.t.de) prestamo.set(it.t.id, it); for (const a of it.abonos) (deTx.get(a.id) || deTx.set(a.id, []).get(a.id)).push({ it, v:a.amount }); }
+  const guarda = new Map(items.filter(it => it.guardo).map(it => [it.t.id, it]));
+  if (!guarda.size) return m;
+  const per = n => { const k = normP(n) || '_'; if (!m.has(k)) m.set(k, { nombre:(n || '').trim(), suya:0, fuera:0, usado:0, acc:{} }); return m.get(k); };
+  const propia = id => { const a = accById(id); return !!a && !esDeuda(a) && !isCard(a); };
+  const bal = {}, held = {}; /* held[cuenta] = Map(clave → valor) */
+  const H = id => held[id] || (held[id] = new Map()), totH = id => { let s = 0; for (const v of H(id).values()) s += v; return s; };
+  const sacar = (id, k, v) => { const h = H(id), q = Math.min(v, h.get(k) || 0); if (q) h.set(k, (h.get(k) || 0) - q); return q; };
+  /* quita v de la plata de una persona: primero en la cuenta dada, luego lo usado, luego en sus otras cuentas */
+  const quitarPersona = (k, v, id) => { const p = m.get(k); if (!p) return;
+    if (id) v -= sacar(id, k, v);
+    const u = Math.min(v, p.usado); p.usado -= u; v -= u;
+    for (const c of Object.keys(held).sort((a, b) => (held[b].get(k) || 0) - (held[a].get(k) || 0))) { if (v <= 0) break; v -= sacar(c, k, v); } };
+  const tx = S.transactions.slice().sort((a, b) => a.date.localeCompare(b.date) || (a.ts || 0) - (b.ts || 0));
+  for (const t of tx) {
+    const a = t.amount;
+    if (t.type === 'transferencia' && t.pending) continue;
+    /* recibiste plata de alguien */
+    if (guarda.has(t.id)) { const p = per(t.persona); bal[t.toAccountId] = (bal[t.toAccountId] || 0) + a; if (propia(t.toAccountId)) { const h = H(t.toAccountId), k = normP(p.nombre) || '_'; h.set(k, (h.get(k) || 0) + a); } continue; }
+    /* devolviste su plata, o te pagaron un préstamo hecho con plata de otros */
+    const partes = deTx.get(t.id);
+    if (partes) {
+      if (propia(t.accountId)) bal[t.accountId] = (bal[t.accountId] || 0) - a;
+      if (propia(t.toAccountId)) bal[t.toAccountId] = (bal[t.toAccountId] || 0) + a;
+      let resto = a;
+      for (const { it, v } of partes) {
+        if (it.guardo) { resto -= v; quitarPersona(normP(it.t.persona) || '_', v, t.accountId); }
+        else if (prestamo.has(it.t.id) && propia(t.toAccountId)) { resto -= v; const k = normP(it.t.de); per(it.t.de); const h = H(t.toAccountId); h.set(k, (h.get(k) || 0) + v); }
+      }
+      if (propia(t.accountId)) desborde(t.accountId, null);
+      continue;
+    }
+    /* prestaste plata de otra persona */
+    if (prestamo.has(t.id)) { bal[t.accountId] = (bal[t.accountId] || 0) - a; const k = normP(t.de); if (m.has(k)) { let v = a - sacar(t.accountId, k, a);
+        for (const c of Object.keys(held)) { if (v <= 0) break; v -= sacar(c, k, v); } m.get(k).usado = Math.max(0, m.get(k).usado - v); }
+      desborde(t.accountId, null); continue; }
+    /* todo lo demás: entradas suman; salidas toman primero tu plata */
+    const sale = t.type === 'gasto' ? t.accountId : t.type === 'transferencia' ? t.accountId : t.type === 'ajuste' && a < 0 ? t.accountId : null;
+    const entra = t.type === 'ingreso' || (t.type === 'ajuste' && a > 0) ? t.accountId : t.type === 'transferencia' ? t.toAccountId : null;
+    const v = Math.abs(a);
+    if (sale) bal[sale] = (bal[sale] || 0) - v;
+    if (entra) bal[entra] = (bal[entra] || 0) + v;
+    if (sale && propia(sale)) desborde(sale, t.type === 'transferencia' && propia(t.toAccountId) ? t.toAccountId : null);
+  }
+  /* si en una cuenta queda menos plata que la de otros, lo que falta salió con este movimiento: va a la cuenta destino o queda como usado */
+  function desborde(id, destino){
+    const tot = totH(id), sobra = tot - Math.max(0, bal[id] || 0); if (sobra <= 0) return;
+    for (const [k, v] of H(id)) { if (!v) continue; const q = Math.round(sobra * v / tot); H(id).set(k, v - q);
+      if (destino) { const h = H(destino); h.set(k, (h.get(k) || 0) + q); } else if (m.has(k)) m.get(k).usado += q; }
+  }
+  /* cuadre final con lo que dice Personas: nunca se pierde ni se inventa plata de otros */
+  for (const [k, p] of m) {
+    p.suya = suyaDe.get(k) || 0;
+    p.fuera = Math.min(p.suya, items.filter(it => it.k === 'cobrar' && it.t.de && normP(it.t.de) === k).reduce((s, it) => s + it.falta, 0));
+    for (const id in held) { const v = held[id].get(k) || 0; if (v > 0) p.acc[id] = v; }
+    let enCuentas = Object.values(p.acc).reduce((s, v) => s + v, 0), dif = enCuentas + p.fuera + p.usado - p.suya;
+    if (dif > 0) { const u = Math.min(dif, p.usado); p.usado -= u; dif -= u;
+      for (const id of Object.keys(p.acc).sort((a, b) => p.acc[a] - p.acc[b])) { if (dif <= 0) break; const q = Math.min(dif, p.acc[id]); p.acc[id] -= q; dif -= q; if (!p.acc[id]) delete p.acc[id]; } }
+    else if (dif < 0) p.usado += -dif;
+    if (!p.suya && !p.fuera) m.delete(k);
+  }
   return m;
 }
 /* lo prestado con plata de otros y aún sin cobrar: no es tuyo, así que no sale de tu disponible */
 const prestadoAjeno = () => { let s = 0; for (const x of ajenaPersonas().values()) s += x.fuera; return s; };
-/* plata de otras personas que está dentro de cada cuenta: { id: { v, quien:[nombres] } }; nunca más que el saldo de la cuenta */
-function ajenaPorCuenta(b){
+/* plata de otras personas que está dentro de cada cuenta: { id: { v, quien:[nombres] } } */
+function ajenaPorCuenta(){
   const m = {};
   for (const p of ajenaPersonas().values()) for (const id in p.acc) { if (!p.acc[id]) continue;
     const x = m[id] = m[id] || { v:0, quien:[] }; x.v += p.acc[id]; if (p.nombre && !x.quien.some(q => normP(q) === normP(p.nombre))) x.quien.push(p.nombre); }
-  if (b) for (const id in m) m[id].v = Math.max(0, Math.min(m[id].v, b[id] || 0));
   return m;
 }
-/* cuánto de la plata de una persona puedes prestar (lo que tienes suyo y no has prestado), y en qué cuenta está más */
+/* totales de la plata de otros: suya = cuentas + prestada + usada (lo mismo que suma Personas) */
+function ajenaTotales(){
+  const r = { suya:0, cuentas:0, fuera:0, usado:0 };
+  for (const p of ajenaPersonas().values()) { r.suya += p.suya; r.fuera += p.fuera; r.usado += p.usado; for (const id in p.acc) r.cuentas += p.acc[id]; }
+  return r;
+}
+/* cuánto de la plata de una persona puedes prestar (lo suyo que está en tus cuentas), y en qué cuenta está más */
 function ajenaLibre(nombre){
   const x = ajenaPersonas().get(normP(nombre)); if (!x) return { v:0, acc:null };
   const ids = Object.keys(x.acc).filter(id => x.acc[id] > 0).sort((a, b) => x.acc[b] - x.acc[a]);
-  return { v:x.suya - x.fuera, acc:ids[0] || null };
+  return { v:ids.reduce((s, id) => s + x.acc[id], 0), acc:ids[0] || null };
 }
 const deudaConcepto = t => t.note || (t.type === 'gasto' ? catPath(t.categoryId) : t.type === 'ajuste' ? 'Deuda' : 'Préstamo');
 /* el comentario que Caudal pone solo ya nombra a la persona: no se repite */
 const deudaAuto = t => !!(t.persona && t.note && normP(t.note).includes(normP(t.persona)));
 const deudaNombre = t => t.persona ? t.persona + (t.note && !deudaAuto(t) ? ' · ' + t.note : '') : deudaConcepto(t);
-/* comentario automático y corto: "Pago de Laura" (te pagó), "Pago a Laura" (le pagaste), "Devolución a Laura" (su plata) */
+/* comentario automático, el mismo en las dos direcciones: "Pago Laura" (la flecha del movimiento dice si entró o salió) */
 function deudaPagoNota(it){
   const n = (it.t.persona || '').trim(), c = deudaAuto(it.t) ? '' : it.t.note || '';
-  if (it.k === 'cobrar') return n ? 'Pago de ' + n : 'Pago recibido' + (c ? ' por ' + c : '');
-  if (it.guardo) return n ? 'Devolución a ' + n : 'Devolución' + (c ? ' de ' + c : '');
-  return n ? 'Pago a ' + n : 'Pago de ' + (c || 'deuda');
+  return n ? 'Pago ' + n : 'Pago ' + (c || (it.k === 'cobrar' ? 'préstamo' : it.guardo ? 'devolución' : 'deuda'));
 }
 /* comentario de una deuda nueva sin concepto escrito */
-const deudaNuevaNota = (tipo, n, de) => tipo === 'debo' ? 'Deuda con ' + n : tipo === 'guardo' ? 'Plata de ' + n : 'Préstamo a ' + n + (de ? ' con plata de ' + de : '');
-/* pagos guardados con el comentario de antes ("Te pagaron: Laura · …"): pasan al nuevo, una sola vez */
+const deudaNuevaNota = (tipo, n, de) => tipo === 'debo' ? 'Deuda ' + n : tipo === 'guardo' ? 'Plata de ' + n : 'Préstamo ' + n + (de ? ' (plata de ' + de + ')' : '');
+/* mantenimiento de los pagos guardados antes, una sola vez y sin cambiar ningún valor:
+   1. comentarios viejos ("Te pagaron: Laura", "Pago de Laura", "Devolución a Laura"…) → "Pago Laura".
+   2. un pago por persona que quedó partido en varios movimientos (mismo momento, persona, cuentas y tipo) → un solo movimiento
+      con la suma; Caudal lo reparte igual que antes, de la deuda más vieja a la más nueva. */
 function deudaNotasViejas(){
-  const viejo = /^(Devolución|Pago de deuda|Te pagaron): /; if (!S.transactions.some(x => x.src === 'deuda' && viejo.test(x.note || ''))) return false;
+  let cambio = false;
+  const viejo = /^(Devolución a |Pago de deuda: |Te pagaron: |Devolución: |Pago a |Pago de )/;
   const por = new Map(deudasTodas().map(it => [it.t.id, it]));
-  for (const x of S.transactions) if (x.src === 'deuda' && viejo.test(x.note || '') && por.has(x.auto)) x.note = deudaPagoNota(por.get(x.auto));
-  return true;
+  for (const x of S.transactions) {
+    if (x.src !== 'deuda' || !viejo.test(x.note || '')) continue;
+    const it = x.auto && x.auto[0] !== '*' ? por.get(x.auto) : null, n = (x.persona || (it && it.t.persona) || '').trim();
+    const nueva = n ? 'Pago ' + n : it ? deudaPagoNota(it) : null; if (nueva && nueva !== x.note) { x.note = nueva; cambio = true; }
+  }
+  const grupos = new Map();
+  for (const x of S.transactions) {
+    const it = x.type === 'transferencia' && x.src === 'deuda' && x.persona && x.auto && x.auto[0] !== '*' ? por.get(x.auto) : null; if (!it) continue;
+    const g = [normP(x.persona), x.date, x.accountId, x.toAccountId, deudaClase(it)].join('|');
+    (grupos.get(g) || grupos.set(g, []).get(g)).push(x);
+  }
+  for (const [g, l] of grupos) {
+    if (l.length < 2) continue;
+    l.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    /* solo los creados juntos por el botón de pago por persona (milisegundos seguidos) */
+    const bloques = []; for (const x of l) { const u = bloques[bloques.length - 1]; if (u && (x.ts || 0) - (u[u.length - 1].ts || 0) <= 50) u.push(x); else bloques.push([x]); }
+    for (const b of bloques) { if (b.length < 2) continue;
+      const [primero, ...resto] = b, clase = g.split('|')[4], quitar = new Set(resto.map(x => x.id));
+      primero.amount = b.reduce((s, x) => s + x.amount, 0); primero.auto = '*' + clase; primero.note = 'Pago ' + primero.persona.trim();
+      S.transactions = S.transactions.filter(x => !quitar.has(x.id)); cambio = true; }
+  }
+  return cambio;
 }
 /* qué dice cada fila según el caso */
 const deudaVerbo = it => it.k === 'cobrar' ? 'Te debe' : it.guardo ? 'Es suya, la tienes tú' : it.k === 'pausa' ? 'Le debes · en pausa' : 'Le debes';
@@ -103,7 +208,7 @@ const deudaBoton = it => it.k === 'cobrar' ? 'Me pagó' : it.guardo ? 'Devolver'
 const esPrestamo = t => t.type === 'transferencia' && t.src !== 'deuda' && esDeuda(accById(t.toAccountId)) && accById(t.toAccountId).debt === 'cobrar';
 function prestamoEnPeriodo(t, p){
   if (!t.categoryId || !esPrestamo(t) || !inP(t, p)) return 0;
-  const devuelto = S.transactions.filter(x => x.type === 'transferencia' && x.src === 'deuda' && x.auto === t.id && inP(x, p)).reduce((a, x) => a + x.amount, 0);
+  const it = deudaItem(t.id), devuelto = it ? it.abonos.filter(x => inP(x, p)).reduce((a, x) => a + x.amount, 0) : 0;
   return Math.max(0, t.amount - devuelto);
 }
 /* cuánto cuenta un movimiento en el rubro que le corresponde: gastos (salvo los pagados con Excedentes) y préstamos */
@@ -355,12 +460,13 @@ document.addEventListener('input', e => { if (e.target.id === 'dn-amt') pesosCam
 /* al prestar: ¿la plata es tuya o de alguien de quien tienes plata? Solo sale si tienes plata de alguien sin prestar */
 function dnDeField(){
   if (DN.tipo !== 'preste') return '';
-  const gente = [...ajenaPersonas().values()].filter(x => x.nombre && x.suya - x.fuera > 0 && normP(x.nombre) !== normP(DN.persona));
+  const libre = x => Object.values(x.acc).reduce((s, v) => s + v, 0);
+  const gente = [...ajenaPersonas().values()].filter(x => x.nombre && libre(x) > 0 && normP(x.nombre) !== normP(DN.persona));
   if (!gente.length) { DN.de = ''; return ''; }
   if (DN.de && !gente.some(x => normP(x.nombre) === normP(DN.de))) DN.de = '';
   return '<div class="field"><span class="label">¿De quién es la plata que prestas?</span><div class="chips">' +
     '<button type="button" class="chip" data-dnde="" aria-pressed="' + !DN.de + '">Mía</button>' +
-    gente.map(x => '<button type="button" class="chip" data-dnde="' + esc(x.nombre) + '" aria-pressed="' + (normP(DN.de) === normP(x.nombre)) + '">De ' + esc(x.nombre) + ' · ' + money(x.suya - x.fuera) + '</button>').join('') + '</div>' +
+    gente.map(x => '<button type="button" class="chip" data-dnde="' + esc(x.nombre) + '" aria-pressed="' + (normP(DN.de) === normP(x.nombre)) + '">De ' + esc(x.nombre) + ' · ' + money(libre(x)) + '</button>').join('') + '</div>' +
     '<span class="tile-s">' + (DN.de ? 'Sale de la plata de ' + esc(DN.de) + ' y no de la tuya: tu disponible no cambia. Le sigues debiendo a ' + esc(DN.de) + ' y, cuando te paguen, esa plata vuelve a ser suya.' : 'Sale de tu plata: no suma a tu disponible hasta que te paguen.') + '</span></div>';
 }
 /* lo que ya hay con esa persona y cómo queda al sumar esta deuda */
