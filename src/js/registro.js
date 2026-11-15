@@ -231,7 +231,7 @@ function submitForm(){
   if (!F.id && !F.dupOk && S.transactions.some(x => x.type === t.type && x.amount === t.amount && x.date === t.date && x.accountId === t.accountId)) {
     F.dupOk = true; return err('Ya tienes un movimiento igual ese día en esta cuenta. Si es otro distinto, toca Guardar otra vez.'); }
   const i = S.transactions.findIndex(x => x.id === t.id);
-  if (i >= 0) { const o = S.transactions[i]; t.ts = o.ts || t.ts; if (o.src) t.src = o.src; if (o.auto) t.auto = o.auto; if (o.pending && t.type === 'transferencia') t.pending = true; S.transactions[i] = t; } else S.transactions.push(t);
+  if (i >= 0) { const o = S.transactions[i]; t.ts = o.ts || t.ts; if (o.src) t.src = o.src; if (o.auto) t.auto = o.auto; if (o.de && esDeuda(accById(t.toAccountId))) t.de = o.de; if (o.pending && t.type === 'transferencia') t.pending = true; S.transactions[i] = t; } else S.transactions.push(t);
   syncFund(t);
   if (grp || F.grp) { /* partes del gasto dividido: crea, actualiza y borra las que quitaste */
     const keep = new Set([t.id]);

@@ -49,5 +49,6 @@ document.addEventListener('submit', e => {
 }, true);
 
 completarEstado(S);
+if (deudaNotasViejas()) save();
 runRecurring();
 setTimeout(intake, 0); /* después de cargar todos los módulos: guardar usa funciones de recibos.js */

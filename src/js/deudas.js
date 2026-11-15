@@ -5,7 +5,9 @@
    En pausa: lo que debes y no tienes en tus cuentas (un ajuste negativo en la cuenta "Deudas en pausa",
      que está apartada). No resta de tu disponible hasta que la pagas desde una de tus cuentas.
    Por cobrar: lo que prestaste. Está apartada: no suma a tu disponible hasta que te paguen.
-   Los pagos son transferencias con src 'deuda' y auto = id de la deuda, para saber cuánto falta de cada una. */
+   Los pagos son transferencias con src 'deuda' y auto = id de la deuda, para saber cuánto falta de cada una.
+   Prestar plata de otra persona: el préstamo lleva t.de = nombre de la dueña. Esa plata sale de su parte en tu cuenta
+     (no de la tuya), no resta de tu disponible y, cuando te pagan, vuelve a quedar como suya en la cuenta donde llega. */
 const DEUDA = { pagar:{ name:'Por pagar', orden:900 }, cobrar:{ name:'Por cobrar', orden:901 }, pausa:{ name:'Deudas en pausa', orden:902 } };
 const esDeuda = a => !!(a && a.debt);
 const deudaAcc = k => S.accounts.find(a => a.debt === k) || null;
@@ -16,7 +18,7 @@ function deudaCrear(k){
   S.accounts.push(a); return a;
 }
 /* disponible: cuentas visibles que no están apartadas (Por cobrar y En pausa lo están; Por pagar resta con su saldo negativo) */
-const dispTotal = b => S.accounts.filter(a => !a.hidden && !a.apart).reduce((s, a) => s + (b[a.id] || 0), 0);
+const dispTotal = b => S.accounts.filter(a => !a.hidden && !a.apart).reduce((s, a) => s + (b[a.id] || 0), 0) + prestadoAjeno();
 /* lo que debes: ya está comprometido aunque la plata siga en tu cuenta */
 const debesTotal = b => { const P = deudaAcc('pagar'); return P ? Math.max(0, -(b[P.id] || 0)) : 0; };
 
@@ -38,17 +40,60 @@ function deudasTodas(){
   return out.sort((a, b) => a.t.date.localeCompare(b.t.date));
 }
 const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
-/* plata de otras personas que está dentro de cada cuenta: { id: { v, quien:[nombres] } }.
-   Sale de "Tengo plata de alguien" (aún sin devolver), en la cuenta donde entró; nunca más que el saldo de la cuenta. */
+/* plata de cada persona que tienes: { clave: { nombre, suya, fuera, acc:{ id:v } } }.
+   suya: lo que aún no le devuelves. fuera: lo que de eso prestaste y no te han pagado (nunca más que suya).
+   acc: dónde está lo demás: entra en la cuenta donde la recibiste, sale con cada préstamo hecho con su plata
+   y vuelve en la cuenta donde te pagan ese préstamo. */
+function ajenaPersonas(){
+  const m = new Map(), todas = deudasTodas();
+  for (const it of todas) { if (!it.guardo || !it.falta) continue;
+    const n = (it.t.persona || '').trim(), k = normP(n) || '_', x = m.get(k) || { nombre:n, suya:0, fuera:0, acc:{} };
+    x.suya += it.falta; x.acc[it.t.toAccountId] = (x.acc[it.t.toAccountId] || 0) + it.falta; m.set(k, x); }
+  for (const it of todas) { if (it.k !== 'cobrar' || !it.t.de) continue;
+    const x = m.get(normP(it.t.de)); if (!x) continue;
+    x.fuera += it.falta; x.acc[it.t.accountId] = (x.acc[it.t.accountId] || 0) - it.monto;
+    for (const a of it.abonos) x.acc[a.toAccountId] = (x.acc[a.toAccountId] || 0) + a.amount; }
+  for (const x of m.values()) { x.fuera = Math.min(x.fuera, x.suya);
+    let sobra = Object.values(x.acc).reduce((s, v) => s + Math.max(0, v), 0) - (x.suya - x.fuera);
+    for (const id in x.acc) { x.acc[id] = Math.max(0, x.acc[id]); const q = Math.min(sobra, x.acc[id]); if (sobra > 0) { x.acc[id] -= q; sobra -= q; } } }
+  return m;
+}
+/* lo prestado con plata de otros y aún sin cobrar: no es tuyo, así que no sale de tu disponible */
+const prestadoAjeno = () => { let s = 0; for (const x of ajenaPersonas().values()) s += x.fuera; return s; };
+/* plata de otras personas que está dentro de cada cuenta: { id: { v, quien:[nombres] } }; nunca más que el saldo de la cuenta */
 function ajenaPorCuenta(b){
   const m = {};
-  for (const it of deudasAbiertas()) { if (!it.guardo) continue; const id = it.t.toAccountId, x = m[id] = m[id] || { v:0, quien:[] };
-    x.v += it.falta; const n = it.t.persona && it.t.persona.trim(); if (n && !x.quien.some(q => normP(q) === normP(n))) x.quien.push(n); }
+  for (const p of ajenaPersonas().values()) for (const id in p.acc) { if (!p.acc[id]) continue;
+    const x = m[id] = m[id] || { v:0, quien:[] }; x.v += p.acc[id]; if (p.nombre && !x.quien.some(q => normP(q) === normP(p.nombre))) x.quien.push(p.nombre); }
   if (b) for (const id in m) m[id].v = Math.max(0, Math.min(m[id].v, b[id] || 0));
   return m;
 }
+/* cuánto de la plata de una persona puedes prestar (lo que tienes suyo y no has prestado), y en qué cuenta está más */
+function ajenaLibre(nombre){
+  const x = ajenaPersonas().get(normP(nombre)); if (!x) return { v:0, acc:null };
+  const ids = Object.keys(x.acc).filter(id => x.acc[id] > 0).sort((a, b) => x.acc[b] - x.acc[a]);
+  return { v:x.suya - x.fuera, acc:ids[0] || null };
+}
 const deudaConcepto = t => t.note || (t.type === 'gasto' ? catPath(t.categoryId) : t.type === 'ajuste' ? 'Deuda' : 'Préstamo');
-const deudaNombre = t => t.persona ? t.persona + (t.note ? ' · ' + t.note : '') : deudaConcepto(t);
+/* el comentario que Caudal pone solo ya nombra a la persona: no se repite */
+const deudaAuto = t => !!(t.persona && t.note && normP(t.note).includes(normP(t.persona)));
+const deudaNombre = t => t.persona ? t.persona + (t.note && !deudaAuto(t) ? ' · ' + t.note : '') : deudaConcepto(t);
+/* comentario automático y corto: "Pago de Laura" (te pagó), "Pago a Laura" (le pagaste), "Devolución a Laura" (su plata) */
+function deudaPagoNota(it){
+  const n = (it.t.persona || '').trim(), c = deudaAuto(it.t) ? '' : it.t.note || '';
+  if (it.k === 'cobrar') return n ? 'Pago de ' + n : 'Pago recibido' + (c ? ' por ' + c : '');
+  if (it.guardo) return n ? 'Devolución a ' + n : 'Devolución' + (c ? ' de ' + c : '');
+  return n ? 'Pago a ' + n : 'Pago de ' + (c || 'deuda');
+}
+/* comentario de una deuda nueva sin concepto escrito */
+const deudaNuevaNota = (tipo, n, de) => tipo === 'debo' ? 'Deuda con ' + n : tipo === 'guardo' ? 'Plata de ' + n : 'Préstamo a ' + n + (de ? ' con plata de ' + de : '');
+/* pagos guardados con el comentario de antes ("Te pagaron: Laura · …"): pasan al nuevo, una sola vez */
+function deudaNotasViejas(){
+  const viejo = /^(Devolución|Pago de deuda|Te pagaron): /; if (!S.transactions.some(x => x.src === 'deuda' && viejo.test(x.note || ''))) return false;
+  const por = new Map(deudasTodas().map(it => [it.t.id, it]));
+  for (const x of S.transactions) if (x.src === 'deuda' && viejo.test(x.note || '') && por.has(x.auto)) x.note = deudaPagoNota(por.get(x.auto));
+  return true;
+}
 /* qué dice cada fila según el caso */
 const deudaVerbo = it => it.k === 'cobrar' ? 'Te debe' : it.guardo ? 'Es suya, la tienes tú' : it.k === 'pausa' ? 'Le debes · en pausa' : 'Le debes';
 const deudaBoton = it => it.k === 'cobrar' ? 'Me pagó' : it.guardo ? 'Devolver' : 'Pagar';
@@ -107,7 +152,7 @@ function deudaVerSheet(id){
   const { t, k, abonos, pagado, falta, monto } = it, pagar = k !== 'cobrar';
   const h = '<div class="sheet-h"><b id="sheet-title">' + esc(deudaNombre(t)) + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
     '<section class="card glow" style="padding:16px"><span class="label">' + (falta ? (pagar ? 'Te falta pagar' : 'Te falta recibir') : 'Saldada ✓') + '</span><div class="tile-v num">' + money(falta || monto) + '</div>' +
-    '<span class="tile-s">' + (it.guardo ? 'Plata de otra persona' : pagar ? 'Deuda' : 'Préstamo') + ' de ' + money(monto) + ' del ' + fmtShort(parseISO(t.date)) + (pagado ? ' · abonado ' + money(pagado) : '') + '</span></section>' +
+    '<span class="tile-s">' + (it.guardo ? 'Plata de otra persona' : pagar ? 'Deuda' : 'Préstamo' + (t.de ? ' con plata de ' + esc(t.de) + ',' : '')) + ' de ' + money(monto) + ' del ' + fmtShort(parseISO(t.date)) + (pagado ? ' · abonado ' + money(pagado) : '') + '</span></section>' +
     '<div><span class="label">Abonos</span>' + (abonos.length ? abonos.map(x => '<div class="set"><div class="t"><b class="num">' + money(x.amount) + '</b><span>' + fmtShort(parseISO(x.date)) + ' · ' + (pagar ? 'desde ' : 'a ') + esc(accShort(pagar ? x.accountId : x.toAccountId)) + '</span></div><button class="pill" data-tx="' + esc(x.id) + '">Editar</button></div>').join('') : '<p class="note" style="padding:0">Aún no hay abonos.</p>') + '</div>' +
     (falta ? '<button class="btn accent block" data-dpay="' + esc(t.id) + '">' + (it.guardo ? 'Registrar que se la devolviste' : pagar ? 'Registrar un pago' : 'Registrar lo que te pagaron') + '</button>' : '') +
     '<p class="note" style="padding:0">Puedes pagar el total o abonar por partes; cada abono queda aquí con su fecha.</p></div>';
@@ -126,7 +171,7 @@ function deudaPagarDraw(){
   const { it, acc } = DP, pagar = it.k !== 'cobrar';
   const b = balances(), aj = ajenaPorCuenta(b), opts = cuentasElegibles(b, acc).filter(a => !isCard(a));
   const h = '<div class="sheet-h"><b id="sheet-title">' + (it.guardo ? 'Devolver su plata' : pagar ? 'Pagar deuda' : 'Te pagaron') + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form dpay">' +
-    '<section class="card glow" style="padding:16px"><span class="label">' + esc(deudaNombre(it.t)) + '</span><div class="tile-v num">' + money(it.falta) + '</div><span class="tile-s">' + (it.guardo ? 'Te falta devolver' : pagar ? 'Te falta pagar' : 'Te falta recibir') + (it.pagado ? ' · ya van ' + money(it.pagado) + ' de ' + money(it.monto) : '') + '</span></section>' +
+    '<section class="card glow" style="padding:16px"><span class="label">' + esc(deudaNombre(it.t)) + '</span><div class="tile-v num">' + money(it.falta) + '</div><span class="tile-s">' + (it.guardo ? 'Te falta devolver' : pagar ? 'Te falta pagar' : 'Te falta recibir') + (it.pagado ? ' · ya van ' + money(it.pagado) + ' de ' + money(it.monto) : '') + '</span></section>' + (it.t.de ? '<p class="note" style="padding:0;margin:0">Era plata de ' + esc(it.t.de) + ': lo que te pague vuelve a quedar como suya en la cuenta donde llegue.</p>' : '') +
     '<div class="field"><label class="label" for="dp-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="dp-amt" inputmode="numeric" class="num" value="' + nf.format(it.falta) + '" style="font-size:28px"></div></div>' +
     '<div class="field"><span class="label">' + (pagar ? 'Sale de' : 'Llega a') + '</span><div class="cgrid">' + opts.map(a => cuentaTile(a, 'data-dpacc="' + esc(a.id) + '"', acc === a.id, b, aj)).join('') + '</div></div>' +
     '<div class="err" id="dp-err"></div><button class="btn accent block" type="button" data-dpgo>Registrar</button></div>';
@@ -144,7 +189,7 @@ document.addEventListener('click', e => {
     if (!v) return err('Escribe el valor.'); if (v > it.falta) return err('Es más de lo que falta (' + money(it.falta) + ').'); if (!DP.acc) return err('Elige la cuenta.');
     const D = deudaAcc(it.k), pagar = it.k !== 'cobrar';
     S.transactions.push({ id:uid(), type:'transferencia', amount:v, date:iso(new Date()), ts:Date.now(), accountId:pagar ? DP.acc : D.id, toAccountId:pagar ? D.id : DP.acc,
-      note:(it.guardo ? 'Devolución' : pagar ? 'Pago de deuda' : 'Te pagaron') + ': ' + deudaNombre(it.t), src:'deuda', auto:it.t.id, ...(it.t.persona ? { persona:it.t.persona } : {}) });
+      note:deudaPagoNota(it), src:'deuda', auto:it.t.id, ...(it.t.persona ? { persona:it.t.persona } : {}) });
     sortTx(S); save(); DP = null; closeSheet(); render(); dpVolver();
     return toast(v === it.falta ? (it.guardo ? 'Plata devuelta' : pagar ? 'Deuda pagada' : 'Préstamo saldado') : 'Abono registrado · faltan ' + money(it.falta - v)); }
 }, true);
@@ -259,7 +304,7 @@ const DN_TIPOS = [
 ];
 let DN = null;
 function deudaNuevaSheet(k){
-  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount() };
+  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount(), de:'' };
   deudaNuevaDraw();
 }
 function deudaNuevaDraw(){
@@ -270,8 +315,9 @@ function deudaNuevaDraw(){
     '<div class="field"><label class="label" for="dn-persona">¿Con quién?</label><input class="inp" id="dn-persona" value="' + esc(DN.persona) + '" placeholder="Nombre de la persona" autocomplete="off"><span class="tile-s" id="dn-sum">' + dnSuma() + '</span>' +
       (gente.length ? '<div class="chips" style="margin-top:8px">' + gente.map(g => '<button type="button" class="chip" data-dnper="' + esc(g) + '" aria-pressed="' + (DN.persona.toLowerCase() === g.toLowerCase()) + '">' + esc(g) + '</button>').join('') + '</div>' : '') + '</div>' +
     '<div class="field"><label class="label" for="dn-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="dn-amt" inputmode="numeric" class="num" value="' + (DN.amt ? nf.format(DN.amt) : '') + '" placeholder="0" style="font-size:28px"></div></div>' +
+    dnDeField() +
     (cuenta ? '<div class="field"><span class="label">' + (DN.tipo === 'guardo' ? '¿En qué cuenta está?' : '¿De qué cuenta salió?') + '</span><div class="cgrid">' + opts.map(a => cuentaTile(a, 'data-dnacc="' + esc(a.id) + '"', DN.acc === a.id, b, aj)).join('') + '</div></div>' : '') +
-    '<div class="field"><label class="label" for="dn-note">Concepto (opcional)</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off"></div>' +
+    '<div class="field"><label class="label" for="dn-note">Concepto (opcional)</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.persona ? deudaNuevaNota(DN.tipo, DN.persona, DN.tipo === 'preste' && DN.de) : DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off"><span class="tile-s">Si lo dejas vacío, Caudal lo escribe solo.</span></div>' +
     '<div class="err" id="dn-err"></div><button class="btn accent block" type="button" data-dngo>Guardar</button></div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
@@ -285,22 +331,38 @@ document.addEventListener('click', e => {
   if (d.dntipo) { DN.tipo = d.dntipo; return deudaNuevaDraw(); }
   if (d.dnper) { DN.persona = d.dnper; return deudaNuevaDraw(); }
   if (d.dnacc) { DN.acc = d.dnacc; return deudaNuevaDraw(); }
+  if (d.dnde !== undefined) { DN.de = d.dnde; if (DN.de) { const l = ajenaLibre(DN.de); if (l.acc) DN.acc = l.acc; } return deudaNuevaDraw(); }
   if (d.dngo !== undefined) {
     const err = m => { $('#dn-err').textContent = m; };
     if (!DN.persona) return err('Escribe con quién es la deuda.');
     if (!DN.amt) return err('Escribe el valor.');
     if (DN.tipo !== 'debo' && !accById(DN.acc)) return err('Elige la cuenta.');
     DN.persona = personaCanon(DN.persona); /* misma persona, mismo nombre: así todo se suma en una sola fila */
-    const base = { id:uid(), amount:DN.amt, date:iso(new Date()), ts:Date.now(), note:DN.note, persona:DN.persona };
+    const de = DN.tipo === 'preste' && DN.de ? personaCanon(DN.de) : '';
+    if (de) { const l = ajenaLibre(de).v;
+      if (normP(de) === normP(DN.persona)) return err('Si es plata de ' + de + ', usa Devolverle su plata en su hoja.');
+      if (DN.amt > l) return err('De ' + de + ' solo tienes ' + money(l) + ' sin prestar. Presta eso de su plata y el resto como tuyo, en otro registro.'); }
+    const base = { id:uid(), amount:DN.amt, date:iso(new Date()), ts:Date.now(), note:DN.note || deudaNuevaNota(DN.tipo, DN.persona, de), persona:DN.persona, ...(de ? { de } : {}) };
     if (DN.tipo === 'debo') S.transactions.push({ ...base, type:'ajuste', amount:-DN.amt, accountId:deudaCrear('pausa').id, src:'deuda-nueva' });
     else if (DN.tipo === 'guardo') S.transactions.push({ ...base, type:'transferencia', accountId:deudaCrear('pagar').id, toAccountId:DN.acc });
     else S.transactions.push({ ...base, type:'transferencia', accountId:DN.acc, toAccountId:deudaCrear('cobrar').id });
-    const msg = DN.tipo === 'debo' ? 'Deuda en pausa con ' + DN.persona : DN.tipo === 'guardo' ? 'Plata de ' + DN.persona + ' apartada' : 'Préstamo a ' + DN.persona + ' registrado';
+    const msg = DN.tipo === 'debo' ? 'Deuda en pausa con ' + DN.persona : DN.tipo === 'guardo' ? 'Plata de ' + DN.persona + ' apartada' : 'Préstamo a ' + DN.persona + (de ? ' con plata de ' + de : '') + ' registrado';
     sortTx(S); save(); DN = null; closeSheet(); render(); return toast(msg);
   }
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'dn-amt') pesosCampo(e.target);
   if ((e.target.id === 'dn-amt' || e.target.id === 'dn-persona') && DN) { dnLeer(); const x = $('#dn-sum'); if (x) x.innerHTML = dnSuma(); } });
+/* al prestar: ¿la plata es tuya o de alguien de quien tienes plata? Solo sale si tienes plata de alguien sin prestar */
+function dnDeField(){
+  if (DN.tipo !== 'preste') return '';
+  const gente = [...ajenaPersonas().values()].filter(x => x.nombre && x.suya - x.fuera > 0 && normP(x.nombre) !== normP(DN.persona));
+  if (!gente.length) { DN.de = ''; return ''; }
+  if (DN.de && !gente.some(x => normP(x.nombre) === normP(DN.de))) DN.de = '';
+  return '<div class="field"><span class="label">¿De quién es la plata que prestas?</span><div class="chips">' +
+    '<button type="button" class="chip" data-dnde="" aria-pressed="' + !DN.de + '">Mía</button>' +
+    gente.map(x => '<button type="button" class="chip" data-dnde="' + esc(x.nombre) + '" aria-pressed="' + (normP(DN.de) === normP(x.nombre)) + '">De ' + esc(x.nombre) + ' · ' + money(x.suya - x.fuera) + '</button>').join('') + '</div>' +
+    '<span class="tile-s">' + (DN.de ? 'Sale de la plata de ' + esc(DN.de) + ' y no de la tuya: tu disponible no cambia. Le sigues debiendo a ' + esc(DN.de) + ' y, cuando te paguen, esa plata vuelve a ser suya.' : 'Sale de tu plata: no suma a tu disponible hasta que te paguen.') + '</span></div>';
+}
 /* lo que ya hay con esa persona y cómo queda al sumar esta deuda */
 function dnSuma(){
   const p = DN.persona && personasLista().find(x => x.key === normP(DN.persona)); if (!p || !personaAbierta(p)) return '';

@@ -67,13 +67,18 @@ function personaSheet(key){
   const accion = (k, txt) => p[k] ? '<button class="btn accent block" type="button" data-ppagar="' + k + '">' + txt + ' · ' + money(p[k]) + '</button>' : '';
   const ev = [];
   for (const it of p.items) {
-    ev.push({ d:it.t.date, ts:it.t.ts || 0, id:it.t.id, v:it.monto, sube:true, txt:it.k === 'cobrar' ? 'Le prestaste' : it.guardo ? 'Te dejó su plata' + (it.t.toAccountId ? ' en ' + accShort(it.t.toAccountId) : '') : it.k === 'pausa' ? 'Le quedaste debiendo' : 'Pagó por ti', nota:deudaConcepto(it.t) });
+    ev.push({ d:it.t.date, ts:it.t.ts || 0, id:it.t.id, v:it.monto, sube:true, txt:it.k === 'cobrar' ? 'Le prestaste' + (it.t.de ? ' plata de ' + it.t.de : '') : it.guardo ? 'Te dejó su plata' + (it.t.toAccountId ? ' en ' + accShort(it.t.toAccountId) : '') : it.k === 'pausa' ? 'Le quedaste debiendo' : 'Pagó por ti', nota:deudaAuto(it.t) ? '' : deudaConcepto(it.t) });
     for (const a of it.abonos) ev.push({ d:a.date, ts:a.ts || 0, id:a.id, tx:true, v:a.amount, sube:false, txt:it.k === 'cobrar' ? 'Te pagó' : it.guardo ? 'Le devolviste' : 'Le pagaste', nota:accShort(it.k === 'cobrar' ? a.toAccountId : a.accountId) });
   }
+  /* préstamos hechos con su plata: siguen siendo suyos, pero los tiene otra persona */
+  for (const it of deudasTodas()) if (it.k === 'cobrar' && it.t.de && normP(it.t.de) === p.key)
+    ev.push({ d:it.t.date, ts:it.t.ts || 0, id:it.t.id, v:it.monto, sube:true, txt:'Prestaste de su plata' + (it.t.persona ? ' a ' + it.t.persona : ''), nota:it.falta ? 'faltan ' + money(it.falta) : 'ya te pagaron' });
+  const fuera = (ajenaPersonas().get(p.key) || {}).fuera || 0;
   ev.sort((a, b) => b.d.localeCompare(a.d) || b.ts - a.ts);
   const h = '<div class="sheet-h"><b id="sheet-title">' + esc(p.nombre) + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form pers">' +
     '<section class="card glow" style="padding:16px"><div class="stats3"><div><span>Le debes</span><b class="num' + (p.debes ? ' neg' : '') + '">' + money(p.debes) + '</b></div><div><span>Tienes suyo</span><b class="num' + (p.suya ? ' warn' : '') + '">' + money(p.suya) + '</b></div><div><span>Te debe</span><b class="num">' + money(p.teDebe) + '</b></div></div>' +
-    (personaAbierta(p) ? '' : '<p class="note" style="padding:0;margin:10px 0 0">A paz y salvo ✓</p>') + '</section>' +
+    (personaAbierta(p) ? '' : '<p class="note" style="padding:0;margin:10px 0 0">A paz y salvo ✓</p>') +
+    (fuera ? '<p class="note" style="padding:0;margin:10px 0 0">De su plata, ' + money(fuera) + ' están prestados y aún no te los pagan.</p>' : '') + '</section>' +
     accion('debes', 'Pagarle') + accion('suya', 'Devolverle su plata') + accion('teDebe', 'Registrar que te pagó') +
     '<div class="field"><span class="label">Agregar con ' + esc(p.nombre) + '</span><div class="chips">' + DN_TIPOS.map(([id, t]) => '<button type="button" class="chip" data-pnueva="' + id + '">+ ' + t.replace(' a alguien', '').replace(' de alguien', ' suya') + '</button>').join('') + '</div><span class="tile-s">Se suma a su total.</span></div>' +
     '<div><span class="label">Historial</span>' + ev.map(x => '<button class="set deuda" type="button" ' + (x.tx ? 'data-tx' : 'data-dver') + '="' + esc(x.id) + '"><span class="t"><b>' + esc(x.txt) + '</b><span>' + fmtShort(parseISO(x.d)) + (x.nota ? ' · ' + esc(x.nota) : '') + '</span></span><span class="num' + (x.sube ? '' : ' pos') + '">' + (x.sube ? '' : '✓ ') + money(x.v) + '</span></button>').join('') + '</div></div>';
@@ -102,7 +107,7 @@ function personaPagoGuardar(){
   for (const it of p.items.filter(x => x.falta && DEU_KIND[PP.k](x)).sort((a, b) => a.t.date.localeCompare(b.t.date) || (a.t.ts || 0) - (b.t.ts || 0))) {
     if (resta <= 0) break; const parte = Math.min(resta, it.falta), D = deudaAcc(it.k), pagar = it.k !== 'cobrar'; resta -= parte;
     S.transactions.push({ id:uid(), type:'transferencia', amount:parte, date:iso(new Date()), ts:ahora + n++, accountId:pagar ? PP.acc : D.id, toAccountId:pagar ? D.id : PP.acc,
-      note:(it.guardo ? 'Devolución' : pagar ? 'Pago de deuda' : 'Te pagaron') + ': ' + deudaNombre(it.t), src:'deuda', auto:it.t.id, persona:p.nombre });
+      note:deudaPagoNota(it), src:'deuda', auto:it.t.id, persona:p.nombre });
   }
   const k = PP.k, key = PP.key, falta = p[k] - v; PP = null; sortTx(S); save(); render(); personaSheet(key);
   toast(falta ? 'Abono registrado · faltan ' + money(falta) : k === 'teDebe' ? p.nombre + ' te pagó todo' : k === 'suya' ? 'Le devolviste todo a ' + p.nombre : 'Le pagaste todo a ' + p.nombre);
