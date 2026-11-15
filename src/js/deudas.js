@@ -29,10 +29,13 @@ const deudaClase = it => it.k === 'cobrar' ? 'teDebe' : it.guardo ? 'suya' : 'de
    y persona): un solo movimiento que se reparte entre sus deudas de ese tipo, de la más vieja a la más nueva. */
 let DCACHE = null;
 function deudasTodas(){
-  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'); if (!P && !C && !Z) return [];
-  let firma = S.transactions.length; for (const x of S.transactions) firma += (x.ts || 0) % 9973 + x.amount + (x.auto ? x.auto.length : 0) + (x.persona ? x.persona.length : 0) + (x.de ? 7 : 0) + (x.pending ? 3 : 0);
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'); if (!P && !C && !Z) { DCACHE = null; return []; }
+  /* firma de todos los movimientos (fecha, tipo, cuentas, valor, persona…): si algo cambia, se recalcula */
+  let firma = S.transactions.length + ':' + S.accounts.length;
+  { let h = 0; for (const x of S.transactions) { const s = x.id + x.date + x.type + x.amount + (x.accountId || '') + (x.toAccountId || '') + (x.auto || '') + (x.persona || '') + (x.de || '') + (x.pending ? 1 : 0) + (x.ts || 0) + (x.src || '');
+      for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; } firma += ':' + h; }
   if (DCACHE && DCACHE.tx === S.transactions && DCACHE.firma === firma) return DCACHE.out;
-  const abonos = {}, porPersona = [];
+  const abonos = {}, porPersona = [], sobra = [];
   for (const x of S.transactions) if (x.type === 'transferencia' && x.src === 'deuda') { if (x.auto && x.auto[0] === '*') { if (x.persona) porPersona.push(x); } else if (x.auto) (abonos[x.auto] = abonos[x.auto] || []).push(x); }
   const out = [];
   for (const t of S.transactions) {
@@ -55,11 +58,17 @@ function deudasTodas(){
       const parte = Math.min(resta, it.falta); resta -= parte;
       it.abonos.push(parte === x.amount ? x : { ...x, amount:parte, total:x.amount }); it.pagado += parte; it.falta -= parte;
     }
+    if (resta > 0) sobra.push({ x, v:resta });
   }
+  /* pagos que no caen en ninguna deuda: su deuda ya no existe o pagan de más. No se esconden: Personas los muestra */
+  const ids = new Set(out.map(it => it.t.id));
+  for (const id in abonos) if (!ids.has(id)) for (const x of abonos[id]) sobra.push({ x, v:x.amount });
+  for (const it of out) if (it.pagado > it.monto) { const x = it.abonos[it.abonos.length - 1]; sobra.push({ x, v:it.pagado - it.monto }); }
   for (const it of out) it.abonos.sort((a, b) => a.date.localeCompare(b.date) || (a.ts || 0) - (b.ts || 0));
-  DCACHE = { tx:S.transactions, firma, out };
+  DCACHE = { tx:S.transactions, firma, out, sobra, aj:null };
   return out;
 }
+const deudaSobrantes = () => { deudasTodas(); return DCACHE ? DCACHE.sobra : []; };
 const deudaItem = id => deudasTodas().find(x => x.t.id === id) || null;
 const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
 /* plata de cada persona que tienes: { clave: { nombre, suya, fuera, usado, acc:{ id:v } } }.
@@ -70,7 +79,8 @@ const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
      fuera:  lo que de su plata prestaste y aún no te pagan. Cuando te pagan, vuelve a ser suya en la cuenta donde llega.
      usado:  lo que de su plata ya no está en tus cuentas porque lo gastaste o pagaste algo con ella: le debes reponerlo. */
 function ajenaPersonas(){
-  const items = deudasTodas(), m = new Map(), suyaDe = new Map();
+  const items = deudasTodas(); if (DCACHE && DCACHE.aj) return DCACHE.aj;
+  const m = new Map(), suyaDe = new Map();
   for (const it of items) if (it.guardo && it.falta) { const k = normP(it.t.persona) || '_'; suyaDe.set(k, (suyaDe.get(k) || 0) + it.falta); }
   const prestamo = new Map(), deTx = new Map(); /* préstamos hechos con plata de otros; pago → partes por deuda */
   for (const it of items) { if (it.k === 'cobrar' && it.t.de) prestamo.set(it.t.id, it); for (const a of it.abonos) (deTx.get(a.id) || deTx.set(a.id, []).get(a.id)).push({ it, v:a.amount }); }
@@ -134,6 +144,7 @@ function ajenaPersonas(){
     else if (dif < 0) p.usado += -dif;
     if (!p.suya && !p.fuera) m.delete(k);
   }
+  if (DCACHE) DCACHE.aj = m;
   return m;
 }
 /* lo prestado con plata de otros y aún sin cobrar: no es tuyo, así que no sale de tu disponible */

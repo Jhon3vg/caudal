@@ -46,6 +46,10 @@ function vPersonas(){
     '<section class="card glow"><div class="stats3"><div><span>Le debes</span><b class="num' + (s('debes') ? ' neg' : '') + '">' + money(s('debes')) + '</b></div>' +
     '<div><span>Tienes de otros</span><b class="num' + (s('suya') ? ' warn' : '') + '">' + money(s('suya')) + '</b></div><div><span>Te deben</span><b class="num">' + money(s('teDebe')) + '</b></div></div>' +
     '<p class="note" style="padding:0;margin:10px 0 0">La plata de otros está en tus cuentas, pero no es tuya: no cuenta en tu disponible. Lo que te deben no suma hasta que te paguen.</p></section>';
+  const sob = deudaSobrantes();
+  if (sob.length) h += '<section class="card"><div class="card-h"><h2>Revisa estos pagos</h2><span class="aside warn">' + money(sob.reduce((s, x) => s + x.v, 0)) + '</span></div>' +
+    '<p class="insight">No corresponden a ninguna deuda abierta (la deuda se borró o el pago fue mayor). Ábrelos y corrige el valor o la persona.</p><div>' +
+    sob.map(({ x, v }) => '<button class="set deuda" type="button" data-tx="' + esc(x.id) + '"><span class="t"><b>' + esc(x.note || 'Pago') + '</b><span>' + fmtShort(parseISO(x.date)) + ' · sobran ' + money(v) + '</span></span><span class="num">' + money(x.amount) + '</span></button>').join('') + '</div></section>';
   h += '<section class="card"><div class="card-h"><h2>' + (ab.length ? 'Pendientes' : 'Personas') + '</h2><button class="btn sm" data-dnueva>+ Nuevo</button></div>';
   if (ab.length) h += '<div>' + ab.map(personaFila).join('') + '</div>';
   else h += '<p class="insight">No tienes nada pendiente con nadie. Con <b>+ Nuevo</b> registras lo que le debes a alguien, la plata de otra persona que tienes en tu cuenta o lo que prestaste. Si vuelves a usar el mismo nombre, se suma a su total.</p>';

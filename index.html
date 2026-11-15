@@ -943,7 +943,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261115233032';
+const BUILD = '20261115234820';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -5187,10 +5187,13 @@ const deudaClase = it => it.k === 'cobrar' ? 'teDebe' : it.guardo ? 'suya' : 'de
    y persona): un solo movimiento que se reparte entre sus deudas de ese tipo, de la más vieja a la más nueva. */
 let DCACHE = null;
 function deudasTodas(){
-  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'); if (!P && !C && !Z) return [];
-  let firma = S.transactions.length; for (const x of S.transactions) firma += (x.ts || 0) % 9973 + x.amount + (x.auto ? x.auto.length : 0) + (x.persona ? x.persona.length : 0) + (x.de ? 7 : 0) + (x.pending ? 3 : 0);
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'); if (!P && !C && !Z) { DCACHE = null; return []; }
+  /* firma de todos los movimientos (fecha, tipo, cuentas, valor, persona…): si algo cambia, se recalcula */
+  let firma = S.transactions.length + ':' + S.accounts.length;
+  { let h = 0; for (const x of S.transactions) { const s = x.id + x.date + x.type + x.amount + (x.accountId || '') + (x.toAccountId || '') + (x.auto || '') + (x.persona || '') + (x.de || '') + (x.pending ? 1 : 0) + (x.ts || 0) + (x.src || '');
+      for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; } firma += ':' + h; }
   if (DCACHE && DCACHE.tx === S.transactions && DCACHE.firma === firma) return DCACHE.out;
-  const abonos = {}, porPersona = [];
+  const abonos = {}, porPersona = [], sobra = [];
   for (const x of S.transactions) if (x.type === 'transferencia' && x.src === 'deuda') { if (x.auto && x.auto[0] === '*') { if (x.persona) porPersona.push(x); } else if (x.auto) (abonos[x.auto] = abonos[x.auto] || []).push(x); }
   const out = [];
   for (const t of S.transactions) {
@@ -5213,11 +5216,17 @@ function deudasTodas(){
       const parte = Math.min(resta, it.falta); resta -= parte;
       it.abonos.push(parte === x.amount ? x : { ...x, amount:parte, total:x.amount }); it.pagado += parte; it.falta -= parte;
     }
+    if (resta > 0) sobra.push({ x, v:resta });
   }
+  /* pagos que no caen en ninguna deuda: su deuda ya no existe o pagan de más. No se esconden: Personas los muestra */
+  const ids = new Set(out.map(it => it.t.id));
+  for (const id in abonos) if (!ids.has(id)) for (const x of abonos[id]) sobra.push({ x, v:x.amount });
+  for (const it of out) if (it.pagado > it.monto) { const x = it.abonos[it.abonos.length - 1]; sobra.push({ x, v:it.pagado - it.monto }); }
   for (const it of out) it.abonos.sort((a, b) => a.date.localeCompare(b.date) || (a.ts || 0) - (b.ts || 0));
-  DCACHE = { tx:S.transactions, firma, out };
+  DCACHE = { tx:S.transactions, firma, out, sobra, aj:null };
   return out;
 }
+const deudaSobrantes = () => { deudasTodas(); return DCACHE ? DCACHE.sobra : []; };
 const deudaItem = id => deudasTodas().find(x => x.t.id === id) || null;
 const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
 /* plata de cada persona que tienes: { clave: { nombre, suya, fuera, usado, acc:{ id:v } } }.
@@ -5228,7 +5237,8 @@ const deudasAbiertas = () => deudasTodas().filter(x => x.falta > 0);
      fuera:  lo que de su plata prestaste y aún no te pagan. Cuando te pagan, vuelve a ser suya en la cuenta donde llega.
      usado:  lo que de su plata ya no está en tus cuentas porque lo gastaste o pagaste algo con ella: le debes reponerlo. */
 function ajenaPersonas(){
-  const items = deudasTodas(), m = new Map(), suyaDe = new Map();
+  const items = deudasTodas(); if (DCACHE && DCACHE.aj) return DCACHE.aj;
+  const m = new Map(), suyaDe = new Map();
   for (const it of items) if (it.guardo && it.falta) { const k = normP(it.t.persona) || '_'; suyaDe.set(k, (suyaDe.get(k) || 0) + it.falta); }
   const prestamo = new Map(), deTx = new Map(); /* préstamos hechos con plata de otros; pago → partes por deuda */
   for (const it of items) { if (it.k === 'cobrar' && it.t.de) prestamo.set(it.t.id, it); for (const a of it.abonos) (deTx.get(a.id) || deTx.set(a.id, []).get(a.id)).push({ it, v:a.amount }); }
@@ -5292,6 +5302,7 @@ function ajenaPersonas(){
     else if (dif < 0) p.usado += -dif;
     if (!p.suya && !p.fuera) m.delete(k);
   }
+  if (DCACHE) DCACHE.aj = m;
   return m;
 }
 /* lo prestado con plata de otros y aún sin cobrar: no es tuyo, así que no sale de tu disponible */
@@ -5687,6 +5698,10 @@ function vPersonas(){
     '<section class="card glow"><div class="stats3"><div><span>Le debes</span><b class="num' + (s('debes') ? ' neg' : '') + '">' + money(s('debes')) + '</b></div>' +
     '<div><span>Tienes de otros</span><b class="num' + (s('suya') ? ' warn' : '') + '">' + money(s('suya')) + '</b></div><div><span>Te deben</span><b class="num">' + money(s('teDebe')) + '</b></div></div>' +
     '<p class="note" style="padding:0;margin:10px 0 0">La plata de otros está en tus cuentas, pero no es tuya: no cuenta en tu disponible. Lo que te deben no suma hasta que te paguen.</p></section>';
+  const sob = deudaSobrantes();
+  if (sob.length) h += '<section class="card"><div class="card-h"><h2>Revisa estos pagos</h2><span class="aside warn">' + money(sob.reduce((s, x) => s + x.v, 0)) + '</span></div>' +
+    '<p class="insight">No corresponden a ninguna deuda abierta (la deuda se borró o el pago fue mayor). Ábrelos y corrige el valor o la persona.</p><div>' +
+    sob.map(({ x, v }) => '<button class="set deuda" type="button" data-tx="' + esc(x.id) + '"><span class="t"><b>' + esc(x.note || 'Pago') + '</b><span>' + fmtShort(parseISO(x.date)) + ' · sobran ' + money(v) + '</span></span><span class="num">' + money(x.amount) + '</span></button>').join('') + '</div></section>';
   h += '<section class="card"><div class="card-h"><h2>' + (ab.length ? 'Pendientes' : 'Personas') + '</h2><button class="btn sm" data-dnueva>+ Nuevo</button></div>';
   if (ab.length) h += '<div>' + ab.map(personaFila).join('') + '</div>';
   else h += '<p class="insight">No tienes nada pendiente con nadie. Con <b>+ Nuevo</b> registras lo que le debes a alguien, la plata de otra persona que tienes en tu cuenta o lo que prestaste. Si vuelves a usar el mismo nombre, se suma a su total.</p>';
@@ -6354,10 +6369,10 @@ function snapshot(st){
   put('settings', 'me', { name:st.settings.name || null, start_day:st.settings.startDay || 1, period_mode:st.settings.periodMode || null, pay_last:st.settings.payLast || null, rate:st.settings.rate || 0, last_account:st.lastAccount || null, card_map:st.cardMap || {}, perfil:st.settings.perfil || null, ia_saldo:st.settings.iaSaldo || null, metas:(st.settings.metas || []).length ? st.settings.metas : null, ...(st.settings.exc ? { exc:st.settings.exc } : {}), ...(st.settings.cierres ? { cierres:st.settings.cierres } : {}), pin:st.settings.pin || null, avisos:st.settings.avisos || null });
   for (const a of st.accounts) put('accounts', a.id, { id:a.id, name:a.name, grp:a.group || 'Otros', sort:Math.round(a.order || 0), hidden:!!a.hidden, card:a.card || null, apart:!!a.apart, debt:a.debt || null, parent_id:a.parentAcc || null });
   for (const c of st.categories) put('categories', c.id, { id:c.id, name:c.name, emoji:c.emoji || null, type:c.type, parent_id:c.parentId || null, sort:Math.round(c.order || 0), hidden:!!c.hidden });
-  for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts || null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, persona:t.persona || null, de:t.de || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
+  for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts ? Math.round(t.ts) : null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, persona:t.persona || null, de:t.de || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
   for (const [k, v] of Object.entries(st.budgets || {})) put('budgets', k, { category_id:k, amount:Math.round(v) });
-  for (const b of st.bills || []) put('bills', b.id, { id:b.id, name:b.name, category_id:b.categoryId || null, account_id:b.accountId || null, due_day:b.dueDay, lead:b.lead || 0, estimate:b.estimate || 0, active:b.active !== false, cycles:b.cycles || {}, every:b.every || 1, anchor:b.anchor || null, url:b.url || null, ref:b.ref || null });
-  for (const r of st.recurring || []) put('recurring', r.id, { id:r.id, name:r.name, amount:r.amount, type:r.type || 'gasto', day:r.day, category_id:r.categoryId || null, account_id:r.accountId || null, active:r.active !== false, next:r.next });
+  for (const b of st.bills || []) put('bills', b.id, { id:b.id, name:b.name, category_id:b.categoryId || null, account_id:b.accountId || null, due_day:Math.round(b.dueDay) || 1, lead:Math.round(b.lead || 0), estimate:Math.round(b.estimate || 0), active:b.active !== false, cycles:b.cycles || {}, every:Math.round(b.every || 1), anchor:b.anchor || null, url:b.url || null, ref:b.ref || null });
+  for (const r of st.recurring || []) put('recurring', r.id, { id:r.id, name:r.name, amount:Math.round(r.amount || 0), type:r.type || 'gasto', day:Math.round(r.day) || 1, category_id:r.categoryId || null, account_id:r.accountId || null, active:r.active !== false, next:r.next });
   for (const pl of st.plans || []) put('plans', pl.id, { id:pl.id, name:pl.name || null, income:Math.round(pl.income || 0), start:pl.start, from_account:pl.from || null, surplus_account:pl.surplus || null, items:(pl.items || []).map(i => ({ id:i.id, name:i.name, amount:Math.round(i.amount || 0), cls:i.cls, cats:i.cats || [], acc:i.acc || null, ...(i.every > 1 ? { every:i.every } : {}), ...(typeof i.fijo === 'boolean' ? { fijo:i.fijo } : {}) })) });
   const seen = new Set(); for (const x of st.inbox || []) { const rid = x.rowId || x.id; if (seen.has(rid)) continue; seen.add(rid); put('inbox', rid, { id:rid, raw:x.raw || null, item:x.src || x.item }); }
   return m;
@@ -7128,6 +7143,7 @@ function submitForm(){
   if (!F.amount) return err('Escribe el valor.');
   if ((F.type === 'gasto' || F.type === 'ingreso') && !F.parent) return err('Elige una categoría.');
   if (!F.accountId) return err('Elige una cuenta.');
+  { const it = F.id && deudaItem(F.id); if (it && it.pagado > Math.abs(F.amount)) return err('Ya tiene abonos por ' + money(it.pagado) + ': el valor no puede ser menor.'); }
   if (F.type === 'transferencia' && (!F.toAccountId || F.toAccountId === F.accountId)) return err('Elige una cuenta de destino distinta.');
   splitIgual();
   const parts = F.type === 'gasto' ? (F.parts || []) : [];
@@ -7814,6 +7830,9 @@ document.addEventListener('click', e => {
   if (d.xdel !== undefined) { syncForm(); F.parts.splice(+d.xdel, 1); if (!F.parts.length) F.splitMode = null; return drawForm(); }
   if (d.sign) { syncForm(); F.amount = Math.abs(F.amount) * Number(d.sign); return drawForm(); }
   if (el.id === 'f-del') { if (!ui.delArm) { ui.delArm = true; el.className = 'btn block danger'; el.textContent = 'Toca otra vez para eliminar'; return; }
+    /* una deuda con abonos no se borra sola: los abonos quedarían sin deuda y Personas dejaría de cuadrar */
+    { const id = F.id, it = id && deudaItem(id); if (it && it.abonos.length) { ui.delArm = false; closeSheet(); render(); setTimeout(() => deudaVerSheet(id), 300);
+      return toast('Esta deuda tiene abonos por ' + money(it.pagado) + '. Elimínalos primero, desde aquí.', 4500); } }
     txBorrar([F.id]); save(); const ret = CQ_RET; closeSheet(); render(); if (ret) setTimeout(ret, 300); return toast('Movimiento eliminado'); }
 });
 $('#scrim').addEventListener('click', closeSheet);

@@ -206,6 +206,7 @@ function submitForm(){
   if (!F.amount) return err('Escribe el valor.');
   if ((F.type === 'gasto' || F.type === 'ingreso') && !F.parent) return err('Elige una categoría.');
   if (!F.accountId) return err('Elige una cuenta.');
+  { const it = F.id && deudaItem(F.id); if (it && it.pagado > Math.abs(F.amount)) return err('Ya tiene abonos por ' + money(it.pagado) + ': el valor no puede ser menor.'); }
   if (F.type === 'transferencia' && (!F.toAccountId || F.toAccountId === F.accountId)) return err('Elige una cuenta de destino distinta.');
   splitIgual();
   const parts = F.type === 'gasto' ? (F.parts || []) : [];
