@@ -2,6 +2,7 @@
    En la nube solo vive su huella (settings.pin = { salt, hash, iter }, PBKDF2-SHA256), nunca la clave.
    Se pide siempre al abrir Caudal, en el navegador y en la app instalada. Al pasar a otra app y volver
    no se pide, salvo que en ese dispositivo se elija un tiempo máximo fuera (Ajustes › Seguridad).
+   Con huella o rostro activos en el dispositivo (biometria.js) se pide eso primero y la clave queda de respaldo.
    Tras varios intentos fallidos hay que esperar, y si se olvida se recupera con la contraseña de la cuenta. */
 const PIN_ITER = 150000;
 const PIN_TIEMPOS = [[-1, 'Solo al cerrar'], [0, 'Apenas salgas'], [60, 'Tras 1 minuto fuera'], [300, 'Tras 5 minutos fuera'], [900, 'Tras 15 minutos fuera'], [3600, 'Tras 1 hora fuera']];
@@ -42,20 +43,24 @@ function pinPintar(mal){
   const off = espera || PIN.ocupado;
   const msg = espera ? 'Demasiados intentos. Espera ' + (espera > 59 ? Math.ceil(espera / 60) + ' min' : espera + ' s') + '.' : PIN.msg;
   /* abajo a la izquierda: recuperar la clave al abrir, cancelar en los demás casos */
-  const izq = m === 'abrir' ? (sb && session ? '<button class="txt" data-pk="olvido">¿La olvidaste?</button>' : '<span></span>') : '<button class="txt" data-pk="cancelar">Cancelar</button>';
+  const olv = sb && session ? '<button class="txt" data-pk="olvido">¿La olvidaste?</button>' : '<span></span>';
+  /* con huella o rostro activos, su botón ocupa ese lugar y "¿La olvidaste?" pasa debajo del teclado */
+  const bio = m === 'abrir' && bioOn();
+  const izq = m === 'abrir' ? (bio ? bioTecla(off) : olv) : '<button class="txt" data-pk="cancelar">Cancelar</button>';
   const abajo = m === 'olvido'
     ? '<form class="form pin-olv" id="pin-olv" novalidate><input class="inp" id="pin-pass" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña de tu cuenta">' +
       '<button class="btn block" type="submit">Recuperar</button><button class="tool" type="button" data-pk="volver" style="align-self:center;border:0">Volver</button></form>'
     : '<div class="pin-dots' + (mal ? ' mal' : '') + '" aria-label="' + PIN.dig.length + ' de 4 dígitos">' + [0, 1, 2, 3].map(i => '<i' + (i < PIN.dig.length ? ' class="on"' : '') + '></i>').join('') + '</div>' +
       '<div class="pin-msg" role="alert">' + esc(msg) + '</div>' +
       '<div class="pin-kb">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => (n ? '' : izq) + '<button data-pk="' + n + '"' + (off ? ' disabled' : '') + '>' + n + pinHap(off) + '</button>').join('') +
-      '<button class="txt" data-pk="del" aria-label="Borrar">' + PIN_BORRAR + pinHap() + '</button></div>';
+      '<button class="txt" data-pk="del" aria-label="Borrar">' + PIN_BORRAR + pinHap() + '</button></div>' +
+      (bio && sb && session ? '<div class="pin-pie">' + olv + '</div>' : '');
   el.innerHTML = '<div class="pin-in"><div class="brand" style="justify-content:center">' + $('.top .mark').outerHTML + 'Caudal</div>' +
     '<h1>' + titulo + '</h1><p class="insight">' + esc(sub()) + '</p>' + (m === 'olvido' ? '<div class="pin-msg" role="alert">' + esc(PIN.msg) + '</div>' : '') + abajo + '</div>';
   /* mientras dura la espera, la cuenta regresiva se actualiza sola */
   clearInterval(PIN.reloj); if (espera) PIN.reloj = setInterval(() => { if (!pinEspera()) { clearInterval(PIN.reloj); PIN.msg = ''; } pinPintar(); }, 1000);
 }
-function pinMostrar(modo, luego){ PIN.modo = modo; PIN.luego = luego || null; PIN.dig = ''; PIN.nueva = ''; PIN.msg = ''; pinPintar(); }
+function pinMostrar(modo, luego){ PIN.modo = modo; PIN.luego = luego || null; PIN.dig = ''; PIN.nueva = ''; PIN.msg = ''; if (modo === 'abrir') BIO.auto = false; pinPintar(); bioAuto(); }
 function pinCerrar(){
   clearInterval(PIN.reloj); PIN.modo = null; PIN.dig = ''; PIN.nueva = ''; PIN.msg = '';
   const el = document.getElementById('pin'); if (el) el.remove();
@@ -83,7 +88,9 @@ async function pinTecla(k){
   if (m === 'confirmar') {
     if (d !== PIN.nueva) { pinVibrar([70, 50, 70]); PIN.modo = 'nueva'; PIN.dig = ''; PIN.nueva = ''; PIN.msg = 'No coinciden. Créala de nuevo.'; return pinPintar(true); }
     PIN.ocupado = true; S.settings.pin = await pinCrear(d); PIN.ocupado = false; save();
-    PIN.abierto = true; pinCerrar(); SETIDX = null; render(); return toast('Clave guardada');
+    const luego = PIN.luego; PIN.abierto = true; pinCerrar(); SETIDX = null; render(); toast('Clave guardada');
+    if (luego === 'bio') setTimeout(bioActivar, 400); /* venía de "Activar huella o rostro" sin clave */
+    return;
   }
   /* abrir o confirmar la actual. Si la clave se quitó desde otro dispositivo, no hay nada que comprobar */
   if (!S.settings.pin) return m === 'abrir' ? pinAbrirApp() : pinCerrar();
@@ -117,9 +124,10 @@ function claveCard(){
   const on = !!S.settings.pin, t = pinTiempo();
   return '<section class="card"><div class="card-h"><h2>Clave de acceso</h2></div><div>' +
     '<div class="set" style="border-top:0"><div class="t"><b>' + (on ? 'Clave activa' : 'Pedir una clave al abrir') + '</b><span>' + (on ? 'Es la misma en todos tus dispositivos y se pide cada vez que abres Caudal.' : '4 dígitos, la misma en el celular y en el computador.') + '</span></div>' +
-    '<button class="btn sm' + (on ? ' ghost' : '') + '" data-pinacc="' + (on ? 'cambiar' : 'crear') + '">' + (on ? 'Cambiar' : 'Crear') + '</button></div>' +
+    '<button class="btn sm' + (on ? ' ghost' : '') + '" data-pinacc="' + (on ? 'cambiar' : 'crear') + '">' + (on ? 'Cambiar' : 'Crear') + '</button></div>' + (on ? '' : bioFila()) +
     (on ? '<div class="set"><div class="t"><b>Pedirla otra vez</b><span>Al volver de otra app, en este dispositivo.</span></div><select id="pintiempo" aria-label="Pedir la clave otra vez">' +
         PIN_TIEMPOS.map(([v, txt]) => '<option value="' + v + '"' + (v === t ? ' selected' : '') + '>' + txt + '</option>').join('') + '</select></div>' +
+      bioFila() +
       '<div class="set"><div class="t"><b>Bloquear ahora</b><span>Tapa Caudal hasta que escribas la clave.</span></div><button class="btn sm ghost" data-pinacc="bloquear">Bloquear</button></div>' +
       '<div class="set"><div class="t"><b>Quitar la clave</b><span>Caudal vuelve a abrir sin pedir nada en ningún dispositivo.</span></div><button class="btn sm ghost" data-pinacc="quitar">Quitar</button></div>' : '') +
     '</div></section><p class="note">La clave tapa tus datos a quien tome tu celular o tu computador. Si la olvidas, la recuperas con la contraseña de tu cuenta.</p>';
@@ -132,6 +140,7 @@ document.addEventListener('click', e => {
   if (k === 'cancelar') return pinCerrar();
   if (k === 'olvido') return pinMostrar('olvido');
   if (k === 'volver') return pinMostrar('abrir');
+  if (k === 'bio') return bioPedir();
   if (k) return pinTecla(k);
   if (a === 'crear') return pinMostrar('nueva');
   if (a === 'cambiar' || a === 'quitar') return pinMostrar('actual', a);

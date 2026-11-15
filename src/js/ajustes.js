@@ -28,7 +28,7 @@ const SET_SECS = [
   { id:'cuenta', t:'Cuenta y nube', k:'nube supabase sesion cerrar sincronizar correo cuenta entrar salir',
     i:SI('<path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 10.5 3.75 3.75 0 0 0 7 18z"/>'),
     show:() => typeof sb !== 'undefined' && !!sb, s:() => typeof session !== 'undefined' && session ? (session.user.email || 'Sesión iniciada') : 'Solo en este dispositivo' },
-  { id:'seguridad', t:'Seguridad', k:'clave pin codigo contraseña bloqueo bloquear acceso privacidad olvide',
+  { id:'seguridad', t:'Seguridad', k:'clave pin codigo contraseña bloqueo bloquear acceso privacidad olvide huella rostro cara biometria biometrico',
     i:SI('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
     s:() => S.settings.pin ? 'Clave activa · ' + pinTiempoTxt() : 'Sin clave de acceso' },
   { id:'datos', t:'Datos y respaldos', k:'respaldo backup copia importar money manager json icloud restaurar pegar descargar borrar empezar de cero',
