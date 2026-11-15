@@ -93,7 +93,7 @@ async function pull(){
       S = m.st; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {}
     }
     lastSnap = rsnap;
-    completarEstado(S); deudaNotasViejas();
+    completarEstado(S); try { deudaNotasViejas(); } catch (_) {}
     runRecurring();
     if (S.demo && !remote) setSync('vacio');
     else if (!remote || !snapIgual(snapshot(S), rsnap)) { try { localStorage.setItem(PEND, '1'); } catch (_) {} if (rescatados) offlineHubo = true; await pushNow(true); }

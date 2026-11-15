@@ -49,6 +49,7 @@ document.addEventListener('submit', e => {
 }, true);
 
 completarEstado(S);
-if (deudaNotasViejas()) save();
 runRecurring();
+/* después de cargar todos los módulos (deudas.js va más abajo); un error aquí nunca debe impedir que abra la app */
+setTimeout(() => { try { if (deudaNotasViejas()) { save(); render(); } } catch (_) {} }, 0);
 setTimeout(intake, 0); /* después de cargar todos los módulos: guardar usa funciones de recibos.js */
