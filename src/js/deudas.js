@@ -419,14 +419,27 @@ const DN_TIPOS = [
   ['preste', 'Le presté a alguien', 'Sale de tu cuenta y queda por cobrar. No suma a tu disponible hasta que te pague.']
 ];
 let DN = null;
+/* lo que ya registraste con personas, para repetirlo con un toque (el valor queda listo para cambiarlo): lo más reciente de cada tipo y persona */
+function deudaRepetir(){
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'), vistos = new Set(), r = [];
+  for (const t of S.transactions.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0))) {
+    if (!t.persona || t.src === 'deuda' || t.lig) continue;
+    const tipo = Z && t.type === 'ajuste' && t.accountId === Z.id && t.amount < 0 ? 'debo' : P && t.type === 'transferencia' && t.accountId === P.id ? 'guardo' : C && t.type === 'transferencia' && t.toAccountId === C.id ? 'preste' : null;
+    if (!tipo) continue; const k = tipo + '|' + normP(t.persona); if (vistos.has(k)) continue; vistos.add(k);
+    r.push({ tipo, persona:t.persona.trim(), amt:Math.abs(t.amount), acc:tipo === 'guardo' ? t.toAccountId : tipo === 'preste' ? t.accountId : null, de:t.de || '' });
+  }
+  return r.slice(0, 6);
+}
+const DN_CORTO = { debo:'le debo', guardo:'plata suya', preste:'le presté' };
 function deudaNuevaSheet(k){
-  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount(), de:'' };
+  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount(), de:'', rep:deudaRepetir() };
   deudaNuevaDraw();
 }
 function deudaNuevaDraw(){
   const [, , ayuda] = DN_TIPOS.find(x => x[0] === DN.tipo), cuenta = DN.tipo !== 'debo';
   const b = balances(), aj = ajenaPorCuenta(b), opts = cuentasElegibles(b, DN.acc).filter(a => !isCard(a)), gente = personasUsadas();
   const h = '<div class="sheet-h"><b id="sheet-title">Nueva deuda</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form dnueva">' +
+    (DN.rep.length ? '<div class="field"><span class="label">Repetir uno anterior · cambia el valor si hace falta</span><div class="pills">' + DN.rep.map((q, i) => '<button type="button" class="pill" data-dnrep="' + i + '">' + esc(q.persona) + ' · ' + DN_CORTO[q.tipo] + ' · ' + short(q.amt) + '</button>').join('') + '</div></div>' : '') +
     '<div class="field"><span class="label">¿Qué pasó?</span><div class="chips">' + DN_TIPOS.map(([id, t]) => '<button type="button" class="chip" data-dntipo="' + id + '" aria-pressed="' + (DN.tipo === id) + '">' + t + '</button>').join('') + '</div><span class="tile-s">' + ayuda + '</span></div>' +
     '<div class="field"><label class="label" for="dn-persona">¿Con quién?</label><input class="inp" id="dn-persona" value="' + esc(DN.persona) + '" placeholder="Nombre de la persona" autocomplete="off"><span class="tile-s" id="dn-sum">' + dnSuma() + '</span>' +
       (gente.length ? '<div class="chips" style="margin-top:8px">' + gente.map(g => '<button type="button" class="chip" data-dnper="' + esc(g) + '" aria-pressed="' + (DN.persona.toLowerCase() === g.toLowerCase()) + '">' + esc(g) + '</button>').join('') + '</div>' : '') + '</div>' +
@@ -439,31 +452,35 @@ function deudaNuevaDraw(){
 }
 /* lo escrito en los campos sobrevive a redibujar la hoja al elegir otra opción */
 const dnLeer = () => { const p = $('#dn-persona'), n = $('#dn-note'), a = $('#dn-amt'); if (p) DN.persona = p.value.trim(); if (n) DN.note = n.value.trim(); if (a) DN.amt = leerPesos(a.value); };
+/* crea el movimiento de una deuda nueva (lo usan la hoja de Personas y el registro por voz): devuelve { err } o { msg } y no guarda ni dibuja */
+function deudaNuevaAplicar(o){
+  if (!o.persona) return { err:'Escribe con quién es la deuda.' };
+  if (!o.amt) return { err:'Escribe el valor.' };
+  if (o.tipo !== 'debo' && !accById(o.acc)) return { err:'Elige la cuenta.' };
+  const persona = personaCanon(o.persona); /* misma persona, mismo nombre: así todo se suma en una sola fila */
+  const de = o.tipo === 'preste' && o.de ? personaCanon(o.de) : '';
+  if (de) { const l = ajenaLibre(de).v;
+    if (normP(de) === normP(persona)) return { err:'Si es plata de ' + de + ', usa Devolverle su plata en su hoja.' };
+    if (o.amt > l) return { err:'De ' + de + ' solo tienes ' + money(l) + ' sin prestar. Presta eso de su plata y el resto como tuyo, en otro registro.' }; }
+  const base = { id:uid(), amount:o.amt, date:o.date || iso(new Date()), ts:Date.now(), note:o.note || deudaNuevaNota(o.tipo, persona, de), persona, ...(de ? { de } : {}) };
+  if (o.tipo === 'debo') S.transactions.push({ ...base, type:'ajuste', amount:-o.amt, accountId:deudaCrear('pausa').id, src:'deuda-nueva' });
+  else if (o.tipo === 'guardo') S.transactions.push({ ...base, type:'transferencia', accountId:deudaCrear('pagar').id, toAccountId:o.acc });
+  else S.transactions.push({ ...base, type:'transferencia', accountId:o.acc, toAccountId:deudaCrear('cobrar').id });
+  return { msg:o.tipo === 'debo' ? 'Deuda en pausa con ' + persona : o.tipo === 'guardo' ? 'Plata de ' + persona + ' apartada' : 'Préstamo a ' + persona + (de ? ' con plata de ' + de : '') + ' registrado' };
+}
 document.addEventListener('click', e => {
   const el = e.target.closest('button'); if (!el) return; const d = el.dataset;
   if (d.dnueva !== undefined) { e.stopPropagation(); return deudaNuevaSheet(d.dnueva); }
   if (!DN || !el.closest('.dnueva')) return;
   e.stopPropagation(); dnLeer();
   if (d.dntipo) { DN.tipo = d.dntipo; return deudaNuevaDraw(); }
+  if (d.dnrep !== undefined) { const q = DN.rep[+d.dnrep]; if (!q) return; DN.tipo = q.tipo; DN.persona = q.persona; DN.amt = q.amt; DN.de = q.tipo === 'preste' ? q.de : ''; if (q.acc && accById(q.acc)) DN.acc = q.acc; deudaNuevaDraw(); return setTimeout(() => { const i = $('#dn-amt'); if (i) { i.focus(); try { i.select(); } catch (_) {} } }, 60); }
   if (d.dnper) { DN.persona = d.dnper; return deudaNuevaDraw(); }
   if (d.dnacc) { DN.acc = d.dnacc; return deudaNuevaDraw(); }
   if (d.dnde !== undefined) { DN.de = d.dnde; if (DN.de) { const l = ajenaLibre(DN.de); if (l.acc) DN.acc = l.acc; } return deudaNuevaDraw(); }
   if (d.dngo !== undefined) {
-    const err = m => { $('#dn-err').textContent = m; };
-    if (!DN.persona) return err('Escribe con quién es la deuda.');
-    if (!DN.amt) return err('Escribe el valor.');
-    if (DN.tipo !== 'debo' && !accById(DN.acc)) return err('Elige la cuenta.');
-    DN.persona = personaCanon(DN.persona); /* misma persona, mismo nombre: así todo se suma en una sola fila */
-    const de = DN.tipo === 'preste' && DN.de ? personaCanon(DN.de) : '';
-    if (de) { const l = ajenaLibre(de).v;
-      if (normP(de) === normP(DN.persona)) return err('Si es plata de ' + de + ', usa Devolverle su plata en su hoja.');
-      if (DN.amt > l) return err('De ' + de + ' solo tienes ' + money(l) + ' sin prestar. Presta eso de su plata y el resto como tuyo, en otro registro.'); }
-    const base = { id:uid(), amount:DN.amt, date:iso(new Date()), ts:Date.now(), note:DN.note || deudaNuevaNota(DN.tipo, DN.persona, de), persona:DN.persona, ...(de ? { de } : {}) };
-    if (DN.tipo === 'debo') S.transactions.push({ ...base, type:'ajuste', amount:-DN.amt, accountId:deudaCrear('pausa').id, src:'deuda-nueva' });
-    else if (DN.tipo === 'guardo') S.transactions.push({ ...base, type:'transferencia', accountId:deudaCrear('pagar').id, toAccountId:DN.acc });
-    else S.transactions.push({ ...base, type:'transferencia', accountId:DN.acc, toAccountId:deudaCrear('cobrar').id });
-    const msg = DN.tipo === 'debo' ? 'Deuda en pausa con ' + DN.persona : DN.tipo === 'guardo' ? 'Plata de ' + DN.persona + ' apartada' : 'Préstamo a ' + DN.persona + (de ? ' con plata de ' + de : '') + ' registrado';
-    sortTx(S); save(); DN = null; closeSheet(); render(); return toast(msg);
+    const r = deudaNuevaAplicar(DN); if (r.err) { $('#dn-err').textContent = r.err; return; }
+    sortTx(S); save(); DN = null; closeSheet(); render(); return toast(r.msg);
   }
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'dn-amt') pesosCampo(e.target);

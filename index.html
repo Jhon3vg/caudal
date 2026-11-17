@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-<meta name="theme-color" content="#0B0C0F">
+<meta name="theme-color" content="#161A1C">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="supabase.js"></script>
 </head>
@@ -20,7 +20,7 @@
    Caudal · hoja de estilos
    Concepto: banca oscura de bolsillo. Fondo gris carbón (no negro puro, se lee
    mejor y deja ver la profundidad), superficies que se aclaran al subir de
-   nivel y un solo color de marca, el verde lima, reservado para la acción
+   nivel y un solo color de marca, el verde con brillo, reservado para la acción
    principal y para lo que entra. Cada tipo de movimiento tiene color, flecha
    y signo propios, así se entiende aunque no se distinga el color.
 
@@ -32,10 +32,10 @@
 :root{
   color-scheme:dark;
   /* superficies: cada nivel un poco más claro que el anterior */
-  --bg:#0F1114;
-  --surface:#181B20;     /* tarjetas */
-  --surface-2:#22262C;   /* elementos dentro de tarjetas: botones, campos, mosaicos */
-  --surface-3:#2E333A;   /* elegido o presionado en controles neutros */
+  --bg:#161A1C;
+  --surface:#1F2427;     /* tarjetas */
+  --surface-2:#292F33;   /* elementos dentro de tarjetas: botones, campos, mosaicos */
+  --surface-3:#363D42;   /* elegido o presionado en controles neutros */
   --line:rgba(255,255,255,.07);
   --line-2:rgba(255,255,255,.13);
   /* texto */
@@ -43,18 +43,20 @@
   --muted:#9AA0A8;
   --faint:#767C86;
   /* marca y significado. Los mismos valores viven en paleta.js para las gráficas */
-  --brand:#7C3AED;       /* acción principal: morado oscuro */
-  --on-brand:#FFFFFF;    /* texto sobre morado */
+  --brand:#2FE37A;       /* acción principal: verde con brillo */
+  --on-brand:#06210F;    /* texto sobre el verde */
   --on-tc:#0F1114;       /* texto sobre el color de cada tipo de movimiento (claros) */
-  --in:#B49BFF;          /* ingreso: morado claro para que se lea sobre el fondo oscuro */
-  --out:#FF5C8A;         /* gasto */
-  --move:#5CC8FF;        /* transferencia: celeste, para no confundirse con el morado */
+  --in:#5CF09A;          /* ingreso: verde claro */
+  --out:#FF7A5C;         /* gasto: naranja, como la alerta de las referencias */
+  --move:#5CC8FF;        /* transferencia: celeste, para no confundirse con el verde */
+  --glow:rgba(47,227,122,.34); /* brillo de color de tarjetas, arcos y barras */
   --adjust:#FFB443;      /* ajuste de saldo */
   --pos:var(--in);
   --neg:var(--out);
   --warn:#FFB443;
-  --track:#2A2E35;       /* fondo de barras de progreso */
-  --hero:linear-gradient(118deg,#2E1065 0%,#5B21B6 50%,#7C3AED 100%);
+  --track:#30363B;       /* fondo de barras de progreso */
+  --hero:linear-gradient(118deg,#0E3B22 0%,#14894A 52%,#2FE37A 100%);   /* marca y logo */
+  --hero-card:radial-gradient(120% 150% at 92% -10%,rgba(47,227,122,.34) 0%,rgba(47,227,122,0) 58%),linear-gradient(160deg,#2A3230 0%,#1B2123 100%);  /* tarjeta principal: gris con brillo verde */
   /* forma */
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --r-card:22px;
@@ -166,14 +168,39 @@ body.lock>.fab{visibility:hidden}
 .hero-sub b{color:var(--ink);font-weight:600}
 .tile-v{font-size:24px;font-weight:600;letter-spacing:-.01em}
 .tile-s{font-size:12px;color:var(--muted)}
-/* tarjeta destacada en degradado morado, como la tarjeta del banco. Dentro de ella
-   se redefinen los colores de texto para que todo lo que contiene se lea en claro */
-.card.hero{background:var(--hero);color:var(--ink);--brand:#FFFFFF;--ink:#FFFFFF;--muted:rgba(255,255,255,.74);--faint:rgba(255,255,255,.56);--line:rgba(255,255,255,.16);--pos:#FFFFFF;--neg:#FFFFFF;--warn:#FFFFFF;--out:#FFFFFF;--in:rgba(255,255,255,.4);--track:rgba(255,255,255,.18)}
+/* tarjeta destacada: gris carbón con un brillo verde que nace de una esquina, como las referencias.
+   Dentro de ella se redefinen los colores de texto para que todo lo que contiene se lea en claro */
+.card.hero{background:var(--hero-card);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(47,227,122,.22),0 14px 42px -18px var(--glow);--brand:#2FE37A;--on-brand:#06210F;--ink:#FFFFFF;--muted:rgba(255,255,255,.72);--faint:rgba(255,255,255,.54);--line:rgba(255,255,255,.14);--pos:#5CF09A;--neg:#FF9A7E;--warn:#FFC86B;--out:#FF8A6B;--in:#5CF09A;--track:rgba(255,255,255,.16)}
+/* resto de tarjetas con brillo: un velo de color en la esquina y un borde fino */
+.card.glow{background:radial-gradient(110% 130% at 100% 0%,rgba(47,227,122,.15) 0%,rgba(47,227,122,0) 55%),var(--surface);box-shadow:inset 0 0 0 1px rgba(47,227,122,.13)}
 .card.hero .pill{background:rgba(255,255,255,.16);color:var(--ink)}
+/* Cómo va el mes: arco con brillo, tres cifras y barra de porcentajes. --gc es el color del estado */
+.mes{--gc:var(--brand)}
+.mes.alto{--gc:var(--warn)}
+.mes.mucho{--gc:var(--out)}
+.mes-g{position:relative;width:min(100%,300px);margin:0 auto}
+.mes-g svg{display:block;width:100%;height:auto;overflow:visible}
+.mes-g .gv{position:absolute;left:0;right:0;bottom:2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.mes-g .pct{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--gc);text-shadow:0 0 22px var(--gc)}
+.mes-g .cap{font-size:12px;color:var(--muted)}
+.mes-g .est{margin-top:4px;padding:3px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--gc);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.mes-cols{margin-top:2px}
+.mes-bar{height:10px}
+.mes-leg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mes-leg div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mes-leg span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.mes-leg span i{display:inline-block;width:8px;height:8px;border-radius:50%}
+.mes-leg b{font-size:15px;font-weight:600}
+.mes-queda{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07)}
+.mes-queda span{font-size:12.5px;color:var(--muted)}
+.mes-queda b{font-size:18px;font-weight:600}
+.mes-queda small{margin-left:auto;font-size:12px;color:var(--muted)}
+.mes-otros{padding-top:2px}
+.mes-otros .lnk{color:var(--brand);font-weight:600}
 /* accesos rápidos de la tarjeta destacada: un toque para registrar cada tipo */
 .qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px}
 .qa button{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:500}
-.qa-i{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#0F1114;color:#F2F4F5;font-size:19px}
+.qa-i{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(10,14,12,.62);color:#F2F4F5;font-size:19px;box-shadow:inset 0 0 0 1px rgba(47,227,122,.28)}
 .qa.q4{grid-template-columns:repeat(4,1fr)}
 .qa-n{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding-inline:5px;border-radius:99px;background:var(--adjust);color:#0F1114;font-size:11px;font-weight:600;line-height:18px;font-style:normal}
 /* botones */
@@ -943,22 +970,22 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261115234820';
+const BUILD = '20261116235716';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
    en sus atributos, así que los colores viven aquí con los mismos valores.
    Si cambias un color, cámbialo en los dos lugares. */
 const PAL = {
-  lima:'#B49BFF',      // ingresos y lo que va bien (morado claro; la marca es morado oscuro)
-  rosa:'#FF5C8A',      // gastos y lo que se pasa del límite
+  lima:'#5CF09A',      // ingresos y lo que va bien (verde claro; la marca es el verde con brillo)
+  rosa:'#FF7A5C',      // gastos y lo que se pasa del límite
   lavanda:'#5CC8FF',   // transferencias y ahorro (celeste)
   ambar:'#FFB443',     // avisos y ajustes
   agua:'#3FBF8F',
-  coral:'#FF8A5C',
+  coral:'#C9A0FF',
   gris:'#9AA0A8',
   tinta:'#F2F4F5',     // texto
-  superficie:'#181B20', // fondo de tarjeta (borde de puntos en las gráficas)
+  superficie:'#1F2427', // fondo de tarjeta (borde de puntos en las gráficas)
   velo: a => 'rgba(255,255,255,' + a + ')' // líneas de rejilla y referencias tenues
 };
 /* orden fijo para series, cuentas y categorías: lima primero, gris al final */
@@ -1316,7 +1343,7 @@ function txRow(t){
   if (t.type === 'transferencia') {
     const b = accById(t.toAccountId);
     icon = '<div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg></div>';
-    title = 'Transferencia'; sub = (a ? a.name : '?') + ' → ' + (b ? b.name : '?'); amt = money(t.amount); cls = 'muted';
+    title = t.lig ? 'Plata apartada' : 'Transferencia'; sub = t.lig ? 'Se queda en ' + (b ? accShort(b.id) : '?') + ' · ya es suya' : (a ? a.name : '?') + ' → ' + (b ? b.name : '?'); amt = money(t.amount); cls = 'muted';
   } else if (t.type === 'ajuste') {
     icon = '<div class="ico">±</div>'; title = t.src === 'cuadre' ? 'Cuadre de cuenta' : 'Ajuste de saldo'; sub = a ? a.name : ''; amt = money(t.amount, true); cls = 'muted';
   } else {
@@ -1336,37 +1363,13 @@ const accesos = () => { const n = (S.bills || []).length ? billsDue() : -1;
   return '<div class="qa' + (n >= 0 ? ' q4' : '') + '">' + ['gasto', 'ingreso', 'transferencia'].map(k => '<button type="button" data-add="' + k + '"><span class="qa-i">' + tipoIcono(k, 20) + '</span>' + TIPOS[k].corto + '</button>').join('') +
     (n >= 0 ? '<button type="button" data-billall><span class="qa-i">🧾' + (n ? '<i class="qa-n">' + n + '</i>' : '') + '</span>Servicios</button>' : '') + '</div>'; };
 function vInicio(p){
-  const { inc, exp } = totals(p);
-  const today = iso(new Date());
-  const isCurrent = today >= p.s && today <= p.e;
-  const budget = expenseBudgetTotal(p);
-  const N = daysIn(p), ti = todayIdx(p);
+  const { inc, exp } = totals(p), today = iso(new Date());
   const head = '<div class="hello"><h1>Hola' + (userName() ? ', <em>' + esc(userName()) + '</em>' : '') + '</h1><p>Así va tu dinero del ' + fmtShort(p.start) + ' al ' + fmtShort(p.end) + '</p></div>';
   let out = '';
   const demo = offlineBanner() + installBanner() + pasosCard() + (!S.demo ? '' : '<div class="banner"><span><b>Estos son datos de ejemplo</b> para que veas cómo funciona. Cuando quieras, arma tu Caudal con tus cuentas reales.</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="bienvenida">Configurar mi Caudal</button><button class="btn sm ghost" data-go="ajustes" data-sec="datos">Importar respaldo</button></span></div>');
-  const saleW = inc ? Math.min(100, exp / inc * 100) : (exp ? 100 : 0);
-  const rate = inc ? Math.round((inc - exp) / inc * 100) : null;
   out += semanalCard() + inboxCard() + pendingCard() + movesCard() + (iaBanner() || diaPagoBanner() || interesesBanner() || cuadreReminder() || aiNudges());
   const notices = out; out = '';
-  const bexp = budget > 0 ? dailyExp(p, true).reduce((a, v) => a + v, 0) : exp, outPlan = exp - bexp;
-  const flow = '<div class="stats3"><div><span><i style="background:var(--in)"></i>Entra</span><b class="num">' + money(inc) + '</b></div><div><span><i style="background:var(--out)"></i>Sale</span><b class="num">' + money(exp) + '</b></div>' +
-    '<div><span>Ahorro</span><b class="num">' + (rate !== null ? rate + '%' : '—') + '</b></div></div>';
-  if (budget > 0 && isCurrent) {
-    /* lo primero: cuánto queda para gastar */
-    const pl = planFor(p), R = pl ? planReal(pl, p) : null, left = pl ? planQueda(pl, p, R) : budget - bexp, daysLeft = N - ti, usedW = Math.min(100, bexp / budget * 100);
-    const fx = !pl ? [] : pl.items.filter(i => isFijo(i) && !fijoPaid(R.r[i.id] || 0, itemBudget(pl, i, p))).map(i => ({ i, f:Math.max(0, itemBudget(pl, i, p) - (R.r[i.id] || 0)) })).filter(x => x.f > 0);
-    const fijoLeft = fx.reduce((a, x) => a + x.f, 0);
-    out += '<section class="card glow hero"><div class="card-h"><span class="label">Te queda para gastar</span><span class="pill">Día ' + (ti + 1) + ' de ' + N + '</span></div>' +
-      '<div class="big num ' + (left < 0 ? 'neg' : '') + '">' + (left < 0 ? '<small>−</small>' : '') + '<small>$</small>' + nf.format(Math.abs(left)) + '</div>' +
-      '<p class="hero-sub num">' + daysLeft + (daysLeft === 1 ? ' día' : ' días') + ' para el cierre</p>' +
-      '<div class="flowbar" aria-hidden="true"><i style="width:' + usedW.toFixed(1) + '%;background:var(--out)"></i><i style="flex:1;background:var(--track)"></i></div>' +
-      (fijoLeft > 0 ? '<p class="note" style="padding:0;margin:10px 0 0">Incluye ' + money(fijoLeft) + ' de pagos fijos por hacer (' + esc(fx.map(x => x.i.name).join(', ')) + ').</p>' : '') +
-      (R && (R.out > 0 || R.fromSaved > 0) ? '<p class="note" style="padding:0;margin:4px 0 0">' + (R.out > 0 ? 'Fuera del plan: <b class="warn">' + money(R.out) + '</b>' : '') + (R.out > 0 && R.fromSaved > 0 ? ' · ' : '') + (R.fromSaved > 0 ? 'pagado con tus ahorros: ' + money(R.fromSaved) : '') + '</p>' : '') + accesos() + '</section>';
-  } else {
-    out += '<section class="card glow hero"><div class="card-h"><span class="label">Sin gastar este periodo</span><span class="pill">' + (isCurrent ? 'Día ' + (ti + 1) + ' de ' + N : 'Cerrado') + '</span></div>' +
-      '<div class="big num">' + (inc - exp < 0 ? '<small>−</small>' : '') + '<small>$</small>' + nf.format(Math.abs(inc - exp)) + '</div>' +
-      '<div class="flowbar" aria-hidden="true"><i style="width:' + saleW.toFixed(1) + '%;background:var(--out)"></i><i style="flex:1;background:var(--in)"></i></div>' + flow + accesos() + '</section>';
-  }
+  out += mesCard(p); /* entró, salió y quedó en un solo bloque (mes.js) */
   const hero = out + deudasInicio(p); out = ''; /* las deudas van justo después del saldo */
   const bud = budCard(p), ases = '', bills = billsCard() + upcomingCard();
 
@@ -1427,7 +1430,7 @@ function vInicioDesk(p, x){
 }
 function txCells(t){
   const a = accById(t.accountId), nm = id => { const z = accById(id); return z ? accShort(z.id) : '?'; };
-  if (t.type === 'transferencia') return { ico:'⇄', desc:t.note || 'Transferencia', cat:'Transferencia', acc:nm(t.accountId) + ' → ' + nm(t.toAccountId), amt:money(t.amount), cls:'muted' };
+  if (t.type === 'transferencia') return { ico:'⇄', desc:t.note || 'Transferencia', cat:t.lig ? 'Plata apartada' : 'Transferencia', acc:t.lig ? 'Se queda en ' + nm(t.toAccountId) : nm(t.accountId) + ' → ' + nm(t.toAccountId), amt:money(t.amount), cls:'muted' };
   if (t.type === 'ajuste') return { ico:'±', desc:t.src === 'cuadre' ? 'Cuadre de cuenta' : t.note === 'Saldo inicial' ? 'Saldo inicial' : 'Ajuste de saldo', cat:'Ajuste', acc:a ? accShort(a.id) : '', amt:money(t.amount, true), cls:'muted' };
   const c = cat(t.categoryId), pc = parentOf(c);
   return { ico:(c && c.emoji) || (pc && pc.emoji) || '•', desc:t.note || (c ? c.name : 'Sin categoría'), cat:c ? (c.parentId && pc ? pc.name + ' › ' + c.name : c.name) : 'Sin categoría',
@@ -2209,7 +2212,8 @@ function ajenaIA(x, type, amount){
   const v = Math.round(Math.abs(+(x && x.ajena) || 0)); if (type !== 'gasto' || !v || v >= amount) return {};
   return { ajena:v, ajenaPaid:!!x.ajenaPaid, ajenaTo:accById(x.ajenaTo) && !isCard(accById(x.ajenaTo)) && !esDeuda(accById(x.ajenaTo)) ? x.ajenaTo : null };
 }
-function clean1(x, L){
+function clean1(x, L, conPersonas){
+  if (conPersonas && x && x.type === 'persona') return personaIA(x);
   const type = ['gasto','ingreso','transferencia'].includes(x && x.type) ? x.type : 'gasto';
   const amount = Math.round(Math.abs(+(x && x.amount) || 0)); if (!amount) return null;
   let c = type === 'transferencia' ? null : cat(x.categoryId);
@@ -2224,7 +2228,7 @@ async function shrink(file){
     cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
     return await new Promise(r => cv.toBlob(b => r(b || file), 'image/jpeg', .85)); } catch (_) { return file; }
 }
-async function aiParse(text, files){
+async function aiParse(text, files, conPersonas){
   const L = learn(), now = new Date();
   const hint = k => k.note + ' → ' + catPath(topKey(k.cats));
   const freq = Object.values(L.notes).sort((a, b) => b.n - a.n).slice(0, 60), seenN = new Set(freq.map(k => k.note));
@@ -2241,16 +2245,17 @@ async function aiParse(text, files){
     '- note: descripción corta en español (comercio o concepto), sin el monto.\n' +
     '- Foto de recibo o factura: un solo movimiento por recibo con el TOTAL pagado, note = nombre del comercio, date = fecha del recibo si aparece.\n' +
     '- Notificación bancaria: monto del movimiento (nunca el saldo disponible), comercio y fecha.\n' +
+    (conPersonas ? personaPrompt() : '') +
     '- ajena: si pagó algo y una parte era de otra persona ("200 eran de Juan", "me pasaron 200 de eso", "le tocaba la mitad a mi hermano"), amount es el TOTAL que pagó y ajena el valor de la parte de la otra persona; ajenaPaid true si ya se la devolvió, y ajenaTo el id de la cuenta donde le llegó si lo dice (si no, null). Si no aplica, ajena 0. No crees un ingreso aparte por esa devolución.\n' +
     '- pending: true si el usuario no está seguro del valor ("como", "más o menos", "aprox", "por ahí", "no me acuerdo bien"); si no, false.\n\n' +
     'Categorías (id | tipo | nombre):\n' + catList() + '\n\nCuentas (id | nombre | grupo):\n' + S.accounts.filter(a => !a.hidden).map(a => a.id + ' | ' + a.name + ' | ' + a.group).join('\n') +
     '\n\nAsí suele clasificar el usuario (nota → categoría):\n' + hints +
-    '\n\nResponde SOLO con JSON: {"items":[{"type":"gasto","amount":0,"date":"YYYY-MM-DD","categoryId":"","accountId":null,"toAccountId":null,"note":"","pending":false,"ajena":0,"ajenaPaid":false,"ajenaTo":null}]}\n\nContenido del usuario:\n<<<\n' + (text || '(sin texto, ver imagen)') + '\n>>>';
+    '\n\nResponde SOLO con JSON: {"items":[{"type":"gasto","amount":0,"date":"YYYY-MM-DD","categoryId":"","accountId":null,"toAccountId":null,"note":"","pending":false,"ajena":0,"ajenaPaid":false,"ajenaTo":null}]} (solo si es una persona: {"type":"persona","pt":"debo","persona":"Nombre","amount":0,"date":"YYYY-MM-DD","accountId":null})\n\nContenido del usuario:\n<<<\n' + (text || '(sin texto, ver imagen)') + '\n>>>';
   const opts = { modelTier:files.length ? 'default' : 'quick', cache:false };
   if (files.length) opts.images = await Promise.all(files.map(shrink));
   const r = SAMPLE ? await SAMPLE.json(prompt, opts) : await iaCall(prompt, true, opts.images);
   const arr = Array.isArray(r) ? r : (r && r.items) || [];
-  return arr.map(x => clean1(x, L)).filter(Boolean);
+  return arr.map(x => clean1(x, L, conPersonas)).filter(Boolean);
 }
 const aiErr = e => ({ no_credits:'Se acabaron los créditos de la IA. Recárgalos en console.anthropic.com (Billing) y vuelve a intentar.', not_granted:'Para usar la IA acepta el permiso cuando aparezca. Si lo rechazaste, recarga la página.', rate_limited:'Llegaste al límite de la IA gratuita por ahora. Espera un rato y vuelve a intentar.', invalid_json:'No pude leer la respuesta de la IA. Intenta de nuevo.', images_unavailable:'Aquí no puedo enviar fotos a la IA.', image_rejected:'No pude abrir esa imagen. Prueba con una foto JPG o PNG.', cancelled:'Cancelado.', network:'No pude llegar a la IA: revisa tu conexión a internet e intenta de nuevo.' }[e && e.code] || 'No pude conectar con la IA (' + ((e && e.code) || 'error') + ').');
 
@@ -2258,7 +2263,7 @@ const aiErr = e => ({ no_credits:'Se acabaron los créditos de la IA. Recárgalo
 let SM = null, REC = null;
 const MIC = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 const SPARK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>';
-const EXAMPLES = ['almuerzo 25 mil y taxi 12', 'ayer mercado 180 mil con la tarjeta', 'me pagaron el salario 4 millones', 'Bancolombia: Compraste $45.900 en EXITO CALLE 80 con tu T.Deb *1234, el 11/10/2026 a las 13:20.'];
+const EXAMPLES = ['almuerzo 25 mil y taxi 12', 'ayer mercado 180 mil con la tarjeta', 'me pagaron el salario 4 millones', 'le debo 100 mil a Laura', 'Pedro me dejó 50 mil', 'Bancolombia: Compraste $45.900 en EXITO CALLE 80 con tu T.Deb *1234, el 11/10/2026 a las 13:20.'];
 
 function smartOpen(mode){
   SM = { text:SM && !SM.items ? SM.text : '', files:[], items:null, busy:false, origin:'smart' };
@@ -2277,7 +2282,7 @@ function drawSmart(msg){
     '<div class="err" id="sm-err" style="margin-top:0">' + esc(msg || '') + '</div>' +
     '<button class="btn block" id="sm-go"' + (SM.busy ? ' disabled' : '') + '>' + (SM.busy ? 'Leyendo…' : 'Analizar') + '</button>' +
     '<div class="field"><span class="label">Prueba con</span><div class="pills">' + EXAMPLES.map((x, i) => '<button class="pill ex" data-ex="' + i + '">' + esc(x.length > 34 ? 'Notificación de Bancolombia' : x) + '</button>').join('') + '</div></div>' +
-    '<p class="note" style="padding:0">Puedes escribir varios a la vez. Uso tu historial para elegir categoría y cuenta, y la IA cuando hace falta o hay una foto. Siempre revisas antes de guardar.</p></div>';
+    '<p class="note" style="padding:0">Puedes escribir varios a la vez, también lo de personas ("le debo…", "me dejó…", "le presté…", "le pagué…", "aparté… para…"). Uso tu historial para elegir categoría y cuenta, y la IA cuando hace falta o hay una foto. Siempre revisas antes de guardar.</p></div>';
   if ($('#sheet').hidden) openSheet(h); else { $('#sheet').innerHTML = '<div class="grab"></div>' + h; $('#sheet').classList.remove('t-gasto', 't-ingreso', 't-transferencia', 't-ajuste'); }
 }
 function startVoice(){
@@ -2301,11 +2306,11 @@ async function smartGo(force){
   const text = SM.text.trim();
   if (!text && !SM.files.length) return drawSmart('Escribe algo, dicta o adjunta una foto.');
   let items = [], engine = 'local';
-  if (!SM.files.length && !force) items = localParse(text);
-  const need = force || SM.files.length || !items.length || items.some(i => i.type !== 'transferencia' && !i.categoryId);
+  if (!SM.files.length && !force) { const pr = personaParse(text); items = pr.items.length ? pr.items.concat(pr.resto ? localParse(pr.resto) : []) : localParse(text); }
+  const need = force || SM.files.length || !items.length || items.some(i => i.type !== 'transferencia' && i.type !== 'persona' && !i.categoryId);
   if (need && aiOn()) {
     SM.busy = true; if (!SM.items) drawSmart(); else drawReview();
-    try { const r = await aiParse(text, SM.files); if (r.length) { items = r; engine = 'ia'; } }
+    try { const r = await aiParse(text, SM.files, true); if (r.length) { items = r; engine = 'ia'; } }
     catch (e) { SM.busy = false; if (!items.length) return SM.items ? drawReview(aiErr(e)) : drawSmart(aiErr(e)); }
     SM.busy = false;
   } else if (need && SM.files.length) return drawSmart('Leer fotos necesita la IA, que no está disponible en esta vista.');
@@ -2331,6 +2336,7 @@ function drawReview(msg){
   let h = '<div class="sheet-h"><b id="sheet-title">Revisa y guarda</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form">' +
     '<p class="insight" style="margin-top:-6px">' + n + (n === 1 ? ' movimiento' : ' movimientos') + ' · ' + src + '. Corrige lo que haga falta.</p>';
   SM.items.forEach((it, i) => {
+    if (it.type === 'persona') { h += rvPersona(it, i); return; }
     const tsel = ['gasto','ingreso','transferencia'].map(k => '<option value="' + k + '"' + (it.type === k ? ' selected' : '') + '>' + { gasto:'Gasto', ingreso:'Ingreso', transferencia:'Transferencia' }[k] + '</option>').join('');
     h += '<div class="rv' + (it.err ? ' bad' : '') + '"><div class="rv-top"><select class="rv-type" data-rv="' + i + '" data-f="type" aria-label="Tipo">' + tsel + '</select>' +
       '<div class="rv-amt"><span>$</span><input inputmode="numeric" class="num" data-rv="' + i + '" data-f="amount" value="' + (it.amount ? nf.format(it.amount) : '') + '" aria-label="Valor"></div>' +
@@ -2377,6 +2383,7 @@ function guardarItems(items){
   S.cardMap = S.cardMap || {};
   const hechos = [];
   for (const it of items) {
+    if (it.type === 'persona') continue; /* lo de personas se guarda aparte (voz-personas.js) */
     const t = { id:uid(), type:it.type, amount:it.amount, date:it.date, ts:Date.now(), accountId:it.accountId, note:(it.note || '').trim(), src:it.src || 'ia' };
     if (it.type === 'transferencia') t.toAccountId = it.toAccountId; else { t.categoryId = it.categoryId; if (it.pending) t.pending = true; }
     if (it.type === 'gasto' && it.fund && cardOf(it.accountId)) t.fund = it.fund;
@@ -2393,7 +2400,8 @@ function guardarItems(items){
 /* borra movimientos con lo que depende de ellos: las demás partes del mismo gasto dividido,
    el traslado pendiente que generaron y lo que te devolvieron de una parte ajena */
 function txBorrar(ids){
-  const del = new Set(ids), grps = new Set(S.transactions.filter(x => del.has(x.id) && x.grp).map(x => x.grp));
+  const del = new Set(ids); { const ligs = new Set(S.transactions.filter(x => del.has(x.id) && x.lig).map(x => x.lig)); if (ligs.size) S.transactions.forEach(x => { if (x.lig && ligs.has(x.lig)) del.add(x.id); }); } /* un apartado se borra completo */
+  const grps = new Set(S.transactions.filter(x => del.has(x.id) && x.grp).map(x => x.grp));
   S.transactions.forEach(x => { if (x.grp && grps.has(x.grp)) del.add(x.id); });
   const ajena = new Set(S.transactions.filter(x => del.has(x.id) && x.src === 'ajena').map(x => x.id));
   S.transactions = S.transactions.filter(x => !del.has(x.id) && !(del.has(x.auto) && x.pending && x.type === 'transferencia') && !(ajena.has(x.auto) && x.src === 'deuda'));
@@ -2402,17 +2410,22 @@ function reviewSave(){
   let bad = false;
   SM.items.forEach(it => { it.err = '';
     if (!it.amount) it.err = 'Falta el valor.';
+    else if (it.type === 'persona') { if (!(it.persona || '').trim()) it.err = 'Escribe con quién es.'; else if (it.pt !== 'debo' && !accById(it.accountId)) it.err = 'Elige la cuenta.'; }
     else if (it.type !== 'transferencia' && !it.categoryId) it.err = 'Elige una categoría.';
     else if (it.type === 'transferencia' && (!it.toAccountId || it.toAccountId === it.accountId)) it.err = 'Elige una cuenta de destino distinta.';
     else if (it.type === 'gasto' && it.ajena && it.ajena >= it.amount) it.err = 'La parte de la otra persona no puede ser todo el gasto.';
     if (it.err) bad = true; });
   if (bad) return drawReview();
-  const hechos = guardarItems(SM.items), last = hechos[hechos.length - 1];
+  /* lo de personas se aplica primero y, si algo falla, se deshace todo para no dejar la mitad guardada */
+  const msgs = [], snapT = S.transactions.slice(), snapA = S.accounts.slice();
+  for (const it of SM.items.filter(x => x.type === 'persona')) { const r = personaVozAplicar(it);
+    if (r.err) { S.transactions = snapT; S.accounts = snapA; it.err = r.err; return drawReview(); } msgs.push(r.msg); if (it.accountId) S.lastAccount = it.accountId; }
+  const hechos = guardarItems(SM.items.filter(x => x.type !== 'persona')), last = hechos[hechos.length - 1];
   if (SM.origin === 'inbox') S.inbox = (S.inbox || []).filter(x => !SM.items.some(it => it.inboxId === x.id) && !SM.discarded?.includes(x.id));
   save();
   const n = SM.items.length, back = SM.retAcc; SM = null; closeSheet(); render();
   if (back) setTimeout(() => accSheet(back), 300);
-  toast((last && budgetMsg(last)) || (n + (n === 1 ? ' movimiento guardado' : ' movimientos guardados')), 3200);
+  toast((last && budgetMsg(last)) || (n === 1 && msgs.length ? msgs[0] : n + (n === 1 ? ' movimiento guardado' : ' movimientos guardados')), 3200);
 }
 
 /* ----- alertas de presupuesto ----- */
@@ -2446,17 +2459,23 @@ function budgetMsg(t){
 
 /* Frecuentes de un toque y pagos programados (suscripciones y cobros fijos). */
 /* ----- frecuentes: un toque ----- */
+/* movimientos que repites cada tanto, aunque no valgan lo mismo: misma nota y categoría (o mismas cuentas en una transferencia) en los últimos 6 meses.
+   Al tocarlos se llena todo con lo de la última vez y el valor queda listo para cambiarlo. */
 function frequent(type){
-  const since = iso(new Date(Date.now() - 90 * 864e5)), g = {};
-  for (const t of S.transactions) { if (t.type !== type || !t.note || t.date < since || !t.categoryId) continue;
-    const k = norm(t.note) + '|' + t.categoryId + '|' + t.accountId; const e = g[k] = g[k] || { t, n:0, amts:[] }; e.n++; e.amts.push(t.amount); }
-  return Object.values(g).filter(e => e.n >= 2).sort((a, b) => b.n - a.n).slice(0, 6).map(e => { const a = e.amts.sort((x, y) => x - y); return { note:e.t.note, categoryId:e.t.categoryId, accountId:e.t.accountId, amount:a[Math.floor(a.length / 2)] }; });
+  const since = iso(new Date(Date.now() - 180 * 864e5)), g = {};
+  for (const t of S.transactions) { if (t.type !== type || t.date < since || !t.note || t.grp || t.src === 'programado' || hiddenTx(t)) continue;
+    if (type === 'transferencia') { if (esDeuda(accById(t.accountId)) || esDeuda(accById(t.toAccountId)) || t.lig) continue; } else if (!t.categoryId) continue;
+    const k = norm(t.note) + '|' + (type === 'transferencia' ? t.accountId + '|' + t.toAccountId : t.categoryId);
+    const e = g[k] = g[k] || { n:0, last:t }; e.n++; if (t.date > e.last.date || (t.date === e.last.date && (t.ts || 0) > (e.last.ts || 0))) e.last = t; }
+  const reciente = d => d >= iso(new Date(Date.now() - 45 * 864e5)) ? 2 : 1;
+  return Object.values(g).filter(e => e.n >= 2).sort((a, b) => b.n * reciente(b.last.date) - a.n * reciente(a.last.date) || b.last.date.localeCompare(a.last.date)).slice(0, 8)
+    .map(e => ({ note:e.last.note, categoryId:e.last.categoryId, accountId:e.last.accountId, toAccountId:e.last.toAccountId || null, amount:e.last.amount }));
 }
 let FQ = [];
 function freqChips(){
-  if (!F || F.id || (F.type !== 'gasto' && F.type !== 'ingreso')) return '';
+  if (!F || F.id || (F.type !== 'gasto' && F.type !== 'ingreso' && F.type !== 'transferencia')) return '';
   FQ = frequent(F.type); if (!FQ.length) return '';
-  return '<div class="field"><span class="label">Frecuentes · un toque</span><div class="pills">' + FQ.map((q, i) => '<button type="button" class="pill" data-fq="' + i + '">' + esc(q.note.length > 22 ? q.note.slice(0, 21) + '…' : q.note) + ' · ' + short(q.amount) + '</button>').join('') + '</div></div>';
+  return '<div class="field"><span class="label">Repetir uno anterior · cambia el valor si hace falta</span><div class="pills">' + FQ.map((q, i) => '<button type="button" class="pill" data-fq="' + i + '">' + esc(q.note.length > 22 ? q.note.slice(0, 21) + '…' : q.note) + ' · ' + short(q.amount) + '</button>').join('') + '</div></div>';
 }
 
 /* ----- pagos programados ----- */
@@ -2768,7 +2787,7 @@ document.addEventListener('click', e => {
   if (d.sug) { const s = SUG[+d.sug]; if (s) recForm({ ...s, id:null, active:true }); return; }
   if (d.rt && RF) { RF.type = d.rt; RF.name = $('#r-name').value; RF.amount = leerPesos($('#r-amt').value); RF.day = +$('#r-day').value; RF.accountId = $('#r-acc').value; RF.categoryId = ''; closeSheetNow(); return recForm(RF); }
   if (el.id === 'r-del' && RF) { S.recurring = (S.recurring || []).filter(r => r.id !== RF.id); save(); closeSheet(); render(); return toast('Pago programado eliminado'); }
-  if (d.fq && F) { const q = FQ[+d.fq]; if (!q) return; syncForm(); const c = cat(q.categoryId); F.amount = q.amount; F.note = q.note; F.accountId = q.accountId; F.parent = c ? (c.parentId || c.id) : null; F.sub = c && c.parentId ? c.id : null; return drawForm(); }
+  if (d.fq && F) { const q = FQ[+d.fq]; if (!q) return; syncForm(); const c = cat(q.categoryId); F.amount = q.amount; F.note = q.note; F.accountId = q.accountId; F.parent = c ? (c.parentId || c.id) : null; F.sub = c && c.parentId ? c.id : null; if (F.type === 'transferencia') F.toAccountId = q.toAccountId; drawForm(); setTimeout(() => { const i = $('#f-amt'); if (i) { i.focus(); try { i.select(); } catch (_) {} } }, 60); return; }
   if (el.id === 'go-smart') { closeSheetNow(); return smartOpen('texto'); }
   if (!SM) return;
   if (el.id === 'sm-go') return smartGo();
@@ -2789,6 +2808,8 @@ document.addEventListener('change', e => {
   if (t.dataset && t.dataset.rv !== undefined && SM && SM.items) {
     const it = SM.items[+t.dataset.rv], f = t.dataset.f; if (!it) return;
     if (f === 'amount') it.amount = leerPesos(t.value);
+    else if (f === 'pt') { it.pt = t.value; drawReview(); }
+    else if (f === 'persona') it.persona = t.value.trim();
     else if (f === 'type') { it.type = t.value; it.categoryId = it.type === 'transferencia' ? null : cat(guess(it.note, it.type, learn()).cat) ? guess(it.note, it.type, learn()).cat : null; drawReview(); }
     else it[f] = t.value || null;
   }
@@ -4323,7 +4344,7 @@ function cuadreTxt(id){
   const l = lastCuadre(id); if (!l) return 'Sin cuadrar';
   const d = daysAgo(l.date); return d <= 0 ? 'Cuadrada hoy' : d === 1 ? 'Cuadrada ayer' : 'Cuadrada hace ' + d + ' días';
 }
-const hiddenTx = t => t.type === 'ajuste' && !t.amount; // marcas de cuadre sin diferencia
+const hiddenTx = t => (t.type === 'ajuste' && !t.amount) || (t.lig && t.src === 'deuda'); // marcas de cuadre sin diferencia y el pago interno de un apartado (se ve como una sola línea)
 
 function accSheet(id, prefill){
   const a = accById(id); if (!a) return;
@@ -5577,14 +5598,27 @@ const DN_TIPOS = [
   ['preste', 'Le presté a alguien', 'Sale de tu cuenta y queda por cobrar. No suma a tu disponible hasta que te pague.']
 ];
 let DN = null;
+/* lo que ya registraste con personas, para repetirlo con un toque (el valor queda listo para cambiarlo): lo más reciente de cada tipo y persona */
+function deudaRepetir(){
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa'), vistos = new Set(), r = [];
+  for (const t of S.transactions.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0))) {
+    if (!t.persona || t.src === 'deuda' || t.lig) continue;
+    const tipo = Z && t.type === 'ajuste' && t.accountId === Z.id && t.amount < 0 ? 'debo' : P && t.type === 'transferencia' && t.accountId === P.id ? 'guardo' : C && t.type === 'transferencia' && t.toAccountId === C.id ? 'preste' : null;
+    if (!tipo) continue; const k = tipo + '|' + normP(t.persona); if (vistos.has(k)) continue; vistos.add(k);
+    r.push({ tipo, persona:t.persona.trim(), amt:Math.abs(t.amount), acc:tipo === 'guardo' ? t.toAccountId : tipo === 'preste' ? t.accountId : null, de:t.de || '' });
+  }
+  return r.slice(0, 6);
+}
+const DN_CORTO = { debo:'le debo', guardo:'plata suya', preste:'le presté' };
 function deudaNuevaSheet(k){
-  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount(), de:'' };
+  DN = { tipo:k === 'cobrar' ? 'preste' : k === 'pausa' ? 'debo' : k === 'pagar' ? 'guardo' : 'debo', persona:'', note:'', acc:lastAccount(), de:'', rep:deudaRepetir() };
   deudaNuevaDraw();
 }
 function deudaNuevaDraw(){
   const [, , ayuda] = DN_TIPOS.find(x => x[0] === DN.tipo), cuenta = DN.tipo !== 'debo';
   const b = balances(), aj = ajenaPorCuenta(b), opts = cuentasElegibles(b, DN.acc).filter(a => !isCard(a)), gente = personasUsadas();
   const h = '<div class="sheet-h"><b id="sheet-title">Nueva deuda</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form dnueva">' +
+    (DN.rep.length ? '<div class="field"><span class="label">Repetir uno anterior · cambia el valor si hace falta</span><div class="pills">' + DN.rep.map((q, i) => '<button type="button" class="pill" data-dnrep="' + i + '">' + esc(q.persona) + ' · ' + DN_CORTO[q.tipo] + ' · ' + short(q.amt) + '</button>').join('') + '</div></div>' : '') +
     '<div class="field"><span class="label">¿Qué pasó?</span><div class="chips">' + DN_TIPOS.map(([id, t]) => '<button type="button" class="chip" data-dntipo="' + id + '" aria-pressed="' + (DN.tipo === id) + '">' + t + '</button>').join('') + '</div><span class="tile-s">' + ayuda + '</span></div>' +
     '<div class="field"><label class="label" for="dn-persona">¿Con quién?</label><input class="inp" id="dn-persona" value="' + esc(DN.persona) + '" placeholder="Nombre de la persona" autocomplete="off"><span class="tile-s" id="dn-sum">' + dnSuma() + '</span>' +
       (gente.length ? '<div class="chips" style="margin-top:8px">' + gente.map(g => '<button type="button" class="chip" data-dnper="' + esc(g) + '" aria-pressed="' + (DN.persona.toLowerCase() === g.toLowerCase()) + '">' + esc(g) + '</button>').join('') + '</div>' : '') + '</div>' +
@@ -5597,31 +5631,35 @@ function deudaNuevaDraw(){
 }
 /* lo escrito en los campos sobrevive a redibujar la hoja al elegir otra opción */
 const dnLeer = () => { const p = $('#dn-persona'), n = $('#dn-note'), a = $('#dn-amt'); if (p) DN.persona = p.value.trim(); if (n) DN.note = n.value.trim(); if (a) DN.amt = leerPesos(a.value); };
+/* crea el movimiento de una deuda nueva (lo usan la hoja de Personas y el registro por voz): devuelve { err } o { msg } y no guarda ni dibuja */
+function deudaNuevaAplicar(o){
+  if (!o.persona) return { err:'Escribe con quién es la deuda.' };
+  if (!o.amt) return { err:'Escribe el valor.' };
+  if (o.tipo !== 'debo' && !accById(o.acc)) return { err:'Elige la cuenta.' };
+  const persona = personaCanon(o.persona); /* misma persona, mismo nombre: así todo se suma en una sola fila */
+  const de = o.tipo === 'preste' && o.de ? personaCanon(o.de) : '';
+  if (de) { const l = ajenaLibre(de).v;
+    if (normP(de) === normP(persona)) return { err:'Si es plata de ' + de + ', usa Devolverle su plata en su hoja.' };
+    if (o.amt > l) return { err:'De ' + de + ' solo tienes ' + money(l) + ' sin prestar. Presta eso de su plata y el resto como tuyo, en otro registro.' }; }
+  const base = { id:uid(), amount:o.amt, date:o.date || iso(new Date()), ts:Date.now(), note:o.note || deudaNuevaNota(o.tipo, persona, de), persona, ...(de ? { de } : {}) };
+  if (o.tipo === 'debo') S.transactions.push({ ...base, type:'ajuste', amount:-o.amt, accountId:deudaCrear('pausa').id, src:'deuda-nueva' });
+  else if (o.tipo === 'guardo') S.transactions.push({ ...base, type:'transferencia', accountId:deudaCrear('pagar').id, toAccountId:o.acc });
+  else S.transactions.push({ ...base, type:'transferencia', accountId:o.acc, toAccountId:deudaCrear('cobrar').id });
+  return { msg:o.tipo === 'debo' ? 'Deuda en pausa con ' + persona : o.tipo === 'guardo' ? 'Plata de ' + persona + ' apartada' : 'Préstamo a ' + persona + (de ? ' con plata de ' + de : '') + ' registrado' };
+}
 document.addEventListener('click', e => {
   const el = e.target.closest('button'); if (!el) return; const d = el.dataset;
   if (d.dnueva !== undefined) { e.stopPropagation(); return deudaNuevaSheet(d.dnueva); }
   if (!DN || !el.closest('.dnueva')) return;
   e.stopPropagation(); dnLeer();
   if (d.dntipo) { DN.tipo = d.dntipo; return deudaNuevaDraw(); }
+  if (d.dnrep !== undefined) { const q = DN.rep[+d.dnrep]; if (!q) return; DN.tipo = q.tipo; DN.persona = q.persona; DN.amt = q.amt; DN.de = q.tipo === 'preste' ? q.de : ''; if (q.acc && accById(q.acc)) DN.acc = q.acc; deudaNuevaDraw(); return setTimeout(() => { const i = $('#dn-amt'); if (i) { i.focus(); try { i.select(); } catch (_) {} } }, 60); }
   if (d.dnper) { DN.persona = d.dnper; return deudaNuevaDraw(); }
   if (d.dnacc) { DN.acc = d.dnacc; return deudaNuevaDraw(); }
   if (d.dnde !== undefined) { DN.de = d.dnde; if (DN.de) { const l = ajenaLibre(DN.de); if (l.acc) DN.acc = l.acc; } return deudaNuevaDraw(); }
   if (d.dngo !== undefined) {
-    const err = m => { $('#dn-err').textContent = m; };
-    if (!DN.persona) return err('Escribe con quién es la deuda.');
-    if (!DN.amt) return err('Escribe el valor.');
-    if (DN.tipo !== 'debo' && !accById(DN.acc)) return err('Elige la cuenta.');
-    DN.persona = personaCanon(DN.persona); /* misma persona, mismo nombre: así todo se suma en una sola fila */
-    const de = DN.tipo === 'preste' && DN.de ? personaCanon(DN.de) : '';
-    if (de) { const l = ajenaLibre(de).v;
-      if (normP(de) === normP(DN.persona)) return err('Si es plata de ' + de + ', usa Devolverle su plata en su hoja.');
-      if (DN.amt > l) return err('De ' + de + ' solo tienes ' + money(l) + ' sin prestar. Presta eso de su plata y el resto como tuyo, en otro registro.'); }
-    const base = { id:uid(), amount:DN.amt, date:iso(new Date()), ts:Date.now(), note:DN.note || deudaNuevaNota(DN.tipo, DN.persona, de), persona:DN.persona, ...(de ? { de } : {}) };
-    if (DN.tipo === 'debo') S.transactions.push({ ...base, type:'ajuste', amount:-DN.amt, accountId:deudaCrear('pausa').id, src:'deuda-nueva' });
-    else if (DN.tipo === 'guardo') S.transactions.push({ ...base, type:'transferencia', accountId:deudaCrear('pagar').id, toAccountId:DN.acc });
-    else S.transactions.push({ ...base, type:'transferencia', accountId:DN.acc, toAccountId:deudaCrear('cobrar').id });
-    const msg = DN.tipo === 'debo' ? 'Deuda en pausa con ' + DN.persona : DN.tipo === 'guardo' ? 'Plata de ' + DN.persona + ' apartada' : 'Préstamo a ' + DN.persona + (de ? ' con plata de ' + de : '') + ' registrado';
-    sortTx(S); save(); DN = null; closeSheet(); render(); return toast(msg);
+    const r = deudaNuevaAplicar(DN); if (r.err) { $('#dn-err').textContent = r.err; return; }
+    sortTx(S); save(); DN = null; closeSheet(); render(); return toast(r.msg);
   }
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'dn-amt') pesosCampo(e.target);
@@ -5723,8 +5761,8 @@ function personaSheet(key){
   const accion = (k, txt) => p[k] ? '<button class="btn accent block" type="button" data-ppagar="' + k + '">' + txt + ' · ' + money(p[k]) + '</button>' : '';
   const ev = [];
   for (const it of p.items) {
-    ev.push({ d:it.t.date, ts:it.t.ts || 0, id:it.t.id, v:it.monto, sube:true, txt:it.k === 'cobrar' ? 'Le prestaste' + (it.t.de ? ' plata de ' + it.t.de : '') : it.guardo ? 'Te dejó su plata' + (it.t.toAccountId ? ' en ' + accShort(it.t.toAccountId) : '') : it.k === 'pausa' ? 'Le quedaste debiendo' : 'Pagó por ti', nota:deudaAuto(it.t) ? '' : deudaConcepto(it.t) });
-    for (const a of it.abonos) { const ya = ev.find(e => e.tx && e.id === a.id); if (ya) { ya.v += a.amount; continue; } ev.push({ d:a.date, ts:a.ts || 0, id:a.id, tx:true, v:a.amount, sube:false, txt:it.k === 'cobrar' ? 'Te pagó' : it.guardo ? 'Le devolviste' : 'Le pagaste', nota:accShort(it.k === 'cobrar' ? a.toAccountId : a.accountId) }); }
+    ev.push({ d:it.t.date, ts:it.t.ts || 0, id:it.t.id, v:it.monto, sube:true, txt:it.k === 'cobrar' ? 'Le prestaste' + (it.t.de ? ' plata de ' + it.t.de : '') : it.guardo && it.t.lig ? 'Apartaste para pagarle' + (it.t.toAccountId ? ' en ' + accShort(it.t.toAccountId) : '') : it.guardo ? 'Te dejó su plata' + (it.t.toAccountId ? ' en ' + accShort(it.t.toAccountId) : '') : it.k === 'pausa' ? 'Le quedaste debiendo' : 'Pagó por ti', nota:deudaAuto(it.t) ? '' : deudaConcepto(it.t) });
+    for (const a of it.abonos) { if (a.lig) continue; /* el apartado ya sale como una sola línea (la de su plata) */ const ya = ev.find(e => e.tx && e.id === a.id); if (ya) { ya.v += a.amount; continue; } ev.push({ d:a.date, ts:a.ts || 0, id:a.id, tx:true, v:a.amount, sube:false, txt:it.k === 'cobrar' ? 'Te pagó' : it.guardo ? 'Le devolviste' : 'Le pagaste', nota:accShort(it.k === 'cobrar' ? a.toAccountId : a.accountId) }); }
   }
   /* préstamos hechos con su plata: siguen siendo suyos, pero los tiene otra persona */
   for (const it of deudasTodas()) if (it.k === 'cobrar' && it.t.de && normP(it.t.de) === p.key)
@@ -5737,7 +5775,7 @@ function personaSheet(key){
     '<section class="card glow" style="padding:16px"><div class="stats3"><div><span>Le debes</span><b class="num' + (p.debes ? ' neg' : '') + '">' + money(p.debes) + '</b></div><div><span>Tienes suyo</span><b class="num' + (p.suya ? ' warn' : '') + '">' + money(p.suya) + '</b></div><div><span>Te debe</span><b class="num">' + money(p.teDebe) + '</b></div></div>' +
     (personaAbierta(p) ? '' : '<p class="note" style="padding:0;margin:10px 0 0">A paz y salvo ✓</p>') +
     (donde.length ? '<p class="note" style="padding:0;margin:10px 0 0">Su plata está así: ' + donde.join(' · ') + '.</p>' : '') + '</section>' +
-    accion('debes', 'Pagarle') + accion('suya', 'Devolverle su plata') + accion('teDebe', 'Registrar que te pagó') +
+    accion('debes', 'Pagarle') + (p.debes ? '<button class="btn ghost block" type="button" data-ppagar="apartar">Apartar para pagarle · ' + money(p.debes) + '</button><p class="note" style="padding:0;margin:-6px 0 0">Usa tu plata de una cuenta, pero se queda ahí: pasa a ser suya y baja lo que le debes.</p>' : '') + accion('suya', 'Devolverle su plata') + accion('teDebe', 'Registrar que te pagó') +
     (p.key !== '_' ? '<button class="btn ghost block" type="button" data-buscar="persona:' + esc(p.key) + '">Ver todos sus movimientos</button>' : '') +
     '<div class="field"><span class="label">Agregar con ' + esc(p.nombre) + '</span><div class="chips">' + DN_TIPOS.map(([id, t]) => '<button type="button" class="chip" data-pnueva="' + id + '">+ ' + t.replace(' a alguien', '').replace(' de alguien', ' suya') + '</button>').join('') + '</div><span class="tile-s">Se suma a su total.</span></div>' +
     '<div><span class="label">Historial</span>' + ev.map(x => '<button class="set deuda" type="button" ' + (x.tx ? 'data-tx' : 'data-dver') + '="' + esc(x.id) + '"><span class="t"><b>' + esc(x.txt) + '</b><span>' + fmtShort(parseISO(x.d)) + (x.nota ? ' · ' + esc(x.nota) : '') + '</span></span><span class="num' + (x.sube ? '' : ' pos') + '">' + (x.sube ? '' : '✓ ') + money(x.v) + '</span></button>').join('') + '</div></div>';
@@ -5747,31 +5785,46 @@ function personaSheet(key){
 /* ----- pagar, devolver o cobrar por persona: el valor se reparte entre sus deudas de ese tipo, de la más vieja a la más nueva ----- */
 let PP = null;
 function personaPagoDraw(){
-  const p = personasLista().find(x => x.key === PP.key), total = p ? p[PP.k] : 0, sale = PP.k !== 'teDebe';
+  const ap = PP.k === 'apartar', K = ap ? 'debes' : PP.k, p = personasLista().find(x => x.key === PP.key), total = p ? p[K] : 0, sale = PP.k !== 'teDebe' && !ap;
   const b = balances(), aj = ajenaPorCuenta(b), opts = cuentasElegibles(b, PP.acc).filter(a => !isCard(a));
-  const tit = { debes:'Pagarle a ', suya:'Devolverle a ', teDebe:'Te pagó ' }[PP.k] + p.nombre;
+  const tit = { debes:'Pagarle a ', suya:'Devolverle a ', teDebe:'Te pagó ', apartar:'Apartar para ' }[PP.k] + p.nombre;
   const h = '<div class="sheet-h"><b id="sheet-title">' + esc(tit) + '</b><button class="x" data-close aria-label="Cerrar">✕</button></div><div class="form ppago">' +
-    '<section class="card glow" style="padding:16px"><span class="label">' + { debes:'Le debes en total', suya:'Tienes suyo en total', teDebe:'Te debe en total' }[PP.k] + '</span><div class="tile-v num">' + money(total) + '</div><span class="tile-s">Puedes pagar todo o una parte; lo que falte sigue en su total.</span></section>' +
+    '<section class="card glow" style="padding:16px"><span class="label">' + { debes:'Le debes en total', suya:'Tienes suyo en total', teDebe:'Te debe en total', apartar:'Le debes en total' }[PP.k] + '</span><div class="tile-v num">' + money(total) + '</div><span class="tile-s">' + (ap ? 'La plata no sale de la cuenta: queda apartada como de ' + esc(p.nombre) + ' hasta que se la entregues. Baja lo que le debes y sube lo que tienes suyo.' : 'Puedes pagar todo o una parte; lo que falte sigue en su total.') + '</span></section>' +
     '<div class="field"><label class="label" for="pp-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="pp-amt" inputmode="numeric" class="num" value="' + nf.format(PP.v || total) + '" style="font-size:28px"></div></div>' +
-    '<div class="field"><span class="label">' + (sale ? 'Sale de' : 'Llega a') + '</span><div class="cgrid">' + opts.map(a => cuentaTile(a, 'data-ppacc="' + esc(a.id) + '"', PP.acc === a.id, b, aj)).join('') + '</div></div>' +
-    '<div class="err" id="pp-err"></div><button class="btn accent block" type="button" data-ppgo>Registrar</button></div>';
+    '<div class="field"><span class="label">' + (ap ? 'Se queda en' : sale ? 'Sale de' : 'Llega a') + '</span><div class="cgrid">' + opts.map(a => cuentaTile(a, 'data-ppacc="' + esc(a.id) + '"', PP.acc === a.id, b, aj)).join('') + '</div></div>' +
+    '<div class="err" id="pp-err"></div><button class="btn accent block" type="button" data-ppgo>' + (ap ? 'Apartar' : 'Registrar') + '</button></div>';
   $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
-function personaPagoGuardar(){
-  const err = m => { $('#pp-err').textContent = m; };
-  const p = personasLista().find(x => x.key === PP.key), v = leerPesos($('#pp-amt').value); if (!p) return;
-  if (!v) return err('Escribe el valor.'); if (v > p[PP.k]) return err('Es más del total (' + money(p[PP.k]) + ').'); if (!accById(PP.acc)) return err('Elige la cuenta.');
+/* aplica un pago, devolución, cobro o apartado por persona (lo usan la hoja de la persona y el registro por voz):
+   devuelve { err } o { msg, key } y no guarda ni dibuja. k: 'debes' | 'suya' | 'teDebe' | 'apartar' */
+function personaPagoAplicar(key, k, v, acc, fecha){
+  const ap = k === 'apartar', K = ap ? 'debes' : k, p = personasLista().find(x => x.key === key);
+  if (!p) return { err:'No encontré a esa persona.' };
+  if (!v) return { err:'Escribe el valor.' }; if (v > p[K]) return { err:'Es más del total (' + money(p[K]) + ').' }; if (!accById(acc)) return { err:'Elige la cuenta.' };
+  if (ap) { const b = balances(), propia = (b[acc] || 0) - ((ajenaPorCuenta()[acc] || {}).v || 0);
+    if (v > propia) return { err:'En ' + accShort(acc) + ' solo tienes ' + money(Math.max(0, propia)) + ' tuyos (el resto es de otras personas). Elige otra cuenta o un valor menor.' }; }
   /* un solo movimiento por pago (auto '*clase'): Caudal lo reparte por dentro entre sus deudas, de la más vieja a la más nueva.
      Solo si lo que le debes está en dos cuentas de deuda distintas (Por pagar y En pausa) quedan dos movimientos, uno por cada una. */
-  let resta = v, n = 0; const ahora = Date.now(), porCuenta = new Map();
-  for (const it of p.items.filter(x => x.falta && DEU_KIND[PP.k](x)).sort((a, b) => a.t.date.localeCompare(b.t.date) || (a.t.ts || 0) - (b.t.ts || 0))) {
+  let resta = v, n = 0; const ahora = Date.now(), dia = fecha || iso(new Date()), porCuenta = new Map();
+  for (const it of p.items.filter(x => x.falta && DEU_KIND[K](x)).sort((a, b) => a.t.date.localeCompare(b.t.date) || (a.t.ts || 0) - (b.t.ts || 0))) {
     if (resta <= 0) break; const parte = Math.min(resta, it.falta), D = deudaAcc(it.k); resta -= parte;
     porCuenta.set(D.id, (porCuenta.get(D.id) || 0) + parte);
   }
-  for (const [D, monto] of porCuenta) S.transactions.push({ id:uid(), type:'transferencia', amount:monto, date:iso(new Date()), ts:ahora + n++,
-    accountId:PP.k === 'teDebe' ? D : PP.acc, toAccountId:PP.k === 'teDebe' ? PP.acc : D, note:'Pago ' + p.nombre, src:'deuda', auto:'*' + PP.k, persona:p.nombre });
-  const k = PP.k, key = PP.key, falta = p[k] - v; PP = null; sortTx(S); save(); render(); personaSheet(key);
-  toast(falta ? 'Abono registrado · faltan ' + money(falta) : k === 'teDebe' ? p.nombre + ' te pagó todo' : k === 'suya' ? 'Le devolviste todo a ' + p.nombre : 'Le pagaste todo a ' + p.nombre);
+  const falta = p[K] - v;
+  /* apartar: la plata no sale de tu cuenta. Son dos movimientos enlazados (lig): el pago de la deuda desde tu cuenta y la plata suya que entra a esa misma cuenta.
+     Los cálculos de siempre los resuelven solos y en Movimientos se ve una sola línea (el pago queda oculto) */
+  if (ap) { const lig = uid(), nota = 'Apartado para ' + p.nombre, P = deudaCrear('pagar');
+    for (const [D, monto] of porCuenta) {
+      S.transactions.push({ id:uid(), type:'transferencia', amount:monto, date:dia, ts:ahora + n++, accountId:acc, toAccountId:D, note:nota, src:'deuda', auto:'*debes', persona:p.nombre, lig });
+      S.transactions.push({ id:uid(), type:'transferencia', amount:monto, date:dia, ts:ahora + n++, accountId:P.id, toAccountId:acc, note:nota, persona:p.nombre, lig }); }
+    return { key, msg:'Apartado ' + money(v) + ' para ' + p.nombre + (falta ? ' · le debes ' + money(falta) : ' · saldada') }; }
+  for (const [D, monto] of porCuenta) S.transactions.push({ id:uid(), type:'transferencia', amount:monto, date:dia, ts:ahora + n++,
+    accountId:k === 'teDebe' ? D : acc, toAccountId:k === 'teDebe' ? acc : D, note:'Pago ' + p.nombre, src:'deuda', auto:'*' + k, persona:p.nombre });
+  return { key, msg:falta ? 'Abono registrado · faltan ' + money(falta) : k === 'teDebe' ? p.nombre + ' te pagó todo' : k === 'suya' ? 'Le devolviste todo a ' + p.nombre : 'Le pagaste todo a ' + p.nombre };
+}
+function personaPagoGuardar(){
+  const r = personaPagoAplicar(PP.key, PP.k, leerPesos($('#pp-amt').value), PP.acc); if (r.err) { $('#pp-err').textContent = r.err; return; }
+  PP = null; sortTx(S); save(); render(); personaSheet(r.key); toast(r.msg);
 }
 document.addEventListener('click', e => {
   const el = e.target.closest('button'); if (!el) return; const d = el.dataset;
@@ -5788,6 +5841,158 @@ document.addEventListener('click', e => {
   if (d.ppgo !== undefined) return personaPagoGuardar();
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'pp-amt') pesosCampo(e.target); });
+
+/* Cómo va el mes: un solo bloque en Inicio que junta lo que entró, lo que salió y lo que quedó, con los porcentajes
+   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco dice qué parte de lo que entró ya salió.
+   La plata de otras personas se muestra aparte dentro del mismo bloque: está en tus cuentas, pero no es tuya. */
+const esAhorroAcc = a => !!a && !a.hidden && !esDeuda(a) && !isCard(a) && (!!a.apart || /ahorro/i.test(a.group || ''));
+function mesDatos(p){
+  const { inc, exp } = totals(p);
+  let pasado = 0; /* lo que pasaste de tus cuentas a las de ahorro en el periodo (entre cuentas de ahorro no cuenta) */
+  for (const t of S.transactions) if (t.type === 'transferencia' && !t.pending && inP(t, p)) {
+    const a = accById(t.accountId), b = accById(t.toAccountId); if (esDeuda(a) || esDeuda(b)) continue;
+    pasado += (esAhorroAcc(b) ? t.amount : 0) - (esAhorroAcc(a) ? t.amount : 0);
+  }
+  const queda = inc - exp, ahorro = Math.max(0, Math.min(pasado, Math.max(0, queda))), mantiene = Math.max(0, queda - ahorro);
+  return { inc, exp, queda, ahorro, mantiene, deOtros:ajenaTotales().cuentas };
+}
+const pctDe = (v, base) => base > 0 ? Math.round(v / base * 100) : 0;
+/* arco de medio círculo con brillo: frac de 0 a 1; el color lo pone --gc del contenedor */
+function mesArco(frac){
+  const f = Math.max(0, Math.min(1, frac)), ex = 150 - 120 * Math.cos(Math.PI * f), ey = 140 - 120 * Math.sin(Math.PI * f), d = 'M30 140A120 120 0 0 1 270 140';
+  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+    '<path d="' + d + '" fill="none" style="stroke:var(--track)" stroke-width="12" stroke-linecap="round"/>' +
+    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--gc)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' +
+      '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="9" style="fill:var(--gc)" filter="url(#mes-glow)"/>' : '') + '</svg>';
+}
+function mesCard(p){
+  const d = mesDatos(p), today = iso(new Date()), isCurrent = today >= p.s && today <= p.e, N = daysIn(p), ti = todayIdx(p), budget = expenseBudgetTotal(p);
+  const bexp = budget > 0 ? dailyExp(p, true).reduce((a, v) => a + v, 0) : d.exp;
+  /* qué mide el arco: la parte de lo que entró que ya salió; sin ingresos, la parte del presupuesto que ya se gastó */
+  const modo = d.inc > 0 ? 'ingresos' : budget > 0 ? 'presupuesto' : null;
+  const usado = modo === 'ingresos' ? d.exp / d.inc : modo === 'presupuesto' ? bexp / budget : 0, pct = Math.round(usado * 100);
+  const est = !modo ? ['', ''] : pct <= 60 ? ['ok', 'Equilibrado'] : pct <= 85 ? ['alto', 'Alto'] : pct <= 100 ? ['mucho', 'Muy alto'] : ['mucho', 'Te pasaste'];
+  let h = '<section class="card hero mes ' + est[0] + '"><div class="card-h"><span class="label">Cómo va el mes</span><span class="pill">' + (isCurrent ? 'Día ' + (ti + 1) + ' de ' + N : 'Cerrado') + '</span></div>';
+  if (modo) h += '<div class="mes-g">' + mesArco(usado) + '<div class="gv"><span class="pct num">' + pct + '%</span><span class="cap">' + (modo === 'ingresos' ? 'de lo que entró ya salió' : 'del presupuesto ya gastado') + '</span><span class="est">' + est[1] + '</span></div></div>';
+  else h += '<p class="insight" style="margin:0">Cuando registres ingresos, aquí verás qué parte ya salió y qué parte te queda.</p>';
+  h += '<div class="stats3 mes-cols"><div><span><i style="background:var(--in)"></i>Entró</span><b class="num">' + money(d.inc) + '</b></div>' +
+    '<div><span><i style="background:var(--out)"></i>Salió</span><b class="num">' + money(d.exp) + '</b></div>' +
+    '<div><span><i style="background:var(--move)"></i>Quedó</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
+  if (d.inc > 0) {
+    const g = Math.min(100, pctDe(d.exp, d.inc)), a = pctDe(d.ahorro, d.inc), m = Math.max(0, 100 - g - a);
+    h += '<div class="flowbar mes-bar" role="img" aria-label="Gastos ' + g + '%, ahorro ' + a + '%, se mantiene ' + m + '%">' +
+      (g ? '<i style="flex:' + g + ';background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i>' : '') + (a ? '<i style="flex:' + a + ';background:var(--move);box-shadow:0 0 12px -1px var(--move)"></i>' : '') + (m ? '<i style="flex:' + m + ';background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i>' : '') + '</div>' +
+      '<div class="mes-leg"><div><span><i style="background:var(--out)"></i>Gastos</span><b class="num">' + pctDe(d.exp, d.inc) + '%</b></div>' +
+      '<div><span><i style="background:var(--move)"></i>Ahorro</span><b class="num">' + a + '%</b></div>' +
+      '<div><span><i style="background:var(--in)"></i>Se mantiene</span><b class="num">' + m + '%</b></div></div>';
+    if (d.queda < 0) h += '<p class="note" style="padding:0;margin:0">Gastaste <b>' + money(-d.queda) + '</b> más de lo que entró en este periodo.</p>';
+  }
+  /* lo que queda para gastar según tu plan, con lo que falta por pagar de fijos */
+  if (budget > 0 && isCurrent) {
+    const pl = planFor(p), R = pl ? planReal(pl, p) : null, left = pl ? planQueda(pl, p, R) : budget - bexp, daysLeft = N - ti;
+    const fx = !pl ? [] : pl.items.filter(i => isFijo(i) && !fijoPaid(R.r[i.id] || 0, itemBudget(pl, i, p))).map(i => ({ i, f:Math.max(0, itemBudget(pl, i, p) - (R.r[i.id] || 0)) })).filter(x => x.f > 0);
+    const fijoLeft = fx.reduce((a, x) => a + x.f, 0);
+    h += '<div class="mes-queda"><span>Te queda para gastar</span><b class="num' + (left < 0 ? ' neg' : '') + '">' + (left < 0 ? '−' : '') + money(Math.abs(left)) + '</b><small>' + daysLeft + (daysLeft === 1 ? ' día' : ' días') + ' para el cierre</small></div>' +
+      (fijoLeft > 0 ? '<p class="note" style="padding:0;margin:0">Incluye ' + money(fijoLeft) + ' de pagos fijos por hacer (' + esc(fx.map(x => x.i.name).join(', ')) + ').</p>' : '') +
+      (R && (R.out > 0 || R.fromSaved > 0) ? '<p class="note" style="padding:0;margin:0">' + (R.out > 0 ? 'Fuera del plan: <b class="warn">' + money(R.out) + '</b>' : '') + (R.out > 0 && R.fromSaved > 0 ? ' · ' : '') + (R.fromSaved > 0 ? 'pagado con tus ahorros: ' + money(R.fromSaved) : '') + '</p>' : '');
+  }
+  if (d.deOtros > 0) h += '<p class="note mes-otros" style="padding:0;margin:0"><b>' + money(d.deOtros) + '</b> en tus cuentas son de otras personas: no cuentan en nada de lo de arriba. <button class="lnk" data-go="personas">Ver personas</button></p>';
+  return h + accesos() + '</section>';
+}
+
+/* Personas por voz y texto: en "Registrar con IA" se pueden decir cosas como "le debo 100 mil a Laura", "Pedro me dejó 50 mil",
+   "le presté 200 mil a Juan", "le pagué 50 mil a Laura", "aparté 60 mil para Laura". Se entienden aquí mismo, sin internet,
+   y la IA (cuando está disponible) ayuda con lo demás. Todo pasa por la hoja de revisión antes de guardar, y se guarda con
+   las mismas funciones de la hoja de Personas (deudaNuevaAplicar y personaPagoAplicar), así los cálculos son los de siempre. */
+const PT = { debo:'Le debo a alguien', guardo:'Tengo plata de alguien', preste:'Le presté a alguien', pago:'Le pagué lo que le debo', devolver:'Le devolví su plata', cobrar:'Me pagó lo que me debía', apartar:'Apartar para pagarle' };
+const PT_K = { pago:'debes', devolver:'suya', cobrar:'teDebe', apartar:'apartar' }; /* qué pago por persona es cada uno */
+const PT_NO_NOMBRE = new Set(['de','del','la','el','en','desde','por','con','para','a','que','y','e','mil','millones','pesos','hoy','ayer','antier','anteayer','efectivo','nequi','banco','cuenta','tarjeta','bancolombia','lulo','lunes','martes','miercoles','jueves','viernes','sabado','domingo','me','le','lo','se','un','una','mi','su','como','por','pagarle','pagar']);
+const cap = w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+const sinTilde = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+/* hasta dos palabras de un nombre desde una posición (saltando "mi"); '' si lo que sigue no parece un nombre */
+function nombreTras(orig, desde){
+  const t = orig.slice(desde).match(/[\p{L}]+|\d[\d.,]*/gu) || [], r = [];
+  for (let i = 0; i < t.length && r.length < 2; i++) { const w = sinTilde(t[i]).toLowerCase();
+    if (/^\d/.test(w)) break; if (w === 'mi' && !r.length) continue; if (PT_NO_NOMBRE.has(w)) break; r.push(cap(t[i])); }
+  return r.join(' ');
+}
+/* igual, pero hacia atrás desde una posición ("Laura me dejó…") */
+function nombreAntes(orig, hasta){
+  const t = orig.slice(0, hasta).match(/[\p{L}]+|\d[\d.,]*/gu) || [], r = [];
+  for (let i = t.length - 1; i >= 0 && r.length < 2; i--) { const w = sinTilde(t[i]).toLowerCase();
+    if (/^\d/.test(w) || PT_NO_NOMBRE.has(w)) { if (w === 'mi' && r.length) continue; break; } r.unshift(cap(t[i])); }
+  return r.join(' ');
+}
+/* la cuenta con más plata tuya (sin la de otros): para apartar, que la plata salga de donde sí hay */
+function cuentaConPlataPropia(){
+  const b = balances(), aj = ajenaPorCuenta(), l = S.accounts.filter(a => !a.hidden && !esDeuda(a) && !isCard(a) && !a.apart).map(a => ({ id:a.id, v:(b[a.id] || 0) - ((aj[a.id] || {}).v || 0) })).sort((x, y) => y.v - x.v);
+  return l.length && l[0].v > 0 ? l[0].id : null;
+}
+/* la persona ya registrada que corresponde a ese nombre (igual, o con la misma primera palabra) */
+function personaBuscar(nombre){
+  const k = normP(nombre); if (!k) return null; const l = personasLista().filter(p => p.key !== '_');
+  return l.find(p => p.key === k) || l.find(p => p.key.split(' ')[0] === k.split(' ')[0]) || null;
+}
+function personaDeParte(p){
+  const sp = p.replace(/\b\d{1,2}[\/-]\d{1,2}\b/g, ' '), am = amountsIn(sp); if (!am.length) return null;
+  const plain = sinTilde(p).toLowerCase(), a = am[am.length - 1]; let v = a.v; if (!a.unit && !a.money && v > 0 && v < 1000) v *= 1000;
+  const trasA = desde => { const m = /\ba\s+(?!\d)/.exec(plain.slice(desde)); return m ? nombreTras(p, desde + m.index + m[0].length) : ''; };
+  let tipo = null, nombre = '', m;
+  if ((m = /\b(?:le\s+)?(?:debo|quede debiendo|adeudo)\b/.exec(plain))) { tipo = 'debo'; nombre = trasA(m.index + m[0].length); }
+  else if ((m = /\b(?:le\s+)?preste\b/.exec(plain))) { tipo = 'preste'; nombre = trasA(m.index + m[0].length); }
+  else if ((m = /\b(?:aparte|separe|reserve)\b/.exec(plain)) && /\bpara\b/.test(plain)) { tipo = 'apartar'; const q = /\bpara\s+(?:pagarle\s+a\s+|pagar\s+a\s+|pagarle\s+)?/.exec(plain); nombre = nombreTras(p, q.index + q[0].length); }
+  else if ((m = /\bme\s+(?:dejo|dio|presto|entrego|dejaron)\b/.exec(plain))) { tipo = 'guardo'; nombre = nombreAntes(p, m.index) || nombreTras(p, m.index + m[0].length); }
+  else if ((m = /\btengo\b[^.]*?\bde\s+(?!\d)/.exec(plain))) { tipo = 'guardo'; nombre = nombreTras(p, m.index + m[0].length); }
+  else if ((m = /\ble\s+(devolvi|pague|abone|transferi|consigne|envie)\b/.exec(plain))) { tipo = m[1] === 'devolvi' ? 'devolver' : 'pago'; nombre = trasA(m.index + m[0].length); }
+  else if ((m = /\bme\s+(?:pago|pagaron|abono|devolvio|consigno|transfirio)\b/.exec(plain))) { tipo = 'cobrar'; nombre = nombreAntes(p, m.index) || nombreTras(p, m.index + m[0].length); }
+  if (!tipo || !nombre) return null;
+  const pl = personaBuscar(nombre);
+  /* pagos, cobros y apartados solo si esa persona de verdad tiene algo abierto: si no, es un gasto o ingreso normal */
+  if (tipo === 'pago' || tipo === 'apartar') { if (!pl || !(pl.debes > 0)) return null; }
+  else if (tipo === 'devolver') { if (!pl || !(pl.suya > 0)) return null; }
+  else if (tipo === 'cobrar') { if (!pl || !(pl.teDebe > 0)) return null; }
+  const persona = pl ? pl.nombre : personaCanon(nombre);
+  const acc = accountIn(p) || (tipo === 'devolver' && ajenaLibre(persona).acc) || (tipo === 'apartar' && cuentaConPlataPropia()) || lastAccount();
+  return { type:'persona', pt:tipo, persona, amount:v, date:dateIn(p), note:'', accountId:acc, src:'texto' };
+}
+/* separa lo que es de personas de lo demás: { items, resto } (resto = texto que sigue siendo gastos o ingresos normales) */
+function personaParse(text){
+  const parts = String(text).replace(/\n+/g, ' , ').split(/\s*(?:(?<!\d),|,(?!\d)|;|\+|\sy\s|\se\s)\s*/i).map(x => x.trim()).filter(Boolean), merged = [];
+  for (const p of parts) { if (amountsIn(p.replace(/\b\d{1,2}[\/-]\d{1,2}\b/g, ' ')).length || !merged.length) merged.push(p); else merged[merged.length - 1] += ' ' + p; }
+  const items = [], resto = [];
+  for (const p of merged) { let it = null; try { it = personaDeParte(p); } catch (_) {} if (it) items.push(it); else resto.push(p); }
+  return { items, resto:resto.join(' , ') };
+}
+/* lo que lee la IA: nombre, tipo y cuenta; se valida igual que lo local */
+function personaIA(x){
+  if (!x || x.type !== 'persona' || !PT[x.pt]) return null;
+  const amount = Math.round(Math.abs(+x.amount || 0)), nombre = String(x.persona || '').trim(); if (!amount || !nombre) return null;
+  const a = accById(x.accountId), pl = personaBuscar(nombre);
+  return { type:'persona', pt:x.pt, persona:pl ? pl.nombre : personaCanon(nombre), amount, date:/^\d{4}-\d{2}-\d{2}$/.test(x.date || '') ? x.date : iso(new Date()), note:'', accountId:a && !isCard(a) && !esDeuda(a) ? a.id : lastAccount(), src:'ia' };
+}
+/* qué le cuenta la IA de las personas que ya existen, para que sepa si es un pago o un gasto normal */
+const personaPrompt = () => { const l = personasLista().filter(p => p.key !== '_' && personaAbierta(p)).map(p => p.nombre + ' (' + personaResumen(p) + ')');
+  return '- persona: si el movimiento es con otra persona por plata que se debe, se presta o se guarda, usa type "persona" con pt: debo (el usuario le debe y esa plata no está en sus cuentas), guardo (alguien le dejó o le prestó plata que queda en su cuenta), preste (el usuario le prestó), pago (el usuario le pagó lo que le debe), devolver (el usuario le devolvió plata que le había dejado), cobrar (la persona le pagó lo que le debía) o apartar (el usuario separa plata de su cuenta para pagarle, sin entregársela todavía). Para estos usa persona = nombre y accountId = cuenta donde queda o de donde sale la plata (null en debo). Gastos, ingresos y transferencias entre sus cuentas NO son persona.\n' +
+    (l.length ? 'Personas con saldo abierto: ' + l.join('; ') + '.\n' : ''); };
+/* se aplica una persona de la revisión con las mismas funciones de la hoja de Personas */
+function personaVozAplicar(it){
+  if (it.pt === 'debo' || it.pt === 'guardo' || it.pt === 'preste') return deudaNuevaAplicar({ tipo:it.pt, persona:it.persona, amt:it.amount, acc:it.accountId, note:it.note || '', date:it.date });
+  const pl = personaBuscar(it.persona); if (!pl) return { err:'No encontré a ' + it.persona + ' en Personas.' };
+  return personaPagoAplicar(pl.key, PT_K[it.pt], it.amount, it.accountId, it.date);
+}
+function rvPersona(it, i){
+  const op = Object.keys(PT).map(k => '<option value="' + k + '"' + (it.pt === k ? ' selected' : '') + '>' + PT[k] + '</option>').join('');
+  const cuenta = it.pt !== 'debo', lbl = { guardo:'¿En qué cuenta está?', cobrar:'¿A qué cuenta llegó?', apartar:'Se queda en', devolver:'¿De qué cuenta sale?' }[it.pt] || '¿De qué cuenta sale?';
+  const gente = personasLista().filter(p => p.key !== '_').map(p => '<option value="' + esc(p.nombre) + '"></option>').join('');
+  return '<div class="rv' + (it.err ? ' bad' : '') + '"><select class="inp" data-rv="' + i + '" data-f="pt" aria-label="Qué pasó">' + op + '</select><div class="rv-top">' +
+    '<div class="rv-amt"><span>$</span><input inputmode="numeric" class="num" data-rv="' + i + '" data-f="amount" value="' + (it.amount ? nf.format(it.amount) : '') + '" aria-label="Valor"></div>' +
+    '<button class="x" data-rvdel="' + i + '" aria-label="Descartar">✕</button></div>' +
+    '<input class="inp" data-rv="' + i + '" data-f="persona" value="' + esc(it.persona || '') + '" placeholder="¿Con quién?" list="rv-gente" autocomplete="off" aria-label="Persona"><datalist id="rv-gente">' + gente + '</datalist>' +
+    (cuenta ? '<div class="field"><span class="label">' + lbl + '</span><div class="cgrid">' + S.accounts.filter(a => !a.hidden && !esDeuda(a) && !isCard(a)).map(a => '<button type="button" class="ctile sm" data-rvacc="' + i + '" data-id="' + esc(a.id) + '" aria-pressed="' + (it.accountId === a.id) + '"><span class="nm">' + esc(accShort(a.id)) + '</span></button>').join('') + '</div></div>' : '') +
+    '<input class="inp" data-rv="' + i + '" data-f="note" value="' + esc(it.note || '') + '" placeholder="Concepto (opcional)" aria-label="Concepto">' +
+    '<input class="inp" type="date" data-rv="' + i + '" data-f="date" value="' + it.date + '" aria-label="Fecha">' +
+    (it.err ? '<span class="err" style="margin:0">' + esc(it.err) + '</span>' : '') + '</div>';
+}
 
 /* ---------- Día de pago: el cierre del mes en cuatro pasos ----------
    El mes cierra cuando llega el sueldo. Ese día hay que quedar al día, cuadrar y repartir:
@@ -6369,7 +6574,7 @@ function snapshot(st){
   put('settings', 'me', { name:st.settings.name || null, start_day:st.settings.startDay || 1, period_mode:st.settings.periodMode || null, pay_last:st.settings.payLast || null, rate:st.settings.rate || 0, last_account:st.lastAccount || null, card_map:st.cardMap || {}, perfil:st.settings.perfil || null, ia_saldo:st.settings.iaSaldo || null, metas:(st.settings.metas || []).length ? st.settings.metas : null, ...(st.settings.exc ? { exc:st.settings.exc } : {}), ...(st.settings.cierres ? { cierres:st.settings.cierres } : {}), pin:st.settings.pin || null, avisos:st.settings.avisos || null });
   for (const a of st.accounts) put('accounts', a.id, { id:a.id, name:a.name, grp:a.group || 'Otros', sort:Math.round(a.order || 0), hidden:!!a.hidden, card:a.card || null, apart:!!a.apart, debt:a.debt || null, parent_id:a.parentAcc || null });
   for (const c of st.categories) put('categories', c.id, { id:c.id, name:c.name, emoji:c.emoji || null, type:c.type, parent_id:c.parentId || null, sort:Math.round(c.order || 0), hidden:!!c.hidden });
-  for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts ? Math.round(t.ts) : null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, persona:t.persona || null, de:t.de || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
+  for (const t of st.transactions) put('transactions', t.id, { id:t.id, type:t.type, amount:Math.round(t.amount), date:t.date, ts:t.ts ? Math.round(t.ts) : null, account_id:t.accountId || null, to_account_id:t.toAccountId || null, category_id:t.categoryId || null, note:t.note || null, persona:t.persona || null, de:t.de || null, lig:t.lig || null, src:t.src || null, auto:t.auto || null, pending:!!t.pending, fund:t.fund || null, grp:t.grp || null });
   for (const [k, v] of Object.entries(st.budgets || {})) put('budgets', k, { category_id:k, amount:Math.round(v) });
   for (const b of st.bills || []) put('bills', b.id, { id:b.id, name:b.name, category_id:b.categoryId || null, account_id:b.accountId || null, due_day:Math.round(b.dueDay) || 1, lead:Math.round(b.lead || 0), estimate:Math.round(b.estimate || 0), active:b.active !== false, cycles:b.cycles || {}, every:Math.round(b.every || 1), anchor:b.anchor || null, url:b.url || null, ref:b.ref || null });
   for (const r of st.recurring || []) put('recurring', r.id, { id:r.id, name:r.name, amount:Math.round(r.amount || 0), type:r.type || 'gasto', day:Math.round(r.day) || 1, category_id:r.categoryId || null, account_id:r.accountId || null, active:r.active !== false, next:r.next });
@@ -6384,7 +6589,7 @@ function fromRows(R){
   st.accounts = R.accounts.map(r => ({ id:r.id, name:r.name, group:r.grp, order:r.sort, hidden:r.hidden, ...(r.card ? { card:r.card } : {}), ...(r.apart ? { apart:true } : {}), ...(r.debt ? { debt:r.debt } : {}), ...(r.parent_id ? { parentAcc:r.parent_id } : {}) })).sort((a, b) => a.order - b.order);
   st.categories = R.categories.map(r => ({ id:r.id, name:r.name, emoji:r.emoji || '', type:r.type, parentId:r.parent_id || null, order:r.sort, hidden:r.hidden })).sort((a, b) => a.order - b.order);
   st.transactions = R.transactions.map(r => { const t = { id:r.id, type:r.type, amount:+r.amount, date:r.date, ts:+r.ts || 0, accountId:r.account_id, note:r.note || '' };
-    if (r.to_account_id) t.toAccountId = r.to_account_id; if (r.category_id) t.categoryId = r.category_id; if (r.src) t.src = r.src; if (r.auto) t.auto = r.auto; if (r.pending) t.pending = true; if (r.fund) t.fund = r.fund; if (r.grp) t.grp = r.grp; if (r.persona) t.persona = r.persona; if (r.de) t.de = r.de; return t; });
+    if (r.to_account_id) t.toAccountId = r.to_account_id; if (r.category_id) t.categoryId = r.category_id; if (r.src) t.src = r.src; if (r.auto) t.auto = r.auto; if (r.pending) t.pending = true; if (r.fund) t.fund = r.fund; if (r.grp) t.grp = r.grp; if (r.persona) t.persona = r.persona; if (r.de) t.de = r.de; if (r.lig) t.lig = r.lig; return t; });
   for (const b of R.budgets) st.budgets[b.category_id] = +b.amount;
   st.bills = R.bills.map(r => ({ id:r.id, name:r.name, categoryId:r.category_id, accountId:r.account_id, dueDay:r.due_day, lead:r.lead, estimate:+r.estimate, active:r.active, cycles:r.cycles || {}, every:+r.every || 1, anchor:r.anchor || null, url:r.url || '', ref:r.ref || '' }));
   st.recurring = R.recurring.map(r => ({ id:r.id, name:r.name, amount:+r.amount, type:r.type, day:r.day, categoryId:r.category_id, accountId:r.account_id, active:r.active, next:r.next }));
