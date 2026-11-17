@@ -1,5 +1,5 @@
 /* Cómo va el mes: un solo bloque en Inicio que junta lo que entró, lo que salió y lo que quedó, con los porcentajes
-   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco dice qué parte de lo que entró ya salió.
+   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco muestra en rojo lo que ya salió y en verde lo que te queda de lo que entró.
    La plata de otras personas se muestra aparte dentro del mismo bloque: está en tus cuentas, pero no es tuya. */
 const esAhorroAcc = a => !!a && !a.hidden && !esDeuda(a) && !isCard(a) && (!!a.apart || /ahorro/i.test(a.group || ''));
 function mesDatos(p){
@@ -13,13 +13,14 @@ function mesDatos(p){
   return { inc, exp, queda, ahorro, mantiene, deOtros:ajenaTotales().cuentas };
 }
 const pctDe = (v, base) => base > 0 ? Math.round(v / base * 100) : 0;
-/* arco de medio círculo con brillo: frac de 0 a 1; el color lo pone --gc del contenedor */
-function mesArco(frac){
-  const f = Math.max(0, Math.min(1, frac)), ex = 150 - 120 * Math.cos(Math.PI * f), ey = 140 - 120 * Math.sin(Math.PI * f), d = 'M30 140A120 120 0 0 1 270 140';
-  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+/* arco de medio círculo con brillo: used es la parte gastada (0 a 1). En rojo lo que salió, en verde lo que queda */
+function mesArco(used){
+  const f = Math.max(0, Math.min(1, used)), ex = 150 - 120 * Math.cos(Math.PI * f), ey = 140 - 120 * Math.sin(Math.PI * f), d = 'M30 140A120 120 0 0 1 270 140';
+  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" filterUnits="userSpaceOnUse" x="-30" y="-30" width="360" height="210"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
     '<path d="' + d + '" fill="none" style="stroke:var(--track)" stroke-width="12" stroke-linecap="round"/>' +
-    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--gc)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' +
-      '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="9" style="fill:var(--gc)" filter="url(#mes-glow)"/>' : '') + '</svg>';
+    (f < 1 ? '<path d="' + d + '" fill="none" style="stroke:var(--in)" stroke-width="12" stroke-linecap="round" filter="url(#mes-glow)"/>' : '') +
+    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--out)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' : '') +
+    (f > 0 && f < 1 ? '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="6" fill="#fff" filter="url(#mes-glow)"/>' : '') + '</svg>';
 }
 function mesCard(p){
   const d = mesDatos(p), today = iso(new Date()), isCurrent = today >= p.s && today <= p.e, N = daysIn(p), ti = todayIdx(p), budget = expenseBudgetTotal(p);
@@ -29,11 +30,12 @@ function mesCard(p){
   const usado = modo === 'ingresos' ? d.exp / d.inc : modo === 'presupuesto' ? bexp / budget : 0, pct = Math.round(usado * 100);
   const est = !modo ? ['', ''] : pct <= 60 ? ['ok', 'Equilibrado'] : pct <= 85 ? ['alto', 'Alto'] : pct <= 100 ? ['mucho', 'Muy alto'] : ['mucho', 'Te pasaste'];
   let h = '<section class="card hero mes ' + est[0] + '"><div class="card-h"><span class="label">Cómo va el mes</span><span class="pill">' + (isCurrent ? 'Día ' + (ti + 1) + ' de ' + N : 'Cerrado') + '</span></div>';
-  if (modo) h += '<div class="mes-g">' + mesArco(usado) + '<div class="gv"><span class="pct num">' + pct + '%</span><span class="cap">' + (modo === 'ingresos' ? 'de lo que entró ya salió' : 'del presupuesto ya gastado') + '</span><span class="est">' + est[1] + '</span></div></div>';
+  if (modo) { const sobra = pct > 100, big = sobra ? pct - 100 : 100 - pct, de = modo === 'ingresos' ? 'lo que entró' : 'el presupuesto';
+    h += '<div class="mes-g">' + mesArco(usado) + '<div class="gv"><span class="pct num">' + big + '%</span><span class="cap">' + (sobra ? 'por encima de ' + de : 'de ' + de + ' te queda') + '</span><span class="est">' + est[1] + '</span></div></div>'; }
   else h += '<p class="insight" style="margin:0">Cuando registres ingresos, aquí verás qué parte ya salió y qué parte te queda.</p>';
-  h += '<div class="stats3 mes-cols"><div><span><i style="background:var(--in)"></i>Entró</span><b class="num">' + money(d.inc) + '</b></div>' +
+  h += '<div class="stats3 mes-cols"><div><span><i style="background:var(--ink)"></i>Entró</span><b class="num">' + money(d.inc) + '</b></div>' +
     '<div><span><i style="background:var(--out)"></i>Salió</span><b class="num">' + money(d.exp) + '</b></div>' +
-    '<div><span><i style="background:var(--move)"></i>Quedó</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
+    '<div><span><i style="background:var(--in)"></i>Quedó</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
   if (d.inc > 0) {
     const g = Math.min(100, pctDe(d.exp, d.inc)), a = pctDe(d.ahorro, d.inc), m = Math.max(0, 100 - g - a);
     h += '<div class="flowbar mes-bar" role="img" aria-label="Gastos ' + g + '%, ahorro ' + a + '%, se mantiene ' + m + '%">' +
