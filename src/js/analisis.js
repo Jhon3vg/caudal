@@ -2,7 +2,7 @@
 /* ----- ritmo: acumulado o diario -----
    Colores con intención, siempre con su leyenda: lo que llevas gastado en blanco (los gastos van en blanco),
    el ritmo ideal en gris punteado, el tope (presupuesto o, sin plan, lo que entró) en rosa y la proyección
-   en rosa si te pasas o en morado claro si alcanza. */
+   en rojo si te pasas o en verde si alcanza. */
 function ritmoTope(p){
   const B = paceBudget(p), bud = B > 0 && !!planFor(p);
   if (B > 0) return { B, bud, nombre:'Presupuesto', de:'tu presupuesto' };
@@ -53,7 +53,7 @@ function chartRitmo(p){
     if (prev.length) { g += '<path d="' + mono(prev.map((v, i) => [X(i), Y(v)])) + '" stroke="' + PAL.velo(.3) + '" stroke-width="1.5" fill="none"/>'; legend.push(lgLinea(PAL.velo(.35), '', 'Mes pasado')); }
     const cp = mono(cur.map((v, i) => [X(i), Y(v)]));
     g += '<path d="' + cp + ' L' + X(cur.length - 1).toFixed(1) + ',' + Y(0) + ' L' + X(0) + ',' + Y(0) + ' Z" fill="url(#gLleva)"/>';
-    g += '<path d="' + cp + '" stroke="' + PAL.tinta + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+    g += '<path d="' + cp + '" stroke="' + PAL.tinta + '" stroke-width="2.6" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 5px rgba(255,255,255,.55))"/>';
     const ex = X(ti), ey = Y(spent);
     if (B > 0 && isCur && daysLeft > 0) {
       g += '<path d="M' + ex.toFixed(1) + ',' + ey.toFixed(1) + ' L' + X(N - 1).toFixed(1) + ',' + Y(proj).toFixed(1) + '" stroke="' + colProj + '" stroke-width="1.8" stroke-dasharray="1.5 3.5" stroke-linecap="round" fill="none"/>' +
@@ -69,7 +69,7 @@ function chartRitmo(p){
     g += axis(xb);
     const bw = Math.max(3, pw / N - 3);
     cur.forEach((v, i) => { if (!v) return; const sobre = porDia && v > porDia;
-      g += '<rect x="' + (xb(i) - bw / 2).toFixed(1) + '" y="' + Y(v).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (Y(0) - Y(v)).toFixed(1) + '" rx="2.5" fill="' + (sobre ? PAL.rosa : PAL.tinta) + '" opacity="' + (i === ti ? .95 : .7) + '"/>'; });
+      g += '<rect x="' + (xb(i) - bw / 2).toFixed(1) + '" y="' + Y(v).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (Y(0) - Y(v)).toFixed(1) + '" rx="2.5" fill="' + (sobre ? PAL.rosa : PAL.tinta) + '" opacity="' + (i === ti ? .95 : .7) + '" style="filter:drop-shadow(0 0 4px ' + (sobre ? PAL.rosa : PAL.tinta) + ')"/>'; });
     if (porDia) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(porDia).toFixed(1) + '" y2="' + Y(porDia).toFixed(1) + '" stroke="' + PAL.gris + '" stroke-width="1.4" stroke-dasharray="3 4"/><text x="' + (W - R) + '" y="' + (Y(porDia) - 5).toFixed(1) + '" text-anchor="end" style="font-size:9.5px">alcanza ' + short(porDia) + ' por día</text>';
     if (prev.length) g += '<path d="' + mono(prev.map((v, i) => [xb(i), Y(v)])) + '" stroke="' + PAL.velo(.3) + '" stroke-width="1.3" fill="none"/>';
     legend.push('<span><i class="box" style="background:' + PAL.tinta + ';opacity:.75"></i>Lo que gastaste ese día</span>');
@@ -81,7 +81,7 @@ function chartRitmo(p){
   CH.ritmo = { N, cur, prev, B, ref:mode === 'acum' ? B : B / N, mode, X:mode === 'acum' ? X : xb, Y, W, L, pw, p };
   const avg = cur.reduce((a, v) => a + v, 0) / (ti + 1);
   const foot = mode === 'dia'
-    ? '<p class="insight">Gastas en promedio <b>' + money(avg) + ' por día</b>' + (B > 0 ? ' y te alcanza para ' + money(B / N) + '. Las barras rosadas son días en que gastaste más de eso.' : '.') + ' Toca una barra para ver el valor.</p>'
+    ? '<p class="insight">Gastas en promedio <b>' + money(avg) + ' por día</b>' + (B > 0 ? ' y te alcanza para ' + money(B / N) + '. Las barras rojas son días en que gastaste más de eso.' : '.') + ' Toca una barra para ver el valor.</p>'
     : B > 0 ? '<p class="insight">' + (bud ? 'Cuenta el gasto de los rubros variables de tu plan. ' : 'Como no tienes Plan, se compara con lo que entró en el periodo. ') + 'Si la <b>línea blanca</b> va por encima de la <b>gris punteada</b>, estás gastando más rápido de lo que alcanza. Toca la gráfica para ver cada día.</p>' : '';
   return '<section class="card">' + head + verdict + '<div class="legend">' + legend.join('') + '</div>' +
     '<div class="chart" data-kind="ritmo"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Ritmo del gasto del periodo">' + g + '</svg></div>' + foot +
@@ -120,11 +120,11 @@ function chartCategorias(p){
   if (rest > 0) items.push({ id:'_rest', v:rest, name:'Otras ' + (rows.length - 7), emoji:'' });
   const W = 340, H = 210, max = Math.max(...items.map(i => i.v));
   const cells = squarify(items, { x:0, y:0, w:W, h:H });
-  CH.tree = cells.map(c => ({ title:(c.emoji ? c.emoji + ' ' : '') + c.name, rows:[[PAL.lima, 'Gasto', money(c.v)], [PAL.gris, 'Del total', Math.round(c.v / total * 100) + '%']] }));
+  CH.tree = cells.map(c => ({ title:(c.emoji ? c.emoji + ' ' : '') + c.name, rows:[[PAL.rosa, 'Gasto', money(c.v)], [PAL.gris, 'Del total', Math.round(c.v / total * 100) + '%']] }));
   let g = '';
   cells.forEach((c, i) => {
     const k = c.v / max, w = Math.max(0, c.w - 4), h = Math.max(0, c.h - 4), x = c.x + 2, y = c.y + 2;
-    g += '<g data-i="' + i + '" data-cid="' + esc(c.id) + '" style="cursor:pointer"><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="12" fill="' + PAL.lima + '" fill-opacity="' + (.10 + .40 * k).toFixed(2) + '" stroke="' + PAL.velo((.06 + .14 * k).toFixed(2)) + '"/>';
+    g += '<g data-i="' + i + '" data-cid="' + esc(c.id) + '" style="cursor:pointer"><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="12" fill="' + PAL.rosa + '" fill-opacity="' + (.14 + .46 * k).toFixed(2) + '" stroke="' + PAL.rosa + '" stroke-opacity="' + (.25 + .45 * k).toFixed(2) + '" style="filter:drop-shadow(0 0 5px rgba(255,90,102,' + (.15 + .3 * k).toFixed(2) + '))"/>';
     const pct = Math.round(c.v / total * 100) + '%';
     if (w > 74 && h > 48) { const maxc = Math.floor((w - 22) / 6.4); let nm = c.name; if (nm.length > maxc) nm = nm.slice(0, Math.max(3, maxc - 1)) + '…';
       g += '<text x="' + (x + 12).toFixed(1) + '" y="' + (y + 22).toFixed(1) + '" style="fill:' + PAL.tinta + ';font-size:12px;font-weight:500;opacity:.85">' + esc(nm) + '</text><text x="' + (x + 12).toFixed(1) + '" y="' + (y + 42).toFixed(1) + '" style="fill:' + PAL.tinta + ';font-size:17px;font-weight:600">' + pct + '</text>';
@@ -210,7 +210,7 @@ function chartPeriodos(){
   data.forEach((d, i) => {
     const cx = L + cw * (i + .5), pos = d.net >= 0, top = Math.min(Y(d.net), y0), h = Math.max(2, Math.abs(Y(d.net) - y0));
     const col = pos ? PAL.lima : PAL.rosa, rate = d.inc ? Math.round(d.net / d.inc * 100) : null;
-    g += '<rect x="' + (cx - bw / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="6" fill="' + col + '" fill-opacity="' + (d.cur && isLive ? .45 : .85) + '"' + (d.cur && isLive ? ' stroke="' + col + '" stroke-dasharray="3 3"' : '') + '/>';
+    g += '<rect x="' + (cx - bw / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="6" fill="' + col + '" fill-opacity="' + (d.cur && isLive ? .45 : .85) + '"' + (d.cur && isLive ? ' stroke="' + col + '" stroke-dasharray="3 3"' : '') + ' style="filter:drop-shadow(0 0 6px ' + col + ')"/>';
     g += '<text x="' + cx.toFixed(1) + '" y="' + (pos ? top - 7 : top + h + 13).toFixed(1) + '" text-anchor="middle" style="fill:' + col + ';font-size:10.5px;font-weight:600">' + (pos ? '+' : '−') + short(Math.abs(d.net)) + '</text>';
     g += '<text x="' + cx.toFixed(1) + '" y="' + (H - 21) + '" text-anchor="middle" style="' + (d.cur ? 'fill:var(--ink);font-weight:600;' : '') + 'font-size:11px">' + d.l + (d.cur && isLive ? '*' : '') + '</text>';
     g += '<text x="' + cx.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" style="font-size:9.5px;fill:var(--faint)">' + (rate !== null ? rate + '%' : '') + '</text>';
@@ -239,9 +239,9 @@ function flowCard(p){
     : (isCur ? 'Llevas gastado ' : 'Gastaste ') + 'el <b>' + pct + '%</b> de lo que entró. ' + (isCur ? 'Te quedan ' : 'Te quedaron ') + '<b class="pos">' + money(inc - exp) + '</b>.';
   return '<section class="card"><div class="card-h"><h2>Cómo vas</h2><span class="aside">' + (rate !== null ? 'Te queda el ' + Math.max(0, rate) + '%' : '') + '</span></div>' +
     '<p class="insight" style="margin:0 0 10px">' + frase + '</p>' +
-    '<div class="flowbar" aria-hidden="true"><i style="width:' + saleW.toFixed(1) + '%;background:var(--out)"></i><i style="flex:1;background:var(--in)"></i></div>' +
-    '<div class="stats3"><div><span><i style="background:var(--in)"></i>Entró</span><b class="num">' + money(inc) + '</b></div><div><span><i style="background:var(--out)"></i>Gastaste</span><b class="num">' + money(exp) + '</b></div><div><span>Te queda</span><b class="num' + (inc - exp < 0 ? ' neg' : '') + '">' + money(inc - exp) + '</b></div></div>' +
-    '<p class="note" style="padding:0;margin:8px 0 0">La barra rosada es lo gastado y la morada lo que queda. Lo que pasas a tus ahorros no es gasto: sigue contando como lo que te queda.</p></section>';
+    '<div class="flowbar" aria-hidden="true"><i style="width:' + saleW.toFixed(1) + '%;min-width:' + (saleW > 0 ? 6 : 0) + 'px;background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i><i style="flex:1;background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i></div>' +
+    '<div class="stats3"><div><span><i style="background:var(--in)"></i>Entró</span><b class="num">' + money(inc) + '</b></div><div><span><i style="background:var(--out)"></i>Gastaste</span><b class="num">' + money(exp) + '</b></div><div><span><i style="background:var(--in)"></i>Te queda</span><b class="num' + (inc - exp < 0 ? ' neg' : '') + '">' + money(inc - exp) + '</b></div></div>' +
+    '<p class="note" style="padding:0;margin:8px 0 0">En la barra, lo rojo es lo gastado y lo verde lo que queda. Lo que pasas a tus ahorros no es gasto: sigue contando como lo que te queda.</p></section>';
 }
 function vAnalisis(p){
   const { exp } = totals(p);
