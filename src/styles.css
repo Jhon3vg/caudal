@@ -2,7 +2,7 @@
    Caudal · hoja de estilos
    Concepto: banca oscura de bolsillo. Fondo gris carbón (no negro puro, se lee
    mejor y deja ver la profundidad), superficies que se aclaran al subir de
-   nivel y un solo color de marca, el verde lima, reservado para la acción
+   nivel y un solo color de marca, el verde con brillo, reservado para la acción
    principal y para lo que entra. Cada tipo de movimiento tiene color, flecha
    y signo propios, así se entiende aunque no se distinga el color.
 
@@ -14,10 +14,10 @@
 :root{
   color-scheme:dark;
   /* superficies: cada nivel un poco más claro que el anterior */
-  --bg:#0F1114;
-  --surface:#181B20;     /* tarjetas */
-  --surface-2:#22262C;   /* elementos dentro de tarjetas: botones, campos, mosaicos */
-  --surface-3:#2E333A;   /* elegido o presionado en controles neutros */
+  --bg:#161A1C;
+  --surface:#1F2427;     /* tarjetas */
+  --surface-2:#292F33;   /* elementos dentro de tarjetas: botones, campos, mosaicos */
+  --surface-3:#363D42;   /* elegido o presionado en controles neutros */
   --line:rgba(255,255,255,.07);
   --line-2:rgba(255,255,255,.13);
   /* texto */
@@ -25,18 +25,20 @@
   --muted:#9AA0A8;
   --faint:#767C86;
   /* marca y significado. Los mismos valores viven en paleta.js para las gráficas */
-  --brand:#7C3AED;       /* acción principal: morado oscuro */
-  --on-brand:#FFFFFF;    /* texto sobre morado */
+  --brand:#2FE37A;       /* acción principal: verde con brillo */
+  --on-brand:#06210F;    /* texto sobre el verde */
   --on-tc:#0F1114;       /* texto sobre el color de cada tipo de movimiento (claros) */
-  --in:#B49BFF;          /* ingreso: morado claro para que se lea sobre el fondo oscuro */
-  --out:#FF5C8A;         /* gasto */
-  --move:#5CC8FF;        /* transferencia: celeste, para no confundirse con el morado */
+  --in:#5CF09A;          /* ingreso: verde claro */
+  --out:#FF7A5C;         /* gasto: naranja, como la alerta de las referencias */
+  --move:#5CC8FF;        /* transferencia: celeste, para no confundirse con el verde */
+  --glow:rgba(47,227,122,.34); /* brillo de color de tarjetas, arcos y barras */
   --adjust:#FFB443;      /* ajuste de saldo */
   --pos:var(--in);
   --neg:var(--out);
   --warn:#FFB443;
-  --track:#2A2E35;       /* fondo de barras de progreso */
-  --hero:linear-gradient(118deg,#2E1065 0%,#5B21B6 50%,#7C3AED 100%);
+  --track:#30363B;       /* fondo de barras de progreso */
+  --hero:linear-gradient(118deg,#0E3B22 0%,#14894A 52%,#2FE37A 100%);   /* marca y logo */
+  --hero-card:radial-gradient(120% 150% at 92% -10%,rgba(47,227,122,.34) 0%,rgba(47,227,122,0) 58%),linear-gradient(160deg,#2A3230 0%,#1B2123 100%);  /* tarjeta principal: gris con brillo verde */
   /* forma */
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --r-card:22px;
@@ -148,14 +150,39 @@ body.lock>.fab{visibility:hidden}
 .hero-sub b{color:var(--ink);font-weight:600}
 .tile-v{font-size:24px;font-weight:600;letter-spacing:-.01em}
 .tile-s{font-size:12px;color:var(--muted)}
-/* tarjeta destacada en degradado morado, como la tarjeta del banco. Dentro de ella
-   se redefinen los colores de texto para que todo lo que contiene se lea en claro */
-.card.hero{background:var(--hero);color:var(--ink);--brand:#FFFFFF;--ink:#FFFFFF;--muted:rgba(255,255,255,.74);--faint:rgba(255,255,255,.56);--line:rgba(255,255,255,.16);--pos:#FFFFFF;--neg:#FFFFFF;--warn:#FFFFFF;--out:#FFFFFF;--in:rgba(255,255,255,.4);--track:rgba(255,255,255,.18)}
+/* tarjeta destacada: gris carbón con un brillo verde que nace de una esquina, como las referencias.
+   Dentro de ella se redefinen los colores de texto para que todo lo que contiene se lea en claro */
+.card.hero{background:var(--hero-card);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(47,227,122,.22),0 14px 42px -18px var(--glow);--brand:#2FE37A;--on-brand:#06210F;--ink:#FFFFFF;--muted:rgba(255,255,255,.72);--faint:rgba(255,255,255,.54);--line:rgba(255,255,255,.14);--pos:#5CF09A;--neg:#FF9A7E;--warn:#FFC86B;--out:#FF8A6B;--in:#5CF09A;--track:rgba(255,255,255,.16)}
+/* resto de tarjetas con brillo: un velo de color en la esquina y un borde fino */
+.card.glow{background:radial-gradient(110% 130% at 100% 0%,rgba(47,227,122,.15) 0%,rgba(47,227,122,0) 55%),var(--surface);box-shadow:inset 0 0 0 1px rgba(47,227,122,.13)}
 .card.hero .pill{background:rgba(255,255,255,.16);color:var(--ink)}
+/* Cómo va el mes: arco con brillo, tres cifras y barra de porcentajes. --gc es el color del estado */
+.mes{--gc:var(--brand)}
+.mes.alto{--gc:var(--warn)}
+.mes.mucho{--gc:var(--out)}
+.mes-g{position:relative;width:min(100%,300px);margin:0 auto}
+.mes-g svg{display:block;width:100%;height:auto;overflow:visible}
+.mes-g .gv{position:absolute;left:0;right:0;bottom:2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.mes-g .pct{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--gc);text-shadow:0 0 22px var(--gc)}
+.mes-g .cap{font-size:12px;color:var(--muted)}
+.mes-g .est{margin-top:4px;padding:3px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--gc);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.mes-cols{margin-top:2px}
+.mes-bar{height:10px}
+.mes-leg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mes-leg div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mes-leg span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.mes-leg span i{display:inline-block;width:8px;height:8px;border-radius:50%}
+.mes-leg b{font-size:15px;font-weight:600}
+.mes-queda{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07)}
+.mes-queda span{font-size:12.5px;color:var(--muted)}
+.mes-queda b{font-size:18px;font-weight:600}
+.mes-queda small{margin-left:auto;font-size:12px;color:var(--muted)}
+.mes-otros{padding-top:2px}
+.mes-otros .lnk{color:var(--brand);font-weight:600}
 /* accesos rápidos de la tarjeta destacada: un toque para registrar cada tipo */
 .qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px}
 .qa button{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:500}
-.qa-i{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#0F1114;color:#F2F4F5;font-size:19px}
+.qa-i{position:relative;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(10,14,12,.62);color:#F2F4F5;font-size:19px;box-shadow:inset 0 0 0 1px rgba(47,227,122,.28)}
 .qa.q4{grid-template-columns:repeat(4,1fr)}
 .qa-n{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding-inline:5px;border-radius:99px;background:var(--adjust);color:#0F1114;font-size:11px;font-weight:600;line-height:18px;font-style:normal}
 /* botones */
