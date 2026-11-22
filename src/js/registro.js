@@ -72,7 +72,7 @@ function drawForm(){
     h += '<div class="field"><span class="label">Cuenta</span>' + accChips('accountId') + '</div><div class="seg" role="group" aria-label="Sentido del ajuste"><button type="button" data-sign="1" aria-pressed="' + (F.amount >= 0) + '">Sumar al saldo</button><button type="button" data-sign="-1" aria-pressed="' + (F.amount < 0) + '">Restar al saldo</button></div>';
   }
   /* la nota va a lo ancho y crece con el texto, para leerla completa al abrir el movimiento */
-  h += '<div class="field"><label class="label" for="f-note">Nota</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Opcional">' + esc(F.note) + '</textarea>' + notasChips() + '</div>' +
+  h += '<div class="field"><label class="label" for="f-note">Concepto</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Ej.: Mercado, Tienda mamá">' + esc(F.note) + '</textarea>' + notasChips() + '</div>' +
     '<div class="field"><label class="label" for="f-date">Fecha</label><input class="inp" type="date" id="f-date" value="' + F.date + '"></div>';
   if (F.type === 'gasto' || F.type === 'ingreso') { masOn = masOn || !!F.pending; mas += '<button type="button" class="pill pendt" id="f-pend" aria-pressed="' + !!F.pending + '">' + (F.pending ? '◐ Valor aproximado: por confirmar' : '◐ ¿No recuerdas el valor exacto? Márcalo por confirmar') + '</button>'; }
   if (mas) h += '<details class="howto masop"' + (masOn || F.masOpen ? ' open' : '') + '><summary>Más opciones</summary><div class="masop-in">' + mas + '</div></details>';
@@ -204,6 +204,7 @@ function submitForm(){
   syncForm();
   const err = m => { $('#f-err').textContent = m; };
   if (!F.amount) return err('Escribe el valor.');
+  if (F.type !== 'ajuste' && !String(F.note || '').trim()) { const n = $('#f-note'); if (n) n.focus(); return err('Escribe el concepto: así sabes después a qué se debió. Toca uno de los habituales si aplica.'); }
   if ((F.type === 'gasto' || F.type === 'ingreso') && !F.parent) return err('Elige una categoría.');
   if (!F.accountId) return err('Elige una cuenta.');
   { const it = F.id && deudaItem(F.id); if (it && it.pagado > Math.abs(F.amount)) return err('Ya tiene abonos por ' + money(it.pagado) + ': el valor no puede ser menor.'); }

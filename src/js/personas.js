@@ -44,7 +44,7 @@ function vPersonas(){
   const s = k => ab.reduce((a, p) => a + p[k], 0);
   let h = '<div class="hello"><h1>Personas</h1><p>Con quién tienes plata pendiente</p></div>' +
     '<section class="card glow"><div class="stats3"><div><span>Le debes</span><b class="num' + (s('debes') ? ' neg' : '') + '">' + money(s('debes')) + '</b></div>' +
-    '<div><span>Tienes de otros</span><b class="num' + (s('suya') ? ' warn' : '') + '">' + money(s('suya')) + '</b></div><div><span>Te deben</span><b class="num">' + money(s('teDebe')) + '</b></div></div>' +
+    '<div><span>De otros</span><b class="num' + (s('suya') ? ' warn' : '') + '">' + money(s('suya')) + '</b></div><div><span>Te deben</span><b class="num">' + money(s('teDebe')) + '</b></div></div>' +
     '<p class="note" style="padding:0;margin:10px 0 0">La plata de otros está en tus cuentas, pero no es tuya: no cuenta en tu disponible. Lo que te deben no suma hasta que te paguen.</p></section>';
   const sob = deudaSobrantes();
   if (sob.length) h += '<section class="card"><div class="card-h"><h2>Revisa estos pagos</h2><span class="aside warn">' + money(sob.reduce((s, x) => s + x.v, 0)) + '</span></div>' +

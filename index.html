@@ -186,11 +186,21 @@ body.lock>.fab{visibility:hidden}
 .mes-g .est{margin-top:4px;padding:3px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--gc);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
 .mes-cols{margin-top:2px}
 .mes-bar{height:10px}
-.mes-leg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.mes-leg div{display:flex;flex-direction:column;gap:2px;min-width:0}
-.mes-leg span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.mes-leg span i{display:inline-block;width:8px;height:8px;border-radius:50%}
-.mes-leg b{font-size:15px;font-weight:600}
+.mes-exp{margin:0;font-size:13px;line-height:1.5;color:var(--muted);text-align:center}
+.mes-exp b{color:var(--gc);font-weight:600}
+.mes-in{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.mes-in span{font-size:12.5px;color:var(--muted)}
+.mes-in b{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.in-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.in-top span{font-size:12.5px;color:var(--muted)}
+.in-top b{font-size:22px;font-weight:600}
+.dona{display:grid;grid-template-columns:minmax(120px,170px) 1fr;align-items:center;gap:16px}
+.dona svg{display:block;width:100%;height:auto;overflow:visible}
+.dona-lg{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dona-lg button{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:8px;width:100%;padding:0;text-align:left;font-size:13px}
+.dona-lg i{width:10px;height:10px;border-radius:50%}
+.dona-lg span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--ink)}
+.dona-lg b{font-weight:600;font-variant-numeric:tabular-nums}
 .mes-queda{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07)}
 .mes-queda span{font-size:12.5px;color:var(--muted)}
 .mes-queda b{font-size:18px;font-weight:600}
@@ -289,7 +299,7 @@ body.lock>.fab{visibility:hidden}
 .flowbar i,.dist i{display:block;height:100%;border-radius:99px}
 .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .stats3 div{display:flex;flex-direction:column;gap:3px;min-width:0}
-.stats3 span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.stats3 span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
 .stats3 span i{display:inline-block;width:12px;height:3px;border-radius:2px}
 .stats3 b{font-size:15.5px;font-weight:600;white-space:nowrap}
 .btrack+.stats3{margin-top:12px}
@@ -970,7 +980,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261117002708';
+const BUILD = '20261122212953';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -1573,41 +1583,26 @@ function notasDe(p, catId){
   const l = [...m.values()].sort((a, b) => b[1] - a[1]);
   return l.length > 8 ? l.slice(0, 7).concat([['Otras ' + (l.length - 7) + ' notas', l.slice(7).reduce((a, x) => a + x[1], 0), 1]]) : l;
 }
-function squarify(items, rect){
-  const total = items.reduce((a, b) => a + b.v, 0) || 1, scale = rect.w * rect.h / total;
-  const nodes = items.map(it => ({ ...it, a: it.v * scale })), out = []; let row = [], r = { ...rect };
-  const worst = (rw, s) => { if (!rw.length) return Infinity; const sum = rw.reduce((a, n) => a + n.a, 0), mx = Math.max(...rw.map(n => n.a)), mn = Math.min(...rw.map(n => n.a)); return Math.max(s * s * mx / (sum * sum), (sum * sum) / (s * s * mn)); };
-  const place = rw => { const sum = rw.reduce((a, n) => a + n.a, 0);
-    if (r.w >= r.h) { const cw = sum / r.h; let yy = r.y; rw.forEach(n => { const hh = n.a / cw; out.push({ ...n, x:r.x, y:yy, w:cw, h:hh }); yy += hh; }); r.x += cw; r.w -= cw; }
-    else { const rh = sum / r.w; let xx = r.x; rw.forEach(n => { const ww = n.a / rh; out.push({ ...n, x:xx, y:r.y, w:ww, h:rh }); xx += ww; }); r.y += rh; r.h -= rh; } };
-  while (nodes.length) { const n = nodes[0], s = Math.min(r.w, r.h);
-    if (!row.length || worst(row.concat(n), s) <= worst(row, s)) { row.push(n); nodes.shift(); } else { place(row); row = []; } }
-  if (row.length) place(row);
-  return out;
-}
 function chartCategorias(p){
   const m = spentByParent(p, 'gasto'), pm = spentByParent(period(ui.offset - 1), 'gasto');
   const rows = Object.entries(m).sort((a, b) => b[1].total - a[1].total);
   const total = rows.reduce((a, r) => a + r[1].total, 0);
   let out = '<section class="card"><div class="card-h"><h2>En qué se va</h2><span class="aside num">' + money(total) + '</span></div>';
   if (!rows.length) return out + '<div class="empty">Sin gastos en este periodo.</div></section>';
-  const items = rows.slice(0, 7).map(([id, x]) => { const c = cat(id); return { id, v:x.total, name:c ? c.name : 'Sin categoría', emoji:c ? c.emoji : '' }; });
-  const rest = rows.slice(7).reduce((a, r) => a + r[1].total, 0);
-  if (rest > 0) items.push({ id:'_rest', v:rest, name:'Otras ' + (rows.length - 7), emoji:'' });
-  const W = 340, H = 210, max = Math.max(...items.map(i => i.v));
-  const cells = squarify(items, { x:0, y:0, w:W, h:H });
-  CH.tree = cells.map(c => ({ title:(c.emoji ? c.emoji + ' ' : '') + c.name, rows:[[PAL.rosa, 'Gasto', money(c.v)], [PAL.gris, 'Del total', Math.round(c.v / total * 100) + '%']] }));
-  let g = '';
-  cells.forEach((c, i) => {
-    const k = c.v / max, w = Math.max(0, c.w - 4), h = Math.max(0, c.h - 4), x = c.x + 2, y = c.y + 2;
-    g += '<g data-i="' + i + '" data-cid="' + esc(c.id) + '" style="cursor:pointer"><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="12" fill="' + PAL.rosa + '" fill-opacity="' + (.14 + .46 * k).toFixed(2) + '" stroke="' + PAL.rosa + '" stroke-opacity="' + (.25 + .45 * k).toFixed(2) + '" style="filter:drop-shadow(0 0 5px rgba(255,90,102,' + (.15 + .3 * k).toFixed(2) + '))"/>';
-    const pct = Math.round(c.v / total * 100) + '%';
-    if (w > 74 && h > 48) { const maxc = Math.floor((w - 22) / 6.4); let nm = c.name; if (nm.length > maxc) nm = nm.slice(0, Math.max(3, maxc - 1)) + '…';
-      g += '<text x="' + (x + 12).toFixed(1) + '" y="' + (y + 22).toFixed(1) + '" style="fill:' + PAL.tinta + ';font-size:12px;font-weight:500;opacity:.85">' + esc(nm) + '</text><text x="' + (x + 12).toFixed(1) + '" y="' + (y + 42).toFixed(1) + '" style="fill:' + PAL.tinta + ';font-size:17px;font-weight:600">' + pct + '</text>';
-    } else if (w > 30 && h > 22) g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + h / 2 + 4).toFixed(1) + '" text-anchor="middle" style="fill:' + PAL.tinta + ';font-size:10.5px;font-weight:600">' + pct + '</text>';
-    g += '</g>';
-  });
-  out += '<div class="chart" data-kind="tree"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Proporción del gasto por categoría">' + g + '</svg></div><div>';
+  const items = rows.slice(0, 6).map(([id, x]) => { const c = cat(id); return { id, v:x.total, name:c ? c.name : 'Sin categoría', emoji:c ? c.emoji : '' }; });
+  const rest = rows.slice(6).reduce((a, r) => a + r[1].total, 0);
+  if (rest > 0) items.push({ id:'_rest', v:rest, name:'Otras ' + (rows.length - 6), emoji:'' });
+  /* dona: cada categoría con su porcentaje; las pequeñas también se ven, en el anillo y en la lista de al lado */
+  const R = 62, C = 2 * Math.PI * R, gap = items.length > 1 ? 2.2 : 0;
+  CH.tree = items.map(c => ({ title:(c.emoji ? c.emoji + ' ' : '') + c.name, rows:[[PAL.rosa, 'Gasto', money(c.v)], [PAL.gris, 'Del total', Math.round(c.v / total * 100) + '%']] }));
+  let g = '<defs><filter id="dona-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="200" height="200"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+    '<circle cx="80" cy="80" r="' + R + '" fill="none" style="stroke:var(--track)" stroke-width="16"/>', ac = 0;
+  items.forEach((c, i) => { const len = c.v / total * C, vis = Math.max(1.2, len - gap);
+    g += '<circle data-i="' + i + '" data-cid="' + esc(c.id) + '" cx="80" cy="80" r="' + R + '" fill="none" stroke="' + serieColor(i) + '" stroke-width="16" stroke-dasharray="' + vis.toFixed(2) + ' ' + (C - vis).toFixed(2) + '" stroke-dashoffset="' + (-ac).toFixed(2) + '" transform="rotate(-90 80 80)" filter="url(#dona-glow)" style="cursor:pointer"/>';
+    ac += len; });
+  g += '<text x="80" y="76" text-anchor="middle" style="fill:var(--muted);font-size:11px">Gastaste</text><text x="80" y="95" text-anchor="middle" style="fill:var(--ink);font-size:16px;font-weight:600">' + short(total) + '</text>';
+  out += '<div class="chart dona" data-kind="tree"><svg viewBox="0 0 160 160" role="img" aria-label="Proporción del gasto por categoría">' + g + '</svg><div class="dona-lg">' +
+    items.map((c, i) => '<button type="button" data-cid="' + esc(c.id) + '"><i style="background:' + serieColor(i) + ';box-shadow:0 0 8px ' + serieColor(i) + '"></i><span>' + esc((c.emoji ? c.emoji + ' ' : '') + c.name) + '</span><b>' + (c.v / total < .005 ? '<1' : Math.round(c.v / total * 100)) + '%</b></button>').join('') + '</div></div><div>';
   for (const [id, x] of rows) {
     const c = cat(id), open = ui.open.has(id), pv = pm[id] ? pm[id].total : 0;
     let dl; if (!pv) dl = '<span class="delta muted">Nuevo</span>';
@@ -1715,8 +1710,9 @@ function flowCard(p){
     : (isCur ? 'Llevas gastado ' : 'Gastaste ') + 'el <b>' + pct + '%</b> de lo que entró. ' + (isCur ? 'Te quedan ' : 'Te quedaron ') + '<b class="pos">' + money(inc - exp) + '</b>.';
   return '<section class="card"><div class="card-h"><h2>Cómo vas</h2><span class="aside">' + (rate !== null ? 'Te queda el ' + Math.max(0, rate) + '%' : '') + '</span></div>' +
     '<p class="insight" style="margin:0 0 10px">' + frase + '</p>' +
+    '<div class="in-top"><span>Entró</span><b class="num">' + money(inc) + '</b></div>' +
     '<div class="flowbar" aria-hidden="true"><i style="width:' + saleW.toFixed(1) + '%;min-width:' + (saleW > 0 ? 6 : 0) + 'px;background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i><i style="flex:1;background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i></div>' +
-    '<div class="stats3"><div><span><i style="background:var(--in)"></i>Entró</span><b class="num">' + money(inc) + '</b></div><div><span><i style="background:var(--out)"></i>Gastaste</span><b class="num">' + money(exp) + '</b></div><div><span><i style="background:var(--in)"></i>Te queda</span><b class="num' + (inc - exp < 0 ? ' neg' : '') + '">' + money(inc - exp) + '</b></div></div>' +
+    '<div class="stats3 two-col"><div><span><i style="background:var(--out)"></i>Gastaste' + (inc ? ' · ' + pct + '%' : '') + '</span><b class="num">' + money(exp) + '</b></div><div><span><i style="background:var(--in)"></i>' + (inc - exp < 0 ? 'Faltó' : 'Te queda') + (inc && inc >= exp ? ' · ' + (100 - pct) + '%' : '') + '</span><b class="num' + (inc - exp < 0 ? ' neg' : '') + '">' + money(Math.abs(inc - exp)) + '</b></div></div>' +
     '<p class="note" style="padding:0;margin:8px 0 0">En la barra, lo rojo es lo gastado y lo verde lo que queda. Lo que pasas a tus ahorros no es gasto: sigue contando como lo que te queda.</p></section>';
 }
 function vAnalisis(p){
@@ -1772,7 +1768,7 @@ function vCuentas(){
   let out = '<div class="hello"><h1>Cuentas</h1><p>' + tops.length + (tops.length === 1 ? ' cuenta activa' : ' cuentas activas') + '</p></div>';
   const aparts = vis.filter(a => a.apart), apartSum = aparts.reduce((x, a) => x + (b[a.id] || 0), 0), disp = dispTotal(b);
   out += '<section class="card glow"><span class="label">Disponible tuyo</span><div class="big num">' + (disp < 0 ? '<small>−</small>' : '') + '<small>$</small>' + nf.format(Math.abs(disp)) + '</div>' +
-    '<div class="stats3" style="margin:2px 0 12px"><div><span>En tus cuentas</span><b class="num">' + money(enCuentas) + '</b></div><div><span>Es tuyo</span><b class="num">' + money(enCuentas - deOtros) + '</b></div><div><span>De otras personas</span><b class="num' + (AT.suya ? ' warn' : '') + '">' + money(AT.suya) + '</b></div></div>' + ajenaDesglose(AT, deOtros) +
+    '<div class="stats3' + (aparts.length ? '' : ' two-col') + '" style="margin:2px 0 12px"><div><span>En tus cuentas</span><b class="num">' + money(enCuentas) + '</b></div>' + (aparts.length ? '<div><span>Apartado</span><b class="num">' + money(apartSum) + '</b></div>' : '') + '<div><span>De otros</span><b class="num' + (AT.suya ? ' warn' : '') + '">' + money(AT.suya) + '</b></div></div>' + ajenaDesglose(AT, deOtros) +
     '<p class="note" style="padding:0;margin:-4px 0 10px">' + (aparts.length ? 'Apartado ' + money(apartSum) + ' (' + esc(aparts.map(a => accShort(a.id)).join(', ')) + '), no cuenta en tu disponible. ' : '') + (AT.suya ? 'La plata de otras personas no es tuya: no cuenta en tu disponible. ' : '') + (S.accounts.some(a => isCard(a)) ? 'Ya descuenta lo que debes en tarjetas.' : '') + '</p>' +
     '<div class="dist" aria-hidden="true">' + pos.map(a => '<i style="width:' + (b[a.id] / posTotal * 100).toFixed(1) + '%;background:' + col(a) + '"></i>').join('') + '</div>' +
     '<div class="distlg">' + pos.map(a => '<div><i style="background:' + col(a) + '"></i><span>' + esc(accShort(a.id)) + '</span><b class="num">' + Math.round(b[a.id] / posTotal * 100) + '% · ' + money(b[a.id]) + '</b></div>').join('') + '</div></section>';
@@ -2300,6 +2296,12 @@ function startVoice(){
     REC = r; r.start(); drawSmart();
   } catch (_) { fallback(); }
 }
+/* si la IA lo dejó como gasto o ingreso, pero su concepto es uno que ya usas con una persona, se registra como antes */
+function habitualIA(it){
+  if (!it || (it.type !== 'gasto' && it.type !== 'ingreso') || !it.note || it.ajena) return it;
+  let h = null; try { h = personaHabitual(it.note + ' ' + it.amount); } catch (_) {}
+  return h ? { ...h, amount:it.amount, date:it.date || h.date, accountId:h.pt === 'debo' ? null : it.accountId && accById(it.accountId) && !isCard(accById(it.accountId)) ? it.accountId : h.accountId, src:'ia' } : it;
+}
 async function smartGo(force){
   if (!SM || SM.busy) return;
   const ta = $('#sm-text'); if (ta) SM.text = ta.value;
@@ -2310,7 +2312,7 @@ async function smartGo(force){
   const need = force || SM.files.length || !items.length || items.some(i => i.type !== 'transferencia' && i.type !== 'persona' && !i.categoryId);
   if (need && aiOn()) {
     SM.busy = true; if (!SM.items) drawSmart(); else drawReview();
-    try { const r = await aiParse(text, SM.files, true); if (r.length) { items = r; engine = 'ia'; } }
+    try { const r = await aiParse(text, SM.files, true); if (r.length) { items = r.map(habitualIA); engine = 'ia'; } }
     catch (e) { SM.busy = false; if (!items.length) return SM.items ? drawReview(aiErr(e)) : drawSmart(aiErr(e)); }
     SM.busy = false;
   } else if (need && SM.files.length) return drawSmart('Leer fotos necesita la IA, que no está disponible en esta vista.');
@@ -2342,7 +2344,7 @@ function drawReview(msg){
       '<div class="rv-amt"><span>$</span><input inputmode="numeric" class="num" data-rv="' + i + '" data-f="amount" value="' + (it.amount ? nf.format(it.amount) : '') + '" aria-label="Valor"></div>' +
       '<button class="x" data-rvdel="' + i + '" aria-label="Descartar">✕</button></div>' +
       (it.type !== 'transferencia' ? '<button type="button" class="pill pendt" data-rvpend="' + i + '" aria-pressed="' + !!it.pending + '">' + (it.pending ? '◐ Por confirmar' : '◐ Marcar por confirmar') + '</button>' : '') +
-      '<input class="inp" data-rv="' + i + '" data-f="note" value="' + esc(it.note) + '" placeholder="Descripción" aria-label="Descripción">' +
+      '<input class="inp" data-rv="' + i + '" data-f="note" value="' + esc(it.note) + '" placeholder="Concepto" aria-label="Concepto">' +
       (it.type === 'transferencia'
         ? '<div class="two"><select class="inp" data-rv="' + i + '" data-f="accountId" aria-label="Desde">' + accOptions(it.accountId) + '</select><select class="inp" data-rv="' + i + '" data-f="toAccountId" aria-label="Hacia">' + accOptions(it.toAccountId, 'Hacia…') + '</select></div>'
         : (() => { const c = cat(it.categoryId); return gridPicker(it.type, c ? (c.parentId || c.id) : null, c && c.parentId ? c.id : null, !!it._open || !it.categoryId, it._expand, 'rv' + i); })() + rvAccFields(it, i)) +
@@ -2414,6 +2416,7 @@ function reviewSave(){
     else if (it.type !== 'transferencia' && !it.categoryId) it.err = 'Elige una categoría.';
     else if (it.type === 'transferencia' && (!it.toAccountId || it.toAccountId === it.accountId)) it.err = 'Elige una cuenta de destino distinta.';
     else if (it.type === 'gasto' && it.ajena && it.ajena >= it.amount) it.err = 'La parte de la otra persona no puede ser todo el gasto.';
+    else if (!String(it.note || '').trim()) it.err = 'Escribe el concepto.';
     if (it.err) bad = true; });
   if (bad) return drawReview();
   /* lo de personas se aplica primero y, si algo falla, se deshace todo para no dejar la mitad guardada */
@@ -5417,13 +5420,18 @@ const personasUsadas = () => { const v = new Map(); for (const t of S.transactio
 
 /* ----- tarjeta en Inicio, encima del saldo: revisar deudas antes del cierre del periodo.
    Sale siempre que haya deudas abiertas; sin deudas, solo en los últimos 5 días como confirmación. ----- */
+/* cuántas cuentas pendientes con personas: una por persona y por tipo (le debes, tienes suyo, te debe), no una por cada movimiento */
+function deudasConteo(){
+  const l = personasLista().filter(p => p.key !== '_'), n = l.reduce((a, p) => a + (p.debes > 0) + (p.suya > 0) + (p.teDebe > 0), 0), g = l.filter(personaAbierta).length;
+  return n + (n === 1 ? ' pendiente' : ' pendientes') + ' · ' + g + (g === 1 ? ' persona' : ' personas');
+}
 function deudasInicio(p){
   if (!deudaAcc('pagar') && !deudaAcc('cobrar') && !deudaAcc('pausa')) return '';
   const ab = deudasAbiertas(), today = iso(new Date());
   const faltan = today >= p.s && today <= p.e ? Math.round((parseISO(p.e) - parseISO(today)) / 864e5) + 1 : null, cierre = faltan !== null && faltan <= 5;
   if (!ab.length) return cierre ? '<div class="banner"><span><b>Sin deudas abiertas.</b> Llegas al cierre del periodo sin deber ni que te deban.</span></div>' : '';
   const debes = ab.filter(x => x.k !== 'cobrar').reduce((a, x) => a + x.falta, 0), teDeben = ab.filter(x => x.k === 'cobrar').reduce((a, x) => a + x.falta, 0);
-  return '<section class="card"><div class="card-h"><h2>Revisa tus deudas</h2><span class="aside">' + (cierre ? '<b class="warn">' + (faltan === 1 ? 'Hoy cierra el periodo' : 'Faltan ' + faltan + ' días para el cierre') + '</b>' : ab.length + (ab.length === 1 ? ' abierta' : ' abiertas')) + '</span></div>' +
+  return '<section class="card"><div class="card-h"><h2>Revisa tus deudas</h2><span class="aside">' + (cierre ? '<b class="warn">' + (faltan === 1 ? 'Hoy cierra el periodo' : 'Faltan ' + faltan + ' días para el cierre') + '</b>' : deudasConteo()) + '</span></div>' +
     '<div class="stats3 two-col"><div><span>Debes</span><b class="num' + (debes ? ' neg' : '') + '">' + money(debes) + '</b></div><div><span>Te deben</span><b class="num">' + money(teDeben) + '</b></div></div>' +
     '<p class="note" style="padding:0">' + (cierre ? 'Págalas o cóbralas antes del cierre para que el sobrante del periodo sea real.' : 'La plata de otros ya está descontada de tu disponible; las deudas en pausa no, hasta que las pagues.') + '</p>' +
     '<button class="btn ghost block" data-go="personas">Ver por persona y registrar abonos</button></section>';
@@ -5625,11 +5633,17 @@ function deudaNuevaDraw(){
     '<div class="field"><label class="label" for="dn-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="dn-amt" inputmode="numeric" class="num" value="' + (DN.amt ? nf.format(DN.amt) : '') + '" placeholder="0" style="font-size:28px"></div></div>' +
     dnDeField() +
     (cuenta ? '<div class="field"><span class="label">' + (DN.tipo === 'guardo' ? '¿En qué cuenta está?' : '¿De qué cuenta salió?') + '</span><div class="cgrid">' + opts.map(a => cuentaTile(a, 'data-dnacc="' + esc(a.id) + '"', DN.acc === a.id, b, aj)).join('') + '</div></div>' : '') +
-    '<div class="field"><label class="label" for="dn-note">Concepto (opcional)</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.persona ? deudaNuevaNota(DN.tipo, DN.persona, DN.tipo === 'preste' && DN.de) : DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off"><span class="tile-s">Si lo dejas vacío, Caudal lo escribe solo.</span></div>' +
+    '<div class="field"><label class="label" for="dn-note">Concepto</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.persona ? deudaNuevaNota(DN.tipo, DN.persona, DN.tipo === 'preste' && DN.de) : DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off">' + dnNotas() + '<span class="tile-s">Si lo dejas vacío, Caudal lo escribe solo.</span></div>' +
     '<div class="err" id="dn-err"></div><button class="btn accent block" type="button" data-dngo>Guardar</button></div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
 /* lo escrito en los campos sobrevive a redibujar la hoja al elegir otra opción */
+/* conceptos que ya usaste con esa persona (los más usados primero), para repetirlos con un toque */
+function dnNotas(){
+  if (!DN || !DN.persona) return '';
+  const k = normP(DN.persona), l = [...notasUsadas(t => t.persona && normP(t.persona) === k && !t.lig).values()].sort((a, b) => b.n - a.n || b.ult.localeCompare(a.ult)).slice(0, 6).map(x => x.txt);
+  return l.length ? '<div class="chips" style="margin:8px 0 4px">' + l.map(n => '<button type="button" class="chip" data-dnnota="' + esc(n) + '" aria-pressed="' + (DN.note === n) + '">' + esc(n) + '</button>').join('') + '</div>' : '';
+}
 const dnLeer = () => { const p = $('#dn-persona'), n = $('#dn-note'), a = $('#dn-amt'); if (p) DN.persona = p.value.trim(); if (n) DN.note = n.value.trim(); if (a) DN.amt = leerPesos(a.value); };
 /* crea el movimiento de una deuda nueva (lo usan la hoja de Personas y el registro por voz): devuelve { err } o { msg } y no guarda ni dibuja */
 function deudaNuevaAplicar(o){
@@ -5655,6 +5669,7 @@ document.addEventListener('click', e => {
   if (d.dntipo) { DN.tipo = d.dntipo; return deudaNuevaDraw(); }
   if (d.dnrep !== undefined) { const q = DN.rep[+d.dnrep]; if (!q) return; DN.tipo = q.tipo; DN.persona = q.persona; DN.amt = q.amt; DN.de = q.tipo === 'preste' ? q.de : ''; if (q.acc && accById(q.acc)) DN.acc = q.acc; deudaNuevaDraw(); return setTimeout(() => { const i = $('#dn-amt'); if (i) { i.focus(); try { i.select(); } catch (_) {} } }, 60); }
   if (d.dnper) { DN.persona = d.dnper; return deudaNuevaDraw(); }
+  if (d.dnnota) { DN.note = d.dnnota; return deudaNuevaDraw(); }
   if (d.dnacc) { DN.acc = d.dnacc; return deudaNuevaDraw(); }
   if (d.dnde !== undefined) { DN.de = d.dnde; if (DN.de) { const l = ajenaLibre(DN.de); if (l.acc) DN.acc = l.acc; } return deudaNuevaDraw(); }
   if (d.dngo !== undefined) {
@@ -5734,7 +5749,7 @@ function vPersonas(){
   const s = k => ab.reduce((a, p) => a + p[k], 0);
   let h = '<div class="hello"><h1>Personas</h1><p>Con quién tienes plata pendiente</p></div>' +
     '<section class="card glow"><div class="stats3"><div><span>Le debes</span><b class="num' + (s('debes') ? ' neg' : '') + '">' + money(s('debes')) + '</b></div>' +
-    '<div><span>Tienes de otros</span><b class="num' + (s('suya') ? ' warn' : '') + '">' + money(s('suya')) + '</b></div><div><span>Te deben</span><b class="num">' + money(s('teDebe')) + '</b></div></div>' +
+    '<div><span>De otros</span><b class="num' + (s('suya') ? ' warn' : '') + '">' + money(s('suya')) + '</b></div><div><span>Te deben</span><b class="num">' + money(s('teDebe')) + '</b></div></div>' +
     '<p class="note" style="padding:0;margin:10px 0 0">La plata de otros está en tus cuentas, pero no es tuya: no cuenta en tu disponible. Lo que te deben no suma hasta que te paguen.</p></section>';
   const sob = deudaSobrantes();
   if (sob.length) h += '<section class="card"><div class="card-h"><h2>Revisa estos pagos</h2><span class="aside warn">' + money(sob.reduce((s, x) => s + x.v, 0)) + '</span></div>' +
@@ -5843,7 +5858,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => { if (e.target.id === 'pp-amt') pesosCampo(e.target); });
 
 /* Cómo va el mes: un solo bloque en Inicio que junta lo que entró, lo que salió y lo que quedó, con los porcentajes
-   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco muestra en rojo lo que ya salió y en verde lo que te queda de lo que entró.
+   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco muestra en rojo lo que ya salió y en verde lo que te queda de lo que entró; debajo, una frase dice qué significa la etiqueta.
    La plata de otras personas se muestra aparte dentro del mismo bloque: está en tus cuentas, pero no es tuya. */
 const esAhorroAcc = a => !!a && !a.hidden && !esDeuda(a) && !isCard(a) && (!!a.apart || /ahorro/i.test(a.group || ''));
 function mesDatos(p){
@@ -5877,18 +5892,17 @@ function mesCard(p){
   if (modo) { const sobra = pct > 100, big = sobra ? pct - 100 : 100 - pct, de = modo === 'ingresos' ? 'lo que entró' : 'el presupuesto';
     h += '<div class="mes-g">' + mesArco(usado) + '<div class="gv"><span class="pct num">' + big + '%</span><span class="cap">' + (sobra ? 'por encima de ' + de : 'de ' + de + ' te queda') + '</span><span class="est">' + est[1] + '</span></div></div>'; }
   else h += '<p class="insight" style="margin:0">Cuando registres ingresos, aquí verás qué parte ya salió y qué parte te queda.</p>';
-  h += '<div class="stats3 mes-cols"><div><span><i style="background:var(--ink)"></i>Entró</span><b class="num">' + money(d.inc) + '</b></div>' +
-    '<div><span><i style="background:var(--out)"></i>Salió</span><b class="num">' + money(d.exp) + '</b></div>' +
-    '<div><span><i style="background:var(--in)"></i>Quedó</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
-  if (d.inc > 0) {
-    const g = Math.min(100, pctDe(d.exp, d.inc)), a = pctDe(d.ahorro, d.inc), m = Math.max(0, 100 - g - a);
-    h += '<div class="flowbar mes-bar" role="img" aria-label="Gastos ' + g + '%, ahorro ' + a + '%, se mantiene ' + m + '%">' +
-      (g ? '<i style="flex:' + g + ';background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i>' : '') + (a ? '<i style="flex:' + a + ';background:var(--move);box-shadow:0 0 12px -1px var(--move)"></i>' : '') + (m ? '<i style="flex:' + m + ';background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i>' : '') + '</div>' +
-      '<div class="mes-leg"><div><span><i style="background:var(--out)"></i>Gastos</span><b class="num">' + pctDe(d.exp, d.inc) + '%</b></div>' +
-      '<div><span><i style="background:var(--move)"></i>Ahorro</span><b class="num">' + a + '%</b></div>' +
-      '<div><span><i style="background:var(--in)"></i>Se mantiene</span><b class="num">' + m + '%</b></div></div>';
-    if (d.queda < 0) h += '<p class="note" style="padding:0;margin:0">Gastaste <b>' + money(-d.queda) + '</b> más de lo que entró en este periodo.</p>';
-  }
+  /* qué quiere decir la etiqueta del arco, con datos: cuánto llevas gastado y cómo va frente a los días del mes */
+  if (modo) { const de = modo === 'ingresos' ? 'lo que entró' : 'tu presupuesto', diasPct = isCurrent ? Math.round((ti + 1) / N * 100) : 100;
+    const regla = pct <= 60 ? 'Hasta 60% gastado es equilibrado.' : pct <= 85 ? 'Entre 60% y 85% gastado es alto: te queda poco margen.' : pct <= 100 ? 'Más de 85% gastado es muy alto.' : '';
+    const ritmo = isCurrent && pct <= 100 ? (pct > diasPct + 5 ? ' Vas más rápido que el mes: llevas el ' + diasPct + '% de los días.' : pct < diasPct - 5 ? ' Vas más lento que el mes: llevas el ' + diasPct + '% de los días.' : ' Vas al ritmo del mes.') : '';
+    h += '<p class="mes-exp">' + (pct > 100 ? 'Gastaste ' + money(bexp - (modo === 'ingresos' ? d.inc : budget)) + ' más de ' + de + '; ese faltante salió de lo que ya tenías.' : 'Ya gastaste el <b>' + pct + '%</b> de ' + de + '. ' + regla + ritmo) + '</p>'; }
+  /* lo tuyo del periodo: lo que entró arriba y de ahí se desprende lo que salió y lo que queda */
+  const pS = pctDe(d.exp, d.inc), pQ = d.inc > 0 ? Math.max(0, 100 - pS) : 0;
+  h += '<div class="mes-in"><span>Entró</span><b class="num">' + money(d.inc) + '</b></div>';
+  if (d.inc > 0) h += '<div class="flowbar mes-bar" role="img" aria-label="Salió ' + pS + '%, queda ' + pQ + '%">' + (pS ? '<i style="flex:' + Math.min(100, pS) + ';background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i>' : '') + (pQ ? '<i style="flex:' + pQ + ';background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i>' : '') + '</div>';
+  h += '<div class="stats3 two-col mes-cols"><div><span><i style="background:var(--out)"></i>Salió' + (d.inc > 0 ? ' · ' + pS + '%' : '') + '</span><b class="num">' + money(d.exp) + '</b></div>' +
+    '<div><span><i style="background:var(--in)"></i>' + (d.queda < 0 ? 'Faltó' : 'Queda') + (d.inc > 0 && d.queda >= 0 ? ' · ' + pQ + '%' : '') + '</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
   /* lo que queda para gastar según tu plan, con lo que falta por pagar de fijos */
   if (budget > 0 && isCurrent) {
     const pl = planFor(p), R = pl ? planReal(pl, p) : null, left = pl ? planQueda(pl, p, R) : budget - bexp, daysLeft = N - ti;
@@ -5947,7 +5961,7 @@ function personaDeParte(p){
   else if ((m = /\btengo\b[^.]*?\bde\s+(?!\d)/.exec(plain))) { tipo = 'guardo'; nombre = nombreTras(p, m.index + m[0].length); }
   else if ((m = /\ble\s+(devolvi|pague|abone|transferi|consigne|envie)\b/.exec(plain))) { tipo = m[1] === 'devolvi' ? 'devolver' : 'pago'; nombre = trasA(m.index + m[0].length); }
   else if ((m = /\bme\s+(?:pago|pagaron|abono|devolvio|consigno|transfirio)\b/.exec(plain))) { tipo = 'cobrar'; nombre = nombreAntes(p, m.index) || nombreTras(p, m.index + m[0].length); }
-  if (!tipo || !nombre) return null;
+  if (!tipo || !nombre) return personaHabitual(p);
   const pl = personaBuscar(nombre);
   /* pagos, cobros y apartados solo si esa persona de verdad tiene algo abierto: si no, es un gasto o ingreso normal */
   if (tipo === 'pago' || tipo === 'apartar') { if (!pl || !(pl.debes > 0)) return null; }
@@ -5956,6 +5970,32 @@ function personaDeParte(p){
   const persona = pl ? pl.nombre : personaCanon(nombre);
   const acc = accountIn(p) || (tipo === 'devolver' && ajenaLibre(persona).acc) || (tipo === 'apartar' && cuentaConPlataPropia()) || lastAccount();
   return { type:'persona', pt:tipo, persona, amount:v, date:dateIn(p), note:'', accountId:acc, src:'texto' };
+}
+/* qué fue un movimiento de persona ya guardado: debo, guardo o preste (null si es otra cosa) */
+function personaClase(t){
+  if (!t.persona || t.src === 'deuda' || t.src === 'ajena' || t.lig) return null;
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa');
+  if (t.type === 'ajuste' && Z && t.accountId === Z.id) return 'debo';
+  if (t.type === 'transferencia' && P && t.accountId === P.id) return 'guardo';
+  if (t.type === 'transferencia' && C && t.toAccountId === C.id) return 'preste';
+  return null;
+}
+/* lo que repites con alguien, aunque no digas "me dejó" ni "le debo": si lo dicho trae todas las palabras del concepto
+   de un movimiento de persona anterior ("tienda mamá 50 mil" y antes guardaste "Tienda mamá" como plata de tu mamá),
+   se registra igual: misma persona, mismo tipo, mismo concepto y la misma cuenta, salvo que digas otra. */
+function personaHabitual(p){
+  const sp = p.replace(/\b\d{1,2}[\/-]\d{1,2}\b/g, ' '), am = amountsIn(sp); if (!am.length) return null;
+  const a = am[am.length - 1]; let v = a.v; if (!a.unit && !a.money && v > 0 && v < 1000) v *= 1000;
+  const pal = s => notaClave(s).split(' ').filter(w => w.length > 2 && !/\d/.test(w) && !PT_NO_NOMBRE.has(w));
+  const dicho = new Set(pal(p)); if (!dicho.size) return null;
+  let mejor = null;
+  for (const t of S.transactions) { const k = personaClase(t); if (!k || !t.note) continue;
+    const w = pal(t.note); if (!w.length || !w.every(x => dicho.has(x))) continue;
+    const sc = w.length * 1e13 + (t.ts || 0); if (!mejor || sc > mejor.sc) mejor = { t, k, sc }; }
+  if (!mejor) return null;
+  const { t, k } = mejor, prev = accById(k === 'guardo' ? t.toAccountId : t.accountId);
+  const acc = k === 'debo' ? null : accountIn(p) || (prev && !prev.hidden ? prev.id : lastAccount());
+  return { type:'persona', pt:k, persona:t.persona, amount:v, date:dateIn(p), note:t.note, accountId:acc, src:'texto' };
 }
 /* separa lo que es de personas de lo demás: { items, resto } (resto = texto que sigue siendo gastos o ingresos normales) */
 function personaParse(text){
@@ -7216,7 +7256,7 @@ function drawForm(){
     h += '<div class="field"><span class="label">Cuenta</span>' + accChips('accountId') + '</div><div class="seg" role="group" aria-label="Sentido del ajuste"><button type="button" data-sign="1" aria-pressed="' + (F.amount >= 0) + '">Sumar al saldo</button><button type="button" data-sign="-1" aria-pressed="' + (F.amount < 0) + '">Restar al saldo</button></div>';
   }
   /* la nota va a lo ancho y crece con el texto, para leerla completa al abrir el movimiento */
-  h += '<div class="field"><label class="label" for="f-note">Nota</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Opcional">' + esc(F.note) + '</textarea>' + notasChips() + '</div>' +
+  h += '<div class="field"><label class="label" for="f-note">Concepto</label><textarea class="inp fnote" id="f-note" rows="1" autocomplete="off" placeholder="Ej.: Mercado, Tienda mamá">' + esc(F.note) + '</textarea>' + notasChips() + '</div>' +
     '<div class="field"><label class="label" for="f-date">Fecha</label><input class="inp" type="date" id="f-date" value="' + F.date + '"></div>';
   if (F.type === 'gasto' || F.type === 'ingreso') { masOn = masOn || !!F.pending; mas += '<button type="button" class="pill pendt" id="f-pend" aria-pressed="' + !!F.pending + '">' + (F.pending ? '◐ Valor aproximado: por confirmar' : '◐ ¿No recuerdas el valor exacto? Márcalo por confirmar') + '</button>'; }
   if (mas) h += '<details class="howto masop"' + (masOn || F.masOpen ? ' open' : '') + '><summary>Más opciones</summary><div class="masop-in">' + mas + '</div></details>';
@@ -7348,6 +7388,7 @@ function submitForm(){
   syncForm();
   const err = m => { $('#f-err').textContent = m; };
   if (!F.amount) return err('Escribe el valor.');
+  if (F.type !== 'ajuste' && !String(F.note || '').trim()) { const n = $('#f-note'); if (n) n.focus(); return err('Escribe el concepto: así sabes después a qué se debió. Toca uno de los habituales si aplica.'); }
   if ((F.type === 'gasto' || F.type === 'ingreso') && !F.parent) return err('Elige una categoría.');
   if (!F.accountId) return err('Elige una cuenta.');
   { const it = F.id && deudaItem(F.id); if (it && it.pagado > Math.abs(F.amount)) return err('Ya tiene abonos por ' + money(it.pagado) + ': el valor no puede ser menor.'); }
@@ -7557,6 +7598,22 @@ function cuentaEnUso(id){
   if (S.accounts.some(a => a.card && a.card.pocket === id)) return 'una tarjeta que se paga desde ella';
   return '';
 }
+/* a dónde pueden pasar los movimientos de una cuenta que se borra: otra del mismo tipo (tarjeta con tarjeta), sin deudas */
+const cuentasDestino = id => { const a = accById(id); return S.accounts.filter(x => x.id !== id && !esDeuda(x) && x.parentAcc !== id && !!isCard(x) === !!isCard(a)); };
+/* pasa todo lo de una cuenta a otra: movimientos, recibos, pagos fijos, plan y tarjetas que se pagan desde ella.
+   Las transferencias entre las dos se quitan (quedarían de la cuenta a sí misma); devuelve cuántos movimientos pasaron */
+function cuentaPasar(de, a){
+  let n = 0; const fuera = new Set();
+  for (const t of S.transactions) { const x = t.accountId === de, y = t.toAccountId === de;
+    if (t.type === 'transferencia' && ((x && t.toAccountId === a) || (y && t.accountId === a))) { fuera.add(t.id); continue; }
+    if (x) t.accountId = a; if (y) t.toAccountId = a; if (t.fund === de) t.fund = a; if (x || y) n++; }
+  if (fuera.size) S.transactions = S.transactions.filter(t => !fuera.has(t.id));
+  for (const b of S.bills || []) if (b.accountId === de) b.accountId = a;
+  for (const r of S.recurring || []) if (r.accountId === de) r.accountId = a;
+  for (const p of S.plans || []) { if (p.from === de) p.from = a; if (p.surplus === de) p.surplus = a; for (const i of p.items || []) if (i.acc === de) i.acc = a; }
+  for (const c of S.accounts) if (c.card && c.card.pocket === de) c.card.pocket = a;
+  return n;
+}
 /* grupo interno según el nombre y el tipo */
 const grupoAuto = (nombre, tarjeta) => tarjeta ? 'Tarjetas' : /efectivo|billete/i.test(nombre) ? 'Efectivo' : /ahorro|cdt|bolsillo/i.test(nombre) ? 'Ahorro' : 'Cuentas';
 
@@ -7590,9 +7647,14 @@ function accEditDraw(){
   if (!nuevo) { const uso = cuentaEnUso(AE.id) || (misSubs.length ? plural(misSubs.length, 'subcuenta', 'subcuentas') : ''), l = hermanas(AE.id), i = l.findIndex(x => x.id === AE.id);
     if (l.length > 1 && i >= 0) h += '<div class="field"><span class="label">Lugar en la lista: ' + (i + 1) + ' de ' + l.length + '</span><div class="two">' +
       '<button class="btn ghost" type="button" data-accmove="' + esc(AE.id) + '" data-dir="-1"' + (i ? '' : ' disabled') + '>' + ICO_SUBIR + ' Subir</button><button class="btn ghost" type="button" data-accmove="' + esc(AE.id) + '" data-dir="1"' + (i < l.length - 1 ? '' : ' disabled') + '>' + ICO_BAJAR + ' Bajar</button></div></div>';
+    /* con movimientos u otros usos no se borra a ciegas: se pasan a otra cuenta y el historial queda igual */
+    const mover = uso && !misSubs.length, dest = mover ? cuentasDestino(AE.id) : [], d0 = dest.find(x => x.id === AE.mover);
+    if (mover) h += '<div class="field"><span class="label">Para eliminarla, ¿a qué cuenta pasan sus movimientos?</span><div class="chips">' +
+      dest.map(x => '<button type="button" class="chip" data-aemover="' + esc(x.id) + '" aria-pressed="' + (AE.mover === x.id) + '">' + esc(accShort(x.id)) + '</button>').join('') + '</div>' +
+      '<span class="tile-s">La usa ' + uso + '. Todo pasa a la cuenta que elijas, con las mismas fechas y valores, y su saldo (' + money(balances()[AE.id] || 0) + ') se suma allá. Las transferencias entre las dos se quitan porque quedarían de una cuenta a sí misma.</span></div>';
     h += '<div class="two"><button class="btn ghost" type="button" data-aehide>' + (a.hidden ? 'Volver a mostrar' : 'Ocultar') + '</button>' +
-      '<button class="btn ghost' + (AE.del ? ' danger' : '') + '" type="button" data-aedel' + (uso ? ' disabled' : '') + '>' + (AE.del ? '¿Seguro? Eliminar' : 'Eliminar') + '</button></div>' +
-      '<p class="note" style="padding:0;margin:0">' + (uso ? 'No se puede eliminar porque la usa ' + uso + '. Ocúltala: deja de salir en tus listas y su historial se conserva.' : 'Ocultarla la quita de tus listas sin borrar nada.') + '</p>'; }
+      '<button class="btn ghost' + (AE.del ? ' danger' : '') + '" type="button" data-aedel' + ((mover ? !d0 : uso) ? ' disabled' : '') + '>' + (AE.del ? '¿Seguro? Eliminar' : mover ? 'Pasar y eliminar' : 'Eliminar') + '</button></div>' +
+      '<p class="note" style="padding:0;margin:0">' + (AE.del && d0 ? 'Sus movimientos quedan en ' + esc(accShort(d0.id)) + ' y la cuenta se borra. ' : '') + (uso && !mover ? 'Primero elimina o mueve sus subcuentas. ' : '') + 'Ocultarla la quita de tus listas sin borrar nada.' + '</p>'; }
   h += '</div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
@@ -7636,10 +7698,14 @@ document.addEventListener('click', e => {
   if (d.aeapart !== undefined) { AE.apart = !AE.apart; return accEditDraw(); }
   if (d.aego !== undefined) return accEditGuardar();
   if (d.aehide !== undefined) { const a = accById(AE.id); a.hidden = !a.hidden; save(); AE = null; closeSheet(); render(); return toast(a.hidden ? 'Cuenta oculta' : 'Cuenta visible de nuevo'); }
-  if (d.aedel !== undefined) { if (cuentaEnUso(AE.id)) return;
+  if (d.aemover) { AE.mover = d.aemover; AE.del = false; return accEditDraw(); }
+  if (d.aedel !== undefined) { const uso = cuentaEnUso(AE.id), to = uso ? AE.mover : null;
+    if (subsDe(AE.id).length || (uso && !cuentasDestino(AE.id).some(x => x.id === to))) return;
     if (!AE.del) { AE.del = true; return accEditDraw(); }
-    S.accounts = S.accounts.filter(x => x.id !== AE.id); if (S.lastAccount === AE.id) delete S.lastAccount;
-    save(); AE = null; closeSheet(); render(); return toast('Cuenta eliminada'); }
+    const n = to ? cuentaPasar(AE.id, to) : 0;
+    S.accounts = S.accounts.filter(x => x.id !== AE.id); if (S.lastAccount === AE.id) S.lastAccount = to || undefined;
+    if (!S.lastAccount) delete S.lastAccount;
+    save(); AE = null; closeSheet(); render(); return toast(to ? 'Cuenta eliminada: ' + plural(n, 'movimiento pasó', 'movimientos pasaron') + ' a ' + accShort(to) : 'Cuenta eliminada'); }
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'ae-bal') pesosCampo(e.target); });
 
