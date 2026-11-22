@@ -43,7 +43,7 @@ function personaDeParte(p){
   else if ((m = /\btengo\b[^.]*?\bde\s+(?!\d)/.exec(plain))) { tipo = 'guardo'; nombre = nombreTras(p, m.index + m[0].length); }
   else if ((m = /\ble\s+(devolvi|pague|abone|transferi|consigne|envie)\b/.exec(plain))) { tipo = m[1] === 'devolvi' ? 'devolver' : 'pago'; nombre = trasA(m.index + m[0].length); }
   else if ((m = /\bme\s+(?:pago|pagaron|abono|devolvio|consigno|transfirio)\b/.exec(plain))) { tipo = 'cobrar'; nombre = nombreAntes(p, m.index) || nombreTras(p, m.index + m[0].length); }
-  if (!tipo || !nombre) return null;
+  if (!tipo || !nombre) return personaHabitual(p);
   const pl = personaBuscar(nombre);
   /* pagos, cobros y apartados solo si esa persona de verdad tiene algo abierto: si no, es un gasto o ingreso normal */
   if (tipo === 'pago' || tipo === 'apartar') { if (!pl || !(pl.debes > 0)) return null; }
@@ -52,6 +52,32 @@ function personaDeParte(p){
   const persona = pl ? pl.nombre : personaCanon(nombre);
   const acc = accountIn(p) || (tipo === 'devolver' && ajenaLibre(persona).acc) || (tipo === 'apartar' && cuentaConPlataPropia()) || lastAccount();
   return { type:'persona', pt:tipo, persona, amount:v, date:dateIn(p), note:'', accountId:acc, src:'texto' };
+}
+/* qué fue un movimiento de persona ya guardado: debo, guardo o preste (null si es otra cosa) */
+function personaClase(t){
+  if (!t.persona || t.src === 'deuda' || t.src === 'ajena' || t.lig) return null;
+  const P = deudaAcc('pagar'), C = deudaAcc('cobrar'), Z = deudaAcc('pausa');
+  if (t.type === 'ajuste' && Z && t.accountId === Z.id) return 'debo';
+  if (t.type === 'transferencia' && P && t.accountId === P.id) return 'guardo';
+  if (t.type === 'transferencia' && C && t.toAccountId === C.id) return 'preste';
+  return null;
+}
+/* lo que repites con alguien, aunque no digas "me dejó" ni "le debo": si lo dicho trae todas las palabras del concepto
+   de un movimiento de persona anterior ("tienda mamá 50 mil" y antes guardaste "Tienda mamá" como plata de tu mamá),
+   se registra igual: misma persona, mismo tipo, mismo concepto y la misma cuenta, salvo que digas otra. */
+function personaHabitual(p){
+  const sp = p.replace(/\b\d{1,2}[\/-]\d{1,2}\b/g, ' '), am = amountsIn(sp); if (!am.length) return null;
+  const a = am[am.length - 1]; let v = a.v; if (!a.unit && !a.money && v > 0 && v < 1000) v *= 1000;
+  const pal = s => notaClave(s).split(' ').filter(w => w.length > 2 && !/\d/.test(w) && !PT_NO_NOMBRE.has(w));
+  const dicho = new Set(pal(p)); if (!dicho.size) return null;
+  let mejor = null;
+  for (const t of S.transactions) { const k = personaClase(t); if (!k || !t.note) continue;
+    const w = pal(t.note); if (!w.length || !w.every(x => dicho.has(x))) continue;
+    const sc = w.length * 1e13 + (t.ts || 0); if (!mejor || sc > mejor.sc) mejor = { t, k, sc }; }
+  if (!mejor) return null;
+  const { t, k } = mejor, prev = accById(k === 'guardo' ? t.toAccountId : t.accountId);
+  const acc = k === 'debo' ? null : accountIn(p) || (prev && !prev.hidden ? prev.id : lastAccount());
+  return { type:'persona', pt:k, persona:t.persona, amount:v, date:dateIn(p), note:t.note, accountId:acc, src:'texto' };
 }
 /* separa lo que es de personas de lo demás: { items, resto } (resto = texto que sigue siendo gastos o ingresos normales) */
 function personaParse(text){

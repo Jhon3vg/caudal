@@ -1,5 +1,5 @@
 /* Cómo va el mes: un solo bloque en Inicio que junta lo que entró, lo que salió y lo que quedó, con los porcentajes
-   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco muestra en rojo lo que ya salió y en verde lo que te queda de lo que entró.
+   de gastos, ahorro y lo que se mantiene en tus cuentas. El arco muestra en rojo lo que ya salió y en verde lo que te queda de lo que entró; debajo, una frase dice qué significa la etiqueta.
    La plata de otras personas se muestra aparte dentro del mismo bloque: está en tus cuentas, pero no es tuya. */
 const esAhorroAcc = a => !!a && !a.hidden && !esDeuda(a) && !isCard(a) && (!!a.apart || /ahorro/i.test(a.group || ''));
 function mesDatos(p){
@@ -33,18 +33,17 @@ function mesCard(p){
   if (modo) { const sobra = pct > 100, big = sobra ? pct - 100 : 100 - pct, de = modo === 'ingresos' ? 'lo que entró' : 'el presupuesto';
     h += '<div class="mes-g">' + mesArco(usado) + '<div class="gv"><span class="pct num">' + big + '%</span><span class="cap">' + (sobra ? 'por encima de ' + de : 'de ' + de + ' te queda') + '</span><span class="est">' + est[1] + '</span></div></div>'; }
   else h += '<p class="insight" style="margin:0">Cuando registres ingresos, aquí verás qué parte ya salió y qué parte te queda.</p>';
-  h += '<div class="stats3 mes-cols"><div><span><i style="background:var(--ink)"></i>Entró</span><b class="num">' + money(d.inc) + '</b></div>' +
-    '<div><span><i style="background:var(--out)"></i>Salió</span><b class="num">' + money(d.exp) + '</b></div>' +
-    '<div><span><i style="background:var(--in)"></i>Quedó</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
-  if (d.inc > 0) {
-    const g = Math.min(100, pctDe(d.exp, d.inc)), a = pctDe(d.ahorro, d.inc), m = Math.max(0, 100 - g - a);
-    h += '<div class="flowbar mes-bar" role="img" aria-label="Gastos ' + g + '%, ahorro ' + a + '%, se mantiene ' + m + '%">' +
-      (g ? '<i style="flex:' + g + ';background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i>' : '') + (a ? '<i style="flex:' + a + ';background:var(--move);box-shadow:0 0 12px -1px var(--move)"></i>' : '') + (m ? '<i style="flex:' + m + ';background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i>' : '') + '</div>' +
-      '<div class="mes-leg"><div><span><i style="background:var(--out)"></i>Gastos</span><b class="num">' + pctDe(d.exp, d.inc) + '%</b></div>' +
-      '<div><span><i style="background:var(--move)"></i>Ahorro</span><b class="num">' + a + '%</b></div>' +
-      '<div><span><i style="background:var(--in)"></i>Se mantiene</span><b class="num">' + m + '%</b></div></div>';
-    if (d.queda < 0) h += '<p class="note" style="padding:0;margin:0">Gastaste <b>' + money(-d.queda) + '</b> más de lo que entró en este periodo.</p>';
-  }
+  /* qué quiere decir la etiqueta del arco, con datos: cuánto llevas gastado y cómo va frente a los días del mes */
+  if (modo) { const de = modo === 'ingresos' ? 'lo que entró' : 'tu presupuesto', diasPct = isCurrent ? Math.round((ti + 1) / N * 100) : 100;
+    const regla = pct <= 60 ? 'Hasta 60% gastado es equilibrado.' : pct <= 85 ? 'Entre 60% y 85% gastado es alto: te queda poco margen.' : pct <= 100 ? 'Más de 85% gastado es muy alto.' : '';
+    const ritmo = isCurrent && pct <= 100 ? (pct > diasPct + 5 ? ' Vas más rápido que el mes: llevas el ' + diasPct + '% de los días.' : pct < diasPct - 5 ? ' Vas más lento que el mes: llevas el ' + diasPct + '% de los días.' : ' Vas al ritmo del mes.') : '';
+    h += '<p class="mes-exp">' + (pct > 100 ? 'Gastaste ' + money(bexp - (modo === 'ingresos' ? d.inc : budget)) + ' más de ' + de + '; ese faltante salió de lo que ya tenías.' : 'Ya gastaste el <b>' + pct + '%</b> de ' + de + '. ' + regla + ritmo) + '</p>'; }
+  /* lo tuyo del periodo: lo que entró arriba y de ahí se desprende lo que salió y lo que queda */
+  const pS = pctDe(d.exp, d.inc), pQ = d.inc > 0 ? Math.max(0, 100 - pS) : 0;
+  h += '<div class="mes-in"><span>Entró</span><b class="num">' + money(d.inc) + '</b></div>';
+  if (d.inc > 0) h += '<div class="flowbar mes-bar" role="img" aria-label="Salió ' + pS + '%, queda ' + pQ + '%">' + (pS ? '<i style="flex:' + Math.min(100, pS) + ';background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i>' : '') + (pQ ? '<i style="flex:' + pQ + ';background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i>' : '') + '</div>';
+  h += '<div class="stats3 two-col mes-cols"><div><span><i style="background:var(--out)"></i>Salió' + (d.inc > 0 ? ' · ' + pS + '%' : '') + '</span><b class="num">' + money(d.exp) + '</b></div>' +
+    '<div><span><i style="background:var(--in)"></i>' + (d.queda < 0 ? 'Faltó' : 'Queda') + (d.inc > 0 && d.queda >= 0 ? ' · ' + pQ + '%' : '') + '</span><b class="num' + (d.queda < 0 ? ' neg' : '') + '">' + (d.queda < 0 ? '−' : '') + money(Math.abs(d.queda)) + '</b></div></div>';
   /* lo que queda para gastar según tu plan, con lo que falta por pagar de fijos */
   if (budget > 0 && isCurrent) {
     const pl = planFor(p), R = pl ? planReal(pl, p) : null, left = pl ? planQueda(pl, p, R) : budget - bexp, daysLeft = N - ti;

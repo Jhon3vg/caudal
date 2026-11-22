@@ -209,6 +209,12 @@ function startVoice(){
     REC = r; r.start(); drawSmart();
   } catch (_) { fallback(); }
 }
+/* si la IA lo dejó como gasto o ingreso, pero su concepto es uno que ya usas con una persona, se registra como antes */
+function habitualIA(it){
+  if (!it || (it.type !== 'gasto' && it.type !== 'ingreso') || !it.note || it.ajena) return it;
+  let h = null; try { h = personaHabitual(it.note + ' ' + it.amount); } catch (_) {}
+  return h ? { ...h, amount:it.amount, date:it.date || h.date, accountId:h.pt === 'debo' ? null : it.accountId && accById(it.accountId) && !isCard(accById(it.accountId)) ? it.accountId : h.accountId, src:'ia' } : it;
+}
 async function smartGo(force){
   if (!SM || SM.busy) return;
   const ta = $('#sm-text'); if (ta) SM.text = ta.value;
@@ -219,7 +225,7 @@ async function smartGo(force){
   const need = force || SM.files.length || !items.length || items.some(i => i.type !== 'transferencia' && i.type !== 'persona' && !i.categoryId);
   if (need && aiOn()) {
     SM.busy = true; if (!SM.items) drawSmart(); else drawReview();
-    try { const r = await aiParse(text, SM.files, true); if (r.length) { items = r; engine = 'ia'; } }
+    try { const r = await aiParse(text, SM.files, true); if (r.length) { items = r.map(habitualIA); engine = 'ia'; } }
     catch (e) { SM.busy = false; if (!items.length) return SM.items ? drawReview(aiErr(e)) : drawSmart(aiErr(e)); }
     SM.busy = false;
   } else if (need && SM.files.length) return drawSmart('Leer fotos necesita la IA, que no está disponible en esta vista.');
@@ -251,7 +257,7 @@ function drawReview(msg){
       '<div class="rv-amt"><span>$</span><input inputmode="numeric" class="num" data-rv="' + i + '" data-f="amount" value="' + (it.amount ? nf.format(it.amount) : '') + '" aria-label="Valor"></div>' +
       '<button class="x" data-rvdel="' + i + '" aria-label="Descartar">✕</button></div>' +
       (it.type !== 'transferencia' ? '<button type="button" class="pill pendt" data-rvpend="' + i + '" aria-pressed="' + !!it.pending + '">' + (it.pending ? '◐ Por confirmar' : '◐ Marcar por confirmar') + '</button>' : '') +
-      '<input class="inp" data-rv="' + i + '" data-f="note" value="' + esc(it.note) + '" placeholder="Descripción" aria-label="Descripción">' +
+      '<input class="inp" data-rv="' + i + '" data-f="note" value="' + esc(it.note) + '" placeholder="Concepto" aria-label="Concepto">' +
       (it.type === 'transferencia'
         ? '<div class="two"><select class="inp" data-rv="' + i + '" data-f="accountId" aria-label="Desde">' + accOptions(it.accountId) + '</select><select class="inp" data-rv="' + i + '" data-f="toAccountId" aria-label="Hacia">' + accOptions(it.toAccountId, 'Hacia…') + '</select></div>'
         : (() => { const c = cat(it.categoryId); return gridPicker(it.type, c ? (c.parentId || c.id) : null, c && c.parentId ? c.id : null, !!it._open || !it.categoryId, it._expand, 'rv' + i); })() + rvAccFields(it, i)) +
@@ -323,6 +329,7 @@ function reviewSave(){
     else if (it.type !== 'transferencia' && !it.categoryId) it.err = 'Elige una categoría.';
     else if (it.type === 'transferencia' && (!it.toAccountId || it.toAccountId === it.accountId)) it.err = 'Elige una cuenta de destino distinta.';
     else if (it.type === 'gasto' && it.ajena && it.ajena >= it.amount) it.err = 'La parte de la otra persona no puede ser todo el gasto.';
+    else if (!String(it.note || '').trim()) it.err = 'Escribe el concepto.';
     if (it.err) bad = true; });
   if (bad) return drawReview();
   /* lo de personas se aplica primero y, si algo falla, se deshace todo para no dejar la mitad guardada */

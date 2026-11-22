@@ -238,13 +238,18 @@ const personasUsadas = () => { const v = new Map(); for (const t of S.transactio
 
 /* ----- tarjeta en Inicio, encima del saldo: revisar deudas antes del cierre del periodo.
    Sale siempre que haya deudas abiertas; sin deudas, solo en los últimos 5 días como confirmación. ----- */
+/* cuántas cuentas pendientes con personas: una por persona y por tipo (le debes, tienes suyo, te debe), no una por cada movimiento */
+function deudasConteo(){
+  const l = personasLista().filter(p => p.key !== '_'), n = l.reduce((a, p) => a + (p.debes > 0) + (p.suya > 0) + (p.teDebe > 0), 0), g = l.filter(personaAbierta).length;
+  return n + (n === 1 ? ' pendiente' : ' pendientes') + ' · ' + g + (g === 1 ? ' persona' : ' personas');
+}
 function deudasInicio(p){
   if (!deudaAcc('pagar') && !deudaAcc('cobrar') && !deudaAcc('pausa')) return '';
   const ab = deudasAbiertas(), today = iso(new Date());
   const faltan = today >= p.s && today <= p.e ? Math.round((parseISO(p.e) - parseISO(today)) / 864e5) + 1 : null, cierre = faltan !== null && faltan <= 5;
   if (!ab.length) return cierre ? '<div class="banner"><span><b>Sin deudas abiertas.</b> Llegas al cierre del periodo sin deber ni que te deban.</span></div>' : '';
   const debes = ab.filter(x => x.k !== 'cobrar').reduce((a, x) => a + x.falta, 0), teDeben = ab.filter(x => x.k === 'cobrar').reduce((a, x) => a + x.falta, 0);
-  return '<section class="card"><div class="card-h"><h2>Revisa tus deudas</h2><span class="aside">' + (cierre ? '<b class="warn">' + (faltan === 1 ? 'Hoy cierra el periodo' : 'Faltan ' + faltan + ' días para el cierre') + '</b>' : ab.length + (ab.length === 1 ? ' abierta' : ' abiertas')) + '</span></div>' +
+  return '<section class="card"><div class="card-h"><h2>Revisa tus deudas</h2><span class="aside">' + (cierre ? '<b class="warn">' + (faltan === 1 ? 'Hoy cierra el periodo' : 'Faltan ' + faltan + ' días para el cierre') + '</b>' : deudasConteo()) + '</span></div>' +
     '<div class="stats3 two-col"><div><span>Debes</span><b class="num' + (debes ? ' neg' : '') + '">' + money(debes) + '</b></div><div><span>Te deben</span><b class="num">' + money(teDeben) + '</b></div></div>' +
     '<p class="note" style="padding:0">' + (cierre ? 'Págalas o cóbralas antes del cierre para que el sobrante del periodo sea real.' : 'La plata de otros ya está descontada de tu disponible; las deudas en pausa no, hasta que las pagues.') + '</p>' +
     '<button class="btn ghost block" data-go="personas">Ver por persona y registrar abonos</button></section>';
@@ -446,11 +451,17 @@ function deudaNuevaDraw(){
     '<div class="field"><label class="label" for="dn-amt">Valor</label><div class="amount" style="padding:10px 16px"><span>$</span><input id="dn-amt" inputmode="numeric" class="num" value="' + (DN.amt ? nf.format(DN.amt) : '') + '" placeholder="0" style="font-size:28px"></div></div>' +
     dnDeField() +
     (cuenta ? '<div class="field"><span class="label">' + (DN.tipo === 'guardo' ? '¿En qué cuenta está?' : '¿De qué cuenta salió?') + '</span><div class="cgrid">' + opts.map(a => cuentaTile(a, 'data-dnacc="' + esc(a.id) + '"', DN.acc === a.id, b, aj)).join('') + '</div></div>' : '') +
-    '<div class="field"><label class="label" for="dn-note">Concepto (opcional)</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.persona ? deudaNuevaNota(DN.tipo, DN.persona, DN.tipo === 'preste' && DN.de) : DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off"><span class="tile-s">Si lo dejas vacío, Caudal lo escribe solo.</span></div>' +
+    '<div class="field"><label class="label" for="dn-note">Concepto</label><input class="inp" id="dn-note" value="' + esc(DN.note) + '" placeholder="' + (DN.persona ? deudaNuevaNota(DN.tipo, DN.persona, DN.tipo === 'preste' && DN.de) : DN.tipo === 'guardo' ? 'Ej. Para la cuota de la moto' : 'Ej. Préstamo de diciembre') + '" autocomplete="off">' + dnNotas() + '<span class="tile-s">Si lo dejas vacío, Caudal lo escribe solo.</span></div>' +
     '<div class="err" id="dn-err"></div><button class="btn accent block" type="button" data-dngo>Guardar</button></div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
 /* lo escrito en los campos sobrevive a redibujar la hoja al elegir otra opción */
+/* conceptos que ya usaste con esa persona (los más usados primero), para repetirlos con un toque */
+function dnNotas(){
+  if (!DN || !DN.persona) return '';
+  const k = normP(DN.persona), l = [...notasUsadas(t => t.persona && normP(t.persona) === k && !t.lig).values()].sort((a, b) => b.n - a.n || b.ult.localeCompare(a.ult)).slice(0, 6).map(x => x.txt);
+  return l.length ? '<div class="chips" style="margin:8px 0 4px">' + l.map(n => '<button type="button" class="chip" data-dnnota="' + esc(n) + '" aria-pressed="' + (DN.note === n) + '">' + esc(n) + '</button>').join('') + '</div>' : '';
+}
 const dnLeer = () => { const p = $('#dn-persona'), n = $('#dn-note'), a = $('#dn-amt'); if (p) DN.persona = p.value.trim(); if (n) DN.note = n.value.trim(); if (a) DN.amt = leerPesos(a.value); };
 /* crea el movimiento de una deuda nueva (lo usan la hoja de Personas y el registro por voz): devuelve { err } o { msg } y no guarda ni dibuja */
 function deudaNuevaAplicar(o){
@@ -476,6 +487,7 @@ document.addEventListener('click', e => {
   if (d.dntipo) { DN.tipo = d.dntipo; return deudaNuevaDraw(); }
   if (d.dnrep !== undefined) { const q = DN.rep[+d.dnrep]; if (!q) return; DN.tipo = q.tipo; DN.persona = q.persona; DN.amt = q.amt; DN.de = q.tipo === 'preste' ? q.de : ''; if (q.acc && accById(q.acc)) DN.acc = q.acc; deudaNuevaDraw(); return setTimeout(() => { const i = $('#dn-amt'); if (i) { i.focus(); try { i.select(); } catch (_) {} } }, 60); }
   if (d.dnper) { DN.persona = d.dnper; return deudaNuevaDraw(); }
+  if (d.dnnota) { DN.note = d.dnnota; return deudaNuevaDraw(); }
   if (d.dnacc) { DN.acc = d.dnacc; return deudaNuevaDraw(); }
   if (d.dnde !== undefined) { DN.de = d.dnde; if (DN.de) { const l = ajenaLibre(DN.de); if (l.acc) DN.acc = l.acc; } return deudaNuevaDraw(); }
   if (d.dngo !== undefined) {

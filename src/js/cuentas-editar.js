@@ -16,6 +16,22 @@ function cuentaEnUso(id){
   if (S.accounts.some(a => a.card && a.card.pocket === id)) return 'una tarjeta que se paga desde ella';
   return '';
 }
+/* a dónde pueden pasar los movimientos de una cuenta que se borra: otra del mismo tipo (tarjeta con tarjeta), sin deudas */
+const cuentasDestino = id => { const a = accById(id); return S.accounts.filter(x => x.id !== id && !esDeuda(x) && x.parentAcc !== id && !!isCard(x) === !!isCard(a)); };
+/* pasa todo lo de una cuenta a otra: movimientos, recibos, pagos fijos, plan y tarjetas que se pagan desde ella.
+   Las transferencias entre las dos se quitan (quedarían de la cuenta a sí misma); devuelve cuántos movimientos pasaron */
+function cuentaPasar(de, a){
+  let n = 0; const fuera = new Set();
+  for (const t of S.transactions) { const x = t.accountId === de, y = t.toAccountId === de;
+    if (t.type === 'transferencia' && ((x && t.toAccountId === a) || (y && t.accountId === a))) { fuera.add(t.id); continue; }
+    if (x) t.accountId = a; if (y) t.toAccountId = a; if (t.fund === de) t.fund = a; if (x || y) n++; }
+  if (fuera.size) S.transactions = S.transactions.filter(t => !fuera.has(t.id));
+  for (const b of S.bills || []) if (b.accountId === de) b.accountId = a;
+  for (const r of S.recurring || []) if (r.accountId === de) r.accountId = a;
+  for (const p of S.plans || []) { if (p.from === de) p.from = a; if (p.surplus === de) p.surplus = a; for (const i of p.items || []) if (i.acc === de) i.acc = a; }
+  for (const c of S.accounts) if (c.card && c.card.pocket === de) c.card.pocket = a;
+  return n;
+}
 /* grupo interno según el nombre y el tipo */
 const grupoAuto = (nombre, tarjeta) => tarjeta ? 'Tarjetas' : /efectivo|billete/i.test(nombre) ? 'Efectivo' : /ahorro|cdt|bolsillo/i.test(nombre) ? 'Ahorro' : 'Cuentas';
 
@@ -49,9 +65,14 @@ function accEditDraw(){
   if (!nuevo) { const uso = cuentaEnUso(AE.id) || (misSubs.length ? plural(misSubs.length, 'subcuenta', 'subcuentas') : ''), l = hermanas(AE.id), i = l.findIndex(x => x.id === AE.id);
     if (l.length > 1 && i >= 0) h += '<div class="field"><span class="label">Lugar en la lista: ' + (i + 1) + ' de ' + l.length + '</span><div class="two">' +
       '<button class="btn ghost" type="button" data-accmove="' + esc(AE.id) + '" data-dir="-1"' + (i ? '' : ' disabled') + '>' + ICO_SUBIR + ' Subir</button><button class="btn ghost" type="button" data-accmove="' + esc(AE.id) + '" data-dir="1"' + (i < l.length - 1 ? '' : ' disabled') + '>' + ICO_BAJAR + ' Bajar</button></div></div>';
+    /* con movimientos u otros usos no se borra a ciegas: se pasan a otra cuenta y el historial queda igual */
+    const mover = uso && !misSubs.length, dest = mover ? cuentasDestino(AE.id) : [], d0 = dest.find(x => x.id === AE.mover);
+    if (mover) h += '<div class="field"><span class="label">Para eliminarla, ¿a qué cuenta pasan sus movimientos?</span><div class="chips">' +
+      dest.map(x => '<button type="button" class="chip" data-aemover="' + esc(x.id) + '" aria-pressed="' + (AE.mover === x.id) + '">' + esc(accShort(x.id)) + '</button>').join('') + '</div>' +
+      '<span class="tile-s">La usa ' + uso + '. Todo pasa a la cuenta que elijas, con las mismas fechas y valores, y su saldo (' + money(balances()[AE.id] || 0) + ') se suma allá. Las transferencias entre las dos se quitan porque quedarían de una cuenta a sí misma.</span></div>';
     h += '<div class="two"><button class="btn ghost" type="button" data-aehide>' + (a.hidden ? 'Volver a mostrar' : 'Ocultar') + '</button>' +
-      '<button class="btn ghost' + (AE.del ? ' danger' : '') + '" type="button" data-aedel' + (uso ? ' disabled' : '') + '>' + (AE.del ? '¿Seguro? Eliminar' : 'Eliminar') + '</button></div>' +
-      '<p class="note" style="padding:0;margin:0">' + (uso ? 'No se puede eliminar porque la usa ' + uso + '. Ocúltala: deja de salir en tus listas y su historial se conserva.' : 'Ocultarla la quita de tus listas sin borrar nada.') + '</p>'; }
+      '<button class="btn ghost' + (AE.del ? ' danger' : '') + '" type="button" data-aedel' + ((mover ? !d0 : uso) ? ' disabled' : '') + '>' + (AE.del ? '¿Seguro? Eliminar' : mover ? 'Pasar y eliminar' : 'Eliminar') + '</button></div>' +
+      '<p class="note" style="padding:0;margin:0">' + (AE.del && d0 ? 'Sus movimientos quedan en ' + esc(accShort(d0.id)) + ' y la cuenta se borra. ' : '') + (uso && !mover ? 'Primero elimina o mueve sus subcuentas. ' : '') + 'Ocultarla la quita de tus listas sin borrar nada.' + '</p>'; }
   h += '</div>';
   if ($('#sheet').hidden) openSheet(h); else $('#sheet').innerHTML = '<div class="grab"></div>' + h;
 }
@@ -95,10 +116,14 @@ document.addEventListener('click', e => {
   if (d.aeapart !== undefined) { AE.apart = !AE.apart; return accEditDraw(); }
   if (d.aego !== undefined) return accEditGuardar();
   if (d.aehide !== undefined) { const a = accById(AE.id); a.hidden = !a.hidden; save(); AE = null; closeSheet(); render(); return toast(a.hidden ? 'Cuenta oculta' : 'Cuenta visible de nuevo'); }
-  if (d.aedel !== undefined) { if (cuentaEnUso(AE.id)) return;
+  if (d.aemover) { AE.mover = d.aemover; AE.del = false; return accEditDraw(); }
+  if (d.aedel !== undefined) { const uso = cuentaEnUso(AE.id), to = uso ? AE.mover : null;
+    if (subsDe(AE.id).length || (uso && !cuentasDestino(AE.id).some(x => x.id === to))) return;
     if (!AE.del) { AE.del = true; return accEditDraw(); }
-    S.accounts = S.accounts.filter(x => x.id !== AE.id); if (S.lastAccount === AE.id) delete S.lastAccount;
-    save(); AE = null; closeSheet(); render(); return toast('Cuenta eliminada'); }
+    const n = to ? cuentaPasar(AE.id, to) : 0;
+    S.accounts = S.accounts.filter(x => x.id !== AE.id); if (S.lastAccount === AE.id) S.lastAccount = to || undefined;
+    if (!S.lastAccount) delete S.lastAccount;
+    save(); AE = null; closeSheet(); render(); return toast(to ? 'Cuenta eliminada: ' + plural(n, 'movimiento pasó', 'movimientos pasaron') + ' a ' + accShort(to) : 'Cuenta eliminada'); }
 }, true);
 document.addEventListener('input', e => { if (e.target.id === 'ae-bal') pesosCampo(e.target); });
 

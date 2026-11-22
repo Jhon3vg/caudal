@@ -97,41 +97,26 @@ function notasDe(p, catId){
   const l = [...m.values()].sort((a, b) => b[1] - a[1]);
   return l.length > 8 ? l.slice(0, 7).concat([['Otras ' + (l.length - 7) + ' notas', l.slice(7).reduce((a, x) => a + x[1], 0), 1]]) : l;
 }
-function squarify(items, rect){
-  const total = items.reduce((a, b) => a + b.v, 0) || 1, scale = rect.w * rect.h / total;
-  const nodes = items.map(it => ({ ...it, a: it.v * scale })), out = []; let row = [], r = { ...rect };
-  const worst = (rw, s) => { if (!rw.length) return Infinity; const sum = rw.reduce((a, n) => a + n.a, 0), mx = Math.max(...rw.map(n => n.a)), mn = Math.min(...rw.map(n => n.a)); return Math.max(s * s * mx / (sum * sum), (sum * sum) / (s * s * mn)); };
-  const place = rw => { const sum = rw.reduce((a, n) => a + n.a, 0);
-    if (r.w >= r.h) { const cw = sum / r.h; let yy = r.y; rw.forEach(n => { const hh = n.a / cw; out.push({ ...n, x:r.x, y:yy, w:cw, h:hh }); yy += hh; }); r.x += cw; r.w -= cw; }
-    else { const rh = sum / r.w; let xx = r.x; rw.forEach(n => { const ww = n.a / rh; out.push({ ...n, x:xx, y:r.y, w:ww, h:rh }); xx += ww; }); r.y += rh; r.h -= rh; } };
-  while (nodes.length) { const n = nodes[0], s = Math.min(r.w, r.h);
-    if (!row.length || worst(row.concat(n), s) <= worst(row, s)) { row.push(n); nodes.shift(); } else { place(row); row = []; } }
-  if (row.length) place(row);
-  return out;
-}
 function chartCategorias(p){
   const m = spentByParent(p, 'gasto'), pm = spentByParent(period(ui.offset - 1), 'gasto');
   const rows = Object.entries(m).sort((a, b) => b[1].total - a[1].total);
   const total = rows.reduce((a, r) => a + r[1].total, 0);
   let out = '<section class="card"><div class="card-h"><h2>En qué se va</h2><span class="aside num">' + money(total) + '</span></div>';
   if (!rows.length) return out + '<div class="empty">Sin gastos en este periodo.</div></section>';
-  const items = rows.slice(0, 7).map(([id, x]) => { const c = cat(id); return { id, v:x.total, name:c ? c.name : 'Sin categoría', emoji:c ? c.emoji : '' }; });
-  const rest = rows.slice(7).reduce((a, r) => a + r[1].total, 0);
-  if (rest > 0) items.push({ id:'_rest', v:rest, name:'Otras ' + (rows.length - 7), emoji:'' });
-  const W = 340, H = 210, max = Math.max(...items.map(i => i.v));
-  const cells = squarify(items, { x:0, y:0, w:W, h:H });
-  CH.tree = cells.map(c => ({ title:(c.emoji ? c.emoji + ' ' : '') + c.name, rows:[[PAL.rosa, 'Gasto', money(c.v)], [PAL.gris, 'Del total', Math.round(c.v / total * 100) + '%']] }));
-  let g = '';
-  cells.forEach((c, i) => {
-    const k = c.v / max, w = Math.max(0, c.w - 4), h = Math.max(0, c.h - 4), x = c.x + 2, y = c.y + 2;
-    g += '<g data-i="' + i + '" data-cid="' + esc(c.id) + '" style="cursor:pointer"><rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="12" fill="' + PAL.rosa + '" fill-opacity="' + (.14 + .46 * k).toFixed(2) + '" stroke="' + PAL.rosa + '" stroke-opacity="' + (.25 + .45 * k).toFixed(2) + '" style="filter:drop-shadow(0 0 5px rgba(255,90,102,' + (.15 + .3 * k).toFixed(2) + '))"/>';
-    const pct = Math.round(c.v / total * 100) + '%';
-    if (w > 74 && h > 48) { const maxc = Math.floor((w - 22) / 6.4); let nm = c.name; if (nm.length > maxc) nm = nm.slice(0, Math.max(3, maxc - 1)) + '…';
-      g += '<text x="' + (x + 12).toFixed(1) + '" y="' + (y + 22).toFixed(1) + '" style="fill:' + PAL.tinta + ';font-size:12px;font-weight:500;opacity:.85">' + esc(nm) + '</text><text x="' + (x + 12).toFixed(1) + '" y="' + (y + 42).toFixed(1) + '" style="fill:' + PAL.tinta + ';font-size:17px;font-weight:600">' + pct + '</text>';
-    } else if (w > 30 && h > 22) g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (y + h / 2 + 4).toFixed(1) + '" text-anchor="middle" style="fill:' + PAL.tinta + ';font-size:10.5px;font-weight:600">' + pct + '</text>';
-    g += '</g>';
-  });
-  out += '<div class="chart" data-kind="tree"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Proporción del gasto por categoría">' + g + '</svg></div><div>';
+  const items = rows.slice(0, 6).map(([id, x]) => { const c = cat(id); return { id, v:x.total, name:c ? c.name : 'Sin categoría', emoji:c ? c.emoji : '' }; });
+  const rest = rows.slice(6).reduce((a, r) => a + r[1].total, 0);
+  if (rest > 0) items.push({ id:'_rest', v:rest, name:'Otras ' + (rows.length - 6), emoji:'' });
+  /* dona: cada categoría con su porcentaje; las pequeñas también se ven, en el anillo y en la lista de al lado */
+  const R = 62, C = 2 * Math.PI * R, gap = items.length > 1 ? 2.2 : 0;
+  CH.tree = items.map(c => ({ title:(c.emoji ? c.emoji + ' ' : '') + c.name, rows:[[PAL.rosa, 'Gasto', money(c.v)], [PAL.gris, 'Del total', Math.round(c.v / total * 100) + '%']] }));
+  let g = '<defs><filter id="dona-glow" filterUnits="userSpaceOnUse" x="-20" y="-20" width="200" height="200"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+    '<circle cx="80" cy="80" r="' + R + '" fill="none" style="stroke:var(--track)" stroke-width="16"/>', ac = 0;
+  items.forEach((c, i) => { const len = c.v / total * C, vis = Math.max(1.2, len - gap);
+    g += '<circle data-i="' + i + '" data-cid="' + esc(c.id) + '" cx="80" cy="80" r="' + R + '" fill="none" stroke="' + serieColor(i) + '" stroke-width="16" stroke-dasharray="' + vis.toFixed(2) + ' ' + (C - vis).toFixed(2) + '" stroke-dashoffset="' + (-ac).toFixed(2) + '" transform="rotate(-90 80 80)" filter="url(#dona-glow)" style="cursor:pointer"/>';
+    ac += len; });
+  g += '<text x="80" y="76" text-anchor="middle" style="fill:var(--muted);font-size:11px">Gastaste</text><text x="80" y="95" text-anchor="middle" style="fill:var(--ink);font-size:16px;font-weight:600">' + short(total) + '</text>';
+  out += '<div class="chart dona" data-kind="tree"><svg viewBox="0 0 160 160" role="img" aria-label="Proporción del gasto por categoría">' + g + '</svg><div class="dona-lg">' +
+    items.map((c, i) => '<button type="button" data-cid="' + esc(c.id) + '"><i style="background:' + serieColor(i) + ';box-shadow:0 0 8px ' + serieColor(i) + '"></i><span>' + esc((c.emoji ? c.emoji + ' ' : '') + c.name) + '</span><b>' + (c.v / total < .005 ? '<1' : Math.round(c.v / total * 100)) + '%</b></button>').join('') + '</div></div><div>';
   for (const [id, x] of rows) {
     const c = cat(id), open = ui.open.has(id), pv = pm[id] ? pm[id].total : 0;
     let dl; if (!pv) dl = '<span class="delta muted">Nuevo</span>';
@@ -239,8 +224,9 @@ function flowCard(p){
     : (isCur ? 'Llevas gastado ' : 'Gastaste ') + 'el <b>' + pct + '%</b> de lo que entró. ' + (isCur ? 'Te quedan ' : 'Te quedaron ') + '<b class="pos">' + money(inc - exp) + '</b>.';
   return '<section class="card"><div class="card-h"><h2>Cómo vas</h2><span class="aside">' + (rate !== null ? 'Te queda el ' + Math.max(0, rate) + '%' : '') + '</span></div>' +
     '<p class="insight" style="margin:0 0 10px">' + frase + '</p>' +
+    '<div class="in-top"><span>Entró</span><b class="num">' + money(inc) + '</b></div>' +
     '<div class="flowbar" aria-hidden="true"><i style="width:' + saleW.toFixed(1) + '%;min-width:' + (saleW > 0 ? 6 : 0) + 'px;background:var(--out);box-shadow:0 0 12px -1px var(--out)"></i><i style="flex:1;background:var(--in);box-shadow:0 0 12px -1px var(--in)"></i></div>' +
-    '<div class="stats3"><div><span><i style="background:var(--in)"></i>Entró</span><b class="num">' + money(inc) + '</b></div><div><span><i style="background:var(--out)"></i>Gastaste</span><b class="num">' + money(exp) + '</b></div><div><span><i style="background:var(--in)"></i>Te queda</span><b class="num' + (inc - exp < 0 ? ' neg' : '') + '">' + money(inc - exp) + '</b></div></div>' +
+    '<div class="stats3 two-col"><div><span><i style="background:var(--out)"></i>Gastaste' + (inc ? ' · ' + pct + '%' : '') + '</span><b class="num">' + money(exp) + '</b></div><div><span><i style="background:var(--in)"></i>' + (inc - exp < 0 ? 'Faltó' : 'Te queda') + (inc && inc >= exp ? ' · ' + (100 - pct) + '%' : '') + '</span><b class="num' + (inc - exp < 0 ? ' neg' : '') + '">' + money(Math.abs(inc - exp)) + '</b></div></div>' +
     '<p class="note" style="padding:0;margin:8px 0 0">En la barra, lo rojo es lo gastado y lo verde lo que queda. Lo que pasas a tus ahorros no es gasto: sigue contando como lo que te queda.</p></section>';
 }
 function vAnalisis(p){
