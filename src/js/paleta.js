@@ -4,9 +4,9 @@
    Si cambias un color, cámbialo en los dos lugares. */
 const PAL = {
   lima:'#7DFF66',      // ingresos y lo que va bien (verde claro; la marca es el verde con brillo)
-  rosa:'#FF4D5E',      // gastos y lo que se pasa del límite (rojo coral)
-  lavanda:'#4FC3FF',   // transferencias y ahorro (celeste)
-  ambar:'#FFB443',     // avisos y ajustes
+  rosa:'#FF5A4E',      // gastos y lo que se pasa del límite (rojo cálido)
+  lavanda:'#2EE6C8',   // transferencias y ahorro (aguamarina)
+  ambar:'#E4F53A',     // avisos y ajustes (amarillo lima)
   agua:'#27C21F',      // verde medio (series)
   coral:'#C2FFB0',     // verde pálido (series)
   gris:'#8C998F',
