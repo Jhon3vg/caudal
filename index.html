@@ -170,7 +170,7 @@ body.lock>.fab{visibility:hidden}
 .tile-s{font-size:12px;color:var(--muted)}
 /* tarjeta destacada: gris carbón con un brillo verde que nace de una esquina, como las referencias.
    Dentro de ella se redefinen los colores de texto para que todo lo que contiene se lea en claro */
-.card.hero{background:var(--hero-card);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(75,255,59,.22);--brand:#4BFF3B;--on-brand:#041300;--ink:#FFFFFF;--muted:rgba(255,255,255,.72);--faint:rgba(255,255,255,.54);--line:rgba(255,255,255,.14);--pos:#7DFF66;--neg:#FF7A6E;--warn:#EFFF6A;--out:#FF7A6E;--in:#7DFF66;--track:rgba(255,255,255,.16)}
+.card.hero{background:var(--hero-card);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(75,255,59,.22);--brand:#4BFF3B;--on-brand:#041300;--ink:#FFFFFF;--muted:rgba(255,255,255,.72);--faint:rgba(255,255,255,.54);--line:rgba(255,255,255,.14);--pos:#5ED84C;--neg:#F07468;--warn:#D6E445;--out:#E5564B;--in:#5ED84C;--track:rgba(255,255,255,.16)}
 /* resto de tarjetas con brillo: un velo de color en la esquina y un borde fino */
 .card.glow{background:linear-gradient(180deg,#0E1511 0%,#090D0B 100%);box-shadow:inset 0 0 0 1px rgba(75,255,59,.2)}
 .card.hero .pill{background:rgba(255,255,255,.16);color:var(--ink)}
@@ -181,7 +181,7 @@ body.lock>.fab{visibility:hidden}
 .mes-g{position:relative;width:min(100%,300px);margin:0 auto}
 .mes-g svg{display:block;width:100%;height:auto;overflow:visible}
 .mes-g .gv{position:absolute;left:0;right:0;bottom:2px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.mes-g .pct{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--gc);text-shadow:0 0 22px var(--gc)}
+.mes-g .pct{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--gc);text-shadow:none}
 .mes-g .cap{font-size:12px;color:var(--muted)}
 .mes-g .est{margin-top:4px;padding:3px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--gc);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
 .mes-cols{margin-top:2px}
@@ -980,7 +980,7 @@ html.pinon,html.pinon body{overflow:hidden}
 <div class="tip" id="tip" role="tooltip"></div>
 
 <script>
-const BUILD = '20261122215434';
+const BUILD = '20261122221437';
 const SEED = {"settings": {"startDay": 25}, "accounts": [{"id": "efe", "name": "Efectivo", "group": "Dinero en efectivo", "order": 1, "groupOrder": 100, "hidden": false}, {"id": "banco", "name": "Cuenta principal", "group": "Cuenta bancaria", "order": 2, "groupOrder": 103, "hidden": false}, {"id": "ahorro", "name": "Ahorro", "group": "Ahorro", "order": 3, "groupOrder": 104, "hidden": false}], "categories": [{"id": "sal", "name": "Salario", "emoji": "💰", "type": "ingreso", "parentId": null, "order": 1, "hidden": false}, {"id": "extra", "name": "Dinero extra", "emoji": "💵", "type": "ingreso", "parentId": null, "order": 2, "hidden": false}, {"id": "casa", "name": "Mercado y casa", "emoji": "🏠", "type": "gasto", "parentId": null, "order": 3, "hidden": false}, {"id": "mercado", "name": "Mercado", "emoji": "🛒", "type": "gasto", "parentId": "casa", "order": 4, "hidden": false}, {"id": "carne", "name": "Carne", "emoji": "🥩", "type": "gasto", "parentId": "casa", "order": 5, "hidden": false}, {"id": "ocio", "name": "Ocio", "emoji": "🏔️", "type": "gasto", "parentId": null, "order": 6, "hidden": false}, {"id": "comida", "name": "Comida", "emoji": "🍿", "type": "gasto", "parentId": "ocio", "order": 7, "hidden": false}, {"id": "snacks", "name": "Snacks", "emoji": "🥨", "type": "gasto", "parentId": "ocio", "order": 8, "hidden": false}, {"id": "bebida", "name": "Bebida", "emoji": "🍻", "type": "gasto", "parentId": "ocio", "order": 9, "hidden": false}, {"id": "subs", "name": "Suscripciones", "emoji": "🎧", "type": "gasto", "parentId": "ocio", "order": 10, "hidden": false}, {"id": "uber", "name": "Uber, taxi etc", "emoji": "🚖", "type": "gasto", "parentId": "ocio", "order": 11, "hidden": false}, {"id": "trans", "name": "Transporte", "emoji": "🛵", "type": "gasto", "parentId": null, "order": 12, "hidden": false}, {"id": "gaso", "name": "Gasolina", "emoji": "⛽️", "type": "gasto", "parentId": "trans", "order": 13, "hidden": false}, {"id": "serv", "name": "Servicios", "emoji": "💡", "type": "gasto", "parentId": null, "order": 14, "hidden": false}, {"id": "luz", "name": "Luz", "emoji": "💡", "type": "gasto", "parentId": "serv", "order": 15, "hidden": false}, {"id": "agua", "name": "Agua", "emoji": "🚿", "type": "gasto", "parentId": "serv", "order": 16, "hidden": false}, {"id": "gas", "name": "Gas", "emoji": "⏲️", "type": "gasto", "parentId": "serv", "order": 17, "hidden": false}, {"id": "net", "name": "Internet", "emoji": "🛜", "type": "gasto", "parentId": "serv", "order": 18, "hidden": false}, {"id": "edu", "name": "Educación", "emoji": "📚", "type": "gasto", "parentId": null, "order": 19, "hidden": false}, {"id": "otros", "name": "Otros", "emoji": "🔄", "type": "gasto", "parentId": null, "order": 20, "hidden": false}]};
 /* ---------- paleta para lo que se dibuja desde JavaScript ----------
    Las gráficas SVG y las leyendas no pueden leer las variables de styles.css
@@ -1767,9 +1767,9 @@ function vCuentas(){
   const enCuentas = vis.reduce((x, a) => x + (b[a.id] || 0), 0), deOtros = vis.reduce((x, a) => x + ((aj[a.id] || {}).v || 0), 0), AT = ajenaTotales();
   let out = '<div class="hello"><h1>Cuentas</h1><p>' + tops.length + (tops.length === 1 ? ' cuenta activa' : ' cuentas activas') + '</p></div>';
   const aparts = vis.filter(a => a.apart), apartSum = aparts.reduce((x, a) => x + (b[a.id] || 0), 0), disp = dispTotal(b);
-  out += '<section class="card glow"><span class="label">Disponible tuyo</span><div class="big num">' + (disp < 0 ? '<small>−</small>' : '') + '<small>$</small>' + nf.format(Math.abs(disp)) + '</div>' +
-    '<div class="stats3' + (aparts.length ? '' : ' two-col') + '" style="margin:2px 0 12px"><div><span>En tus cuentas</span><b class="num">' + money(enCuentas) + '</b></div>' + (aparts.length ? '<div><span>Apartado</span><b class="num">' + money(apartSum) + '</b></div>' : '') + '<div><span>De otros</span><b class="num' + (AT.suya ? ' warn' : '') + '">' + money(AT.suya) + '</b></div></div>' + ajenaDesglose(AT, deOtros) +
-    '<p class="note" style="padding:0;margin:-4px 0 10px">' + (aparts.length ? 'Apartado ' + money(apartSum) + ' (' + esc(aparts.map(a => accShort(a.id)).join(', ')) + '), no cuenta en tu disponible. ' : '') + (AT.suya ? 'La plata de otras personas no es tuya: no cuenta en tu disponible. ' : '') + (S.accounts.some(a => isCard(a)) ? 'Ya descuenta lo que debes en tarjetas.' : '') + '</p>' +
+  out += '<section class="card glow"><span class="label">Total en tus cuentas</span><div class="big num">' + (enCuentas < 0 ? '<small>−</small>' : '') + '<small>$</small>' + nf.format(Math.abs(enCuentas)) + '</div>' +
+    '<div class="stats3' + (aparts.length ? '' : ' two-col') + '" style="margin:2px 0 12px"><div><span>Disponible tuyo</span><b class="num' + (disp < 0 ? ' neg' : ' pos') + '">' + money(disp) + '</b></div>' + (aparts.length ? '<div><span>Apartado</span><b class="num">' + money(apartSum) + '</b></div>' : '') + '<div><span>De otros</span><b class="num' + (AT.suya ? ' warn' : '') + '">' + money(AT.suya) + '</b></div></div>' + ajenaDesglose(AT, deOtros) +
+    '<p class="note" style="padding:0;margin:-4px 0 10px">' + (aparts.length ? 'Apartado ' + money(apartSum) + ' (' + esc(aparts.map(a => accShort(a.id)).join(', ')) + '), no cuenta en tu disponible. ' : '') + (AT.suya ? 'La plata de otras personas no es tuya: no cuenta en tu disponible. ' : '') + (Math.round(enCuentas - deOtros - apartSum - disp) > 0 ? 'Tu disponible ya descuenta ' + money(enCuentas - deOtros - apartSum - disp) + ' que debes (tarjetas o deudas por pagar). ' : '') + '' + '</p>' +
     '<div class="dist" aria-hidden="true">' + pos.map(a => '<i style="width:' + (b[a.id] / posTotal * 100).toFixed(1) + '%;background:' + col(a) + '"></i>').join('') + '</div>' +
     '<div class="distlg">' + pos.map(a => '<div><i style="background:' + col(a) + '"></i><span>' + esc(accShort(a.id)) + '</span><b class="num">' + Math.round(b[a.id] / posTotal * 100) + '% · ' + money(b[a.id]) + '</b></div>').join('') + '</div></section>';
   const fila = (a, sub) => { const t = cuentaTipo(a), x = tuyoYAjeno(b, aj, a, !sub), at = ajenoTxt(x), subs = sub ? [] : subsDe(a.id);
@@ -5875,11 +5875,11 @@ const pctDe = (v, base) => base > 0 ? Math.round(v / base * 100) : 0;
 /* arco de medio círculo con brillo: used es la parte gastada (0 a 1). En rojo lo que salió, en verde lo que queda */
 function mesArco(used){
   const f = Math.max(0, Math.min(1, used)), ex = 150 - 120 * Math.cos(Math.PI * f), ey = 140 - 120 * Math.sin(Math.PI * f), d = 'M30 140A120 120 0 0 1 270 140';
-  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" filterUnits="userSpaceOnUse" x="-30" y="-30" width="360" height="210"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-    '<path d="' + d + '" fill="none" style="stroke:var(--track)" stroke-width="12" stroke-linecap="round"/>' +
-    (f < 1 ? '<path d="' + d + '" fill="none" style="stroke:var(--in)" stroke-width="12" stroke-linecap="round" filter="url(#mes-glow)"/>' : '') +
-    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--out)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' : '') +
-    (f > 0 && f < 1 ? '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="6" fill="#fff" filter="url(#mes-glow)"/>' : '') + '</svg>';
+  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" filterUnits="userSpaceOnUse" x="-30" y="-30" width="360" height="210"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+    '<path d="' + d + '" fill="none" style="stroke:var(--track)" stroke-width="10" stroke-linecap="round"/>' +
+    (f < 1 ? '<path d="' + d + '" fill="none" style="stroke:var(--in)" stroke-width="10" stroke-linecap="round" filter="url(#mes-glow)"/>' : '') +
+    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--out)" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' : '') +
+    (f > 0 && f < 1 ? '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="5" fill="#fff"/>' : '') + '</svg>';
 }
 function mesCard(p){
   const d = mesDatos(p), today = iso(new Date()), isCurrent = today >= p.s && today <= p.e, N = daysIn(p), ti = todayIdx(p), budget = expenseBudgetTotal(p);
