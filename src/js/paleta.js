@@ -3,19 +3,19 @@
    en sus atributos, así que los colores viven aquí con los mismos valores.
    Si cambias un color, cámbialo en los dos lugares. */
 const PAL = {
-  lima:'#5CF09A',      // ingresos y lo que va bien (verde claro; la marca es el verde con brillo)
-  rosa:'#FF5A66',      // gastos y lo que se pasa del límite (rojo coral)
-  lavanda:'#5CC8FF',   // transferencias y ahorro (celeste)
+  lima:'#7DFF66',      // ingresos y lo que va bien (verde claro; la marca es el verde con brillo)
+  rosa:'#FF4D5E',      // gastos y lo que se pasa del límite (rojo coral)
+  lavanda:'#4FC3FF',   // transferencias y ahorro (celeste)
   ambar:'#FFB443',     // avisos y ajustes
-  agua:'#3FBF8F',
-  coral:'#C9A0FF',
-  gris:'#9AA0A8',
-  tinta:'#F2F4F5',     // texto
-  superficie:'#1F2427', // fondo de tarjeta (borde de puntos en las gráficas)
+  agua:'#27C21F',      // verde medio (series)
+  coral:'#C2FFB0',     // verde pálido (series)
+  gris:'#8C998F',
+  tinta:'#ECF3EE',     // texto
+  superficie:'#0C110E', // fondo de tarjeta (borde de puntos en las gráficas)
   velo: a => 'rgba(255,255,255,' + a + ')' // líneas de rejilla y referencias tenues
 };
-/* orden fijo para series, cuentas y categorías: lima primero, gris al final */
-const SERIE = [PAL.lima, PAL.lavanda, PAL.rosa, PAL.agua, PAL.ambar, PAL.coral, PAL.gris];
+/* orden fijo para series, cuentas y categorías: tonos de verde primero (como los paneles de referencia), gris al final */
+const SERIE = [PAL.lima, PAL.agua, PAL.coral, PAL.lavanda, PAL.ambar, PAL.rosa, PAL.gris];
 const serieColor = i => SERIE[i % SERIE.length];
 
 /* tipos de movimiento: nombre, títulos del registro y flecha (como Retirar, Recargar e Intercambiar) */
