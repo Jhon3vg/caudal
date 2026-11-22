@@ -16,11 +16,11 @@ const pctDe = (v, base) => base > 0 ? Math.round(v / base * 100) : 0;
 /* arco de medio círculo con brillo: used es la parte gastada (0 a 1). En rojo lo que salió, en verde lo que queda */
 function mesArco(used){
   const f = Math.max(0, Math.min(1, used)), ex = 150 - 120 * Math.cos(Math.PI * f), ey = 140 - 120 * Math.sin(Math.PI * f), d = 'M30 140A120 120 0 0 1 270 140';
-  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" filterUnits="userSpaceOnUse" x="-30" y="-30" width="360" height="210"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-    '<path d="' + d + '" fill="none" style="stroke:var(--track)" stroke-width="12" stroke-linecap="round"/>' +
-    (f < 1 ? '<path d="' + d + '" fill="none" style="stroke:var(--in)" stroke-width="12" stroke-linecap="round" filter="url(#mes-glow)"/>' : '') +
-    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--out)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' : '') +
-    (f > 0 && f < 1 ? '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="6" fill="#fff" filter="url(#mes-glow)"/>' : '') + '</svg>';
+  return '<svg viewBox="0 0 300 150" aria-hidden="true"><defs><filter id="mes-glow" filterUnits="userSpaceOnUse" x="-30" y="-30" width="360" height="210"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+    '<path d="' + d + '" fill="none" style="stroke:var(--track)" stroke-width="10" stroke-linecap="round"/>' +
+    (f < 1 ? '<path d="' + d + '" fill="none" style="stroke:var(--in)" stroke-width="10" stroke-linecap="round" filter="url(#mes-glow)"/>' : '') +
+    (f > 0 ? '<path d="' + d + '" pathLength="100" fill="none" style="stroke:var(--out)" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + (f * 100).toFixed(2) + ' 100" filter="url(#mes-glow)"/>' : '') +
+    (f > 0 && f < 1 ? '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="5" fill="#fff"/>' : '') + '</svg>';
 }
 function mesCard(p){
   const d = mesDatos(p), today = iso(new Date()), isCurrent = today >= p.s && today <= p.e, N = daysIn(p), ti = todayIdx(p), budget = expenseBudgetTotal(p);

@@ -152,7 +152,7 @@ body.lock>.fab{visibility:hidden}
 .tile-s{font-size:12px;color:var(--muted)}
 /* tarjeta destacada: gris carbón con un brillo verde que nace de una esquina, como las referencias.
    Dentro de ella se redefinen los colores de texto para que todo lo que contiene se lea en claro */
-.card.hero{background:var(--hero-card);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(75,255,59,.22);--brand:#4BFF3B;--on-brand:#041300;--ink:#FFFFFF;--muted:rgba(255,255,255,.72);--faint:rgba(255,255,255,.54);--line:rgba(255,255,255,.14);--pos:#7DFF66;--neg:#FF7A6E;--warn:#EFFF6A;--out:#FF7A6E;--in:#7DFF66;--track:rgba(255,255,255,.16)}
+.card.hero{background:var(--hero-card);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(75,255,59,.22);--brand:#4BFF3B;--on-brand:#041300;--ink:#FFFFFF;--muted:rgba(255,255,255,.72);--faint:rgba(255,255,255,.54);--line:rgba(255,255,255,.14);--pos:#5ED84C;--neg:#F07468;--warn:#D6E445;--out:#E5564B;--in:#5ED84C;--track:rgba(255,255,255,.16)}
 /* resto de tarjetas con brillo: un velo de color en la esquina y un borde fino */
 .card.glow{background:linear-gradient(180deg,#0E1511 0%,#090D0B 100%);box-shadow:inset 0 0 0 1px rgba(75,255,59,.2)}
 .card.hero .pill{background:rgba(255,255,255,.16);color:var(--ink)}
@@ -163,7 +163,7 @@ body.lock>.fab{visibility:hidden}
 .mes-g{position:relative;width:min(100%,300px);margin:0 auto}
 .mes-g svg{display:block;width:100%;height:auto;overflow:visible}
 .mes-g .gv{position:absolute;left:0;right:0;bottom:2px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.mes-g .pct{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--gc);text-shadow:0 0 22px var(--gc)}
+.mes-g .pct{font-size:44px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--gc);text-shadow:none}
 .mes-g .cap{font-size:12px;color:var(--muted)}
 .mes-g .est{margin-top:4px;padding:3px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--gc);background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
 .mes-cols{margin-top:2px}
